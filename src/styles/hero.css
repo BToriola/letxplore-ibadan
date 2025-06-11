@@ -1,0 +1,26 @@
+/* Custom styles for the LetXplore Ibadan heading */
+.hero-title {
+  font-size: 96px;
+
+  line-height: 120%;
+  letter-spacing: 0%;
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 72px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 56px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: 48px;
+  }
+}

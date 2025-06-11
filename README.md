@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LetsExplore Ibadan - Directory Platform
+
+A web platform for discovering events, restaurants, hotels, and attractions in Ibadan, Nigeria.
+
+## Features
+
+- **Modern, Blue-Themed UI**: Clean and responsive design with a blue color scheme
+- **Location-Based Services**: Explore content specific to Ibadan
+- **Event Discovery**: Browse and filter events by category, date, price, and more
+- **Category Navigation**: Quick access to different types of experiences (Events, Eat & Drink, Stay, etc.)
+- **Filter System**: Sort and filter content based on various criteria
 
 ## Getting Started
 
@@ -16,9 +26,22 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technical Implementation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js Framework**: Built with the React-based Next.js framework for optimal performance
+- **Tailwind CSS**: Styled using Tailwind CSS for modern, responsive UI components
+- **TypeScript**: Enhanced code quality and developer experience with static typing
+- **Component Architecture**: Modular, reusable components for consistent UI
+- **Responsive Design**: Optimized for all device sizes from mobile to desktop
+
+## Components
+
+- **Header**: Blue navigation bar with location selector, search, and user menu
+- **HeroSection**: Main banner with title, subtitle, category navigation, and filters
+- **CategoryNavigation**: Tab-based navigation for different content categories
+- **FilterBar**: Controls for filtering and sorting content
+- **EventCard**: Card component displaying event information
+- **EventsSection**: Grid layout of event cards with load more functionality
 
 ## Learn More
 
