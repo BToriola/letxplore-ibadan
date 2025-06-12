@@ -1,0 +1,345 @@
+// filepath: /Users/rele/Documents/Projects/directory/src/data/events.ts
+import { EventCardProps } from '../components/ui/EventCard';
+
+// Sample event data
+export const events: EventCardProps[] = [
+  {
+    id: '1',
+    title: 'Cocoa Beach Music Festival',
+    date: 'Jun 15, 2025',
+    time: '10:00 AM',
+    location: 'Cocoa Beach, Ibadan',
+    price: '₦2,500',
+    image: '/images/events/event1.jpg',
+    category: 'Music',
+    rating: 4.8,
+    reviewCount: 230
+  },
+  {
+    id: '2',
+    title: 'Ibadan Food Festival',
+    date: 'Jun 20, 2025',
+    time: '12:00 PM',
+    location: 'Agodi Gardens, Ibadan',
+    price: '₦1,500',
+    image: '/images/events/event2.jpg',
+    category: 'Food',
+    rating: 4.6,
+    reviewCount: 185
+  },
+  {
+    id: '3',
+    title: 'Cultural Heritage Exhibition',
+    date: 'Jun 25, 2025',
+    time: '9:00 AM',
+    location: 'Mapo Hall, Ibadan',
+    price: '₦1,000',
+    image: '/images/events/event3.jpg',
+    category: 'Culture',
+    rating: 4.7,
+    reviewCount: 156
+  },
+  {
+    id: '4',
+    title: 'Tech Summit Ibadan 2025',
+    date: 'Jul 5, 2025',
+    time: '10:00 AM',
+    location: 'UI Conference Center',
+    price: '₦5,000',
+    image: '/images/events/event4.jpg',
+    category: 'Technology',
+    rating: 4.9,
+    reviewCount: 210
+  },
+  {
+    id: '5',
+    title: 'Ibadan Film Festival',
+    date: 'Jul 10, 2025',
+    time: '6:00 PM',
+    location: 'Heritage Mall, Ibadan',
+    price: '₦2,000',
+    image: '/images/events/event5.jpg',
+    category: 'Entertainment',
+    rating: 4.5,
+    reviewCount: 178
+  },
+  {
+    id: '6',
+    title: 'Ibadan Marathon 2025',
+    date: 'Jul 15, 2025',
+    time: '7:00 AM',
+    location: 'Mokola Roundabout',
+    price: '₦3,500',
+    image: '/images/events/event6.jpg',
+    category: 'Sports',
+    rating: 4.4,
+    reviewCount: 165
+  },
+  {
+    id: '7',
+    title: 'Art Exhibition & Auction',
+    date: 'Jul 20, 2025',
+    time: '11:00 AM',
+    location: 'Ventura Mall, Ibadan',
+    price: '₦1,200',
+    image: '/images/events/event7.jpg',
+    category: 'Arts',
+    rating: 4.7,
+    reviewCount: 142
+  },
+  {
+    id: '8',
+    title: 'Ibadan Comedy Night',
+    date: 'Jul 25, 2025',
+    time: '8:00 PM',
+    location: 'Palms Mall, Ibadan',
+    price: '₦3,000',
+    image: '/images/events/event8.jpg',
+    category: 'Entertainment',
+    rating: 4.8,
+    reviewCount: 195
+  },
+  {
+    id: '9',
+    title: 'Eco-Tourism Workshop',
+    date: 'Aug 5, 2025',
+    time: '10:00 AM',
+    location: 'Bowers Tower',
+    price: 'Free',
+    image: '/images/events/event9.jpg',
+    category: 'Education',
+    rating: 4.3,
+    reviewCount: 112
+  },
+  {
+    id: '10',
+    title: 'Local Handcraft Market',
+    date: 'Aug 10, 2025',
+    time: '9:00 AM',
+    location: 'Ring Road, Ibadan',
+    price: 'Free',
+    image: '/images/events/event10.jpg',
+    category: 'Shopping',
+    rating: 4.6,
+    reviewCount: 138
+  },
+  {
+    id: '11',
+    title: 'Fashion Week Ibadan',
+    date: 'Aug 15, 2025',
+    time: '4:00 PM',
+    location: 'Jogor Centre, Ibadan',
+    price: '₦4,000',
+    image: '/images/events/event11.jpg',
+    category: 'Fashion',
+    rating: 4.9,
+    reviewCount: 220
+  },
+  {
+    id: '12',
+    title: 'Childrens Day Festival',
+    date: 'Aug 20, 2025',
+    time: '10:00 AM',
+    location: 'Trans Amusement Park',
+    price: '₦1,000',
+    image: '/images/events/event12.jpg',
+    category: 'Family',
+    rating: 4.7,
+    reviewCount: 175
+  },
+  {
+    id: '13',
+    title: 'Yoga & Wellness Retreat',
+    date: 'Aug 25, 2025',
+    time: '8:00 AM',
+    location: 'Agodi Gardens, Ibadan',
+    price: '₦2,500',
+    image: '/images/events/event13.jpg',
+    category: 'Health',
+    rating: 4.8,
+    reviewCount: 165
+  },
+  {
+    id: '14',
+    title: 'Local Business Expo',
+    date: 'Sep 5, 2025',
+    time: '9:00 AM',
+    location: 'Ibadan Chamber of Commerce',
+    price: '₦500',
+    image: '/images/events/event14.jpg',
+    category: 'Business',
+    rating: 4.4,
+    reviewCount: 128
+  },
+  {
+    id: '15',
+    title: 'Wine & Jazz Evening',
+    date: 'Sep 10, 2025',
+    time: '7:00 PM',
+    location: 'Latitude Cafe, Ibadan',
+    price: '₦5,000',
+    image: '/images/events/event15.jpg',
+    category: 'Music',
+    rating: 4.9,
+    reviewCount: 210
+  },
+  {
+    id: '16',
+    title: 'Ibadan Book Fair',
+    date: 'Sep 15, 2025',
+    time: '10:00 AM',
+    location: 'UI Bookshop Complex',
+    price: 'Free',
+    image: '/images/events/event16.jpg',
+    category: 'Education',
+    rating: 4.6,
+    reviewCount: 145
+  },
+  {
+    id: '17',
+    title: 'Farmers Market & Organic Food Festival',
+    date: 'Sep 20, 2025',
+    time: '8:00 AM',
+    location: 'Bodija Market',
+    price: 'Free',
+    image: '/images/events/event17.jpg',
+    category: 'Food',
+    rating: 4.7,
+    reviewCount: 188
+  },
+  {
+    id: '18',
+    title: 'Cultural Dance Competition',
+    date: 'Sep 25, 2025',
+    time: '5:00 PM',
+    location: 'Cultural Centre, Mokola',
+    price: '₦1,500',
+    image: '/images/events/event18.jpg',
+    category: 'Culture',
+    rating: 4.8,
+    reviewCount: 175
+  }
+];
+
+// Get unique categories from events
+export const getUniqueCategories = (): string[] => {
+  const categories = events.map(event => event.category);
+  return ['All', ...Array.from(new Set(categories))];
+};
+
+// Get event count for each category
+export const getCategoryCount = (category: string): number => {
+  if (category === 'All') return events.length;
+  return events.filter(event => event.category === category).length;
+};
+
+// Get date filter options
+export const getDateOptions = (): string[] => {
+  return [
+    'All dates',
+    'Today',
+    'This weekend',
+    'This week',
+    'This month',
+    'Next month'
+  ];
+};
+
+// Filter events by category and date
+export const filterEvents = (category: string, dateFilter: string): EventCardProps[] => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  
+  // Start with category filter
+  let filtered = category === 'All' 
+    ? [...events]
+    : events.filter(event => event.category === category);
+  
+  // Then apply date filter
+  if (dateFilter !== 'All dates') {
+    filtered = filtered.filter(event => {
+      const eventDate = new Date(event.date);
+      
+      switch(dateFilter) {
+        case 'Today':
+          return eventDate.toDateString() === now.toDateString();
+        
+        case 'This weekend': {
+          const dayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
+          const daysUntilWeekend = dayOfWeek === 0 || dayOfWeek === 6 ? 0 : 6 - dayOfWeek;
+          const thisWeekendStart = new Date(now);
+          thisWeekendStart.setDate(now.getDate() + daysUntilWeekend);
+          thisWeekendStart.setHours(0, 0, 0, 0);
+          
+          const thisWeekendEnd = new Date(thisWeekendStart);
+          thisWeekendEnd.setDate(thisWeekendStart.getDate() + (dayOfWeek === 0 ? 0 : 1));
+          thisWeekendEnd.setHours(23, 59, 59, 999);
+          
+          return eventDate >= thisWeekendStart && eventDate <= thisWeekendEnd;
+        }
+        
+        case 'This week': {
+          const startOfWeek = new Date(now);
+          const dayOfWeek = startOfWeek.getDay(); // 0 = Sunday, 6 = Saturday
+          const diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+          startOfWeek.setDate(diff);
+          startOfWeek.setHours(0, 0, 0, 0);
+          
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
+          endOfWeek.setHours(23, 59, 59, 999);
+          
+          return eventDate >= startOfWeek && eventDate <= endOfWeek;
+        }
+        
+        case 'This month': {
+          const startOfMonth = new Date(currentYear, currentMonth, 1);
+          const endOfMonth = new Date(currentYear, currentMonth + 1, 0);
+          return eventDate >= startOfMonth && eventDate <= endOfMonth;
+        }
+        
+        case 'Next month': {
+          const startOfNextMonth = new Date(currentYear, currentMonth + 1, 1);
+          const endOfNextMonth = new Date(currentYear, currentMonth + 2, 0);
+          return eventDate >= startOfNextMonth && eventDate <= endOfNextMonth;
+        }
+        
+        default:
+          return true;
+      }
+    });
+  }
+  
+  return filtered;
+};
+
+// Sort events based on selected order
+export const sortEvents = (events: EventCardProps[], sortOrder: string): EventCardProps[] => {
+  const sortedEvents = [...events];
+  
+  switch(sortOrder) {
+    case 'Most recent':
+      return sortedEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    case 'Price: Low to high':
+      return sortedEvents.sort((a, b) => {
+        const priceA = a.price === 'Free' ? 0 : parseFloat(String(a.price).replace(/[^\d.]/g, ''));
+        const priceB = b.price === 'Free' ? 0 : parseFloat(String(b.price).replace(/[^\d.]/g, ''));
+        return priceA - priceB;
+      });
+    
+    case 'Price: High to low':
+      return sortedEvents.sort((a, b) => {
+        const priceA = a.price === 'Free' ? 0 : parseFloat(String(a.price).replace(/[^\d.]/g, ''));
+        const priceB = b.price === 'Free' ? 0 : parseFloat(String(b.price).replace(/[^\d.]/g, ''));
+        return priceB - priceA;
+      });
+    
+    case 'Alphabetical':
+      return sortedEvents.sort((a, b) => a.title.localeCompare(b.title));
+    
+    default:
+      return sortedEvents;
+  }
+};

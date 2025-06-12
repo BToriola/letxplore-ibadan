@@ -15,6 +15,8 @@ export interface EventCardProps {
   price: string | number;
   image: string;
   category: string;
+  rating?: number;
+  reviewCount?: number;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
