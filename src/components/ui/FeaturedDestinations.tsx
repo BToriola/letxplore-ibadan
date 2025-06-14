@@ -1,11 +1,10 @@
 "use client";
 
 import React from 'react';
-import { Box, Heading, Text, Container, SimpleGrid, Button, Flex, Icon } from '@chakra-ui/react';
+import { Box, Heading, Text, Container, SimpleGrid, Button, Flex } from '@chakra-ui/react';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import DestinationCard from './DestinationCard';
 
-// Sample data - In a real app, this would come from an API
 const featuredDestinations = [
   {
     id: '1',
@@ -48,7 +47,6 @@ const FeaturedDestinations = () => {
   return (
     <Box as="section" py={16}>
       <Container maxW="container.xl">
-        {/* Section Header */}
         <Flex 
           justify="space-between" 
           align={{ base: 'flex-start', sm: 'center' }}

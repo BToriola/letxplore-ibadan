@@ -8,10 +8,16 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 
-// Temporary type definitions to allow compilation
-const InputGroup = (props: any) => <div style={{ position: 'relative', display: 'flex' }} {...props} />;
-const InputAddon = ({ placement, children, ...rest }: any) => {
-  const style = {
+type InputGroupProps = React.HTMLAttributes<HTMLDivElement>;
+
+interface InputAddonProps extends React.HTMLAttributes<HTMLDivElement> {
+  placement: 'start' | 'end';
+  children: React.ReactNode;
+}
+
+const InputGroup = (props: InputGroupProps) => <div style={{ position: 'relative', display: 'flex' }} {...props} />;
+const InputAddon = ({ placement, children, ...rest }: InputAddonProps) => {
+  const style: React.CSSProperties = {
     position: 'absolute',
     left: placement === 'start' ? '10px' : undefined,
     right: placement === 'end' ? '10px' : undefined,
@@ -23,8 +29,14 @@ const InputAddon = ({ placement, children, ...rest }: any) => {
   };
   return <div style={style} {...rest}>{children}</div>;
 };
-const Input = ({ size, borderColor, placeholder, ...rest }: any) => {
-  const style = {
+
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  size?: 'sm' | 'md' | 'lg';
+  borderColor?: string;
+}
+
+const Input = ({ size, borderColor, placeholder, ...rest }: InputProps) => {
+  const style: React.CSSProperties = {
     width: '100%',
     padding: size === 'lg' ? '0.75rem 1rem' : '0.5rem 0.75rem',
     paddingLeft: '2.5rem', // Space for the icon
@@ -36,8 +48,16 @@ const Input = ({ size, borderColor, placeholder, ...rest }: any) => {
   };
   return <input placeholder={placeholder} style={style} {...rest} />;
 };
-const Select = ({ size, borderColor, placeholder, children, ...rest }: any) => {
-  const style = {
+
+interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
+  size?: 'sm' | 'md' | 'lg';
+  borderColor?: string;
+  placeholder?: string;
+  children: React.ReactNode;
+}
+
+const Select = ({ size, borderColor, placeholder, children, ...rest }: SelectProps) => {
+  const style: React.CSSProperties = {
     width: '100%',
     padding: size === 'lg' ? '0.75rem 1rem' : '0.5rem 0.75rem',
     borderWidth: '1px',
@@ -59,8 +79,18 @@ const Select = ({ size, borderColor, placeholder, children, ...rest }: any) => {
     </select>
   );
 };
-const FormControl = ({ flex, ...rest }: any) => {
-  const style = {
+
+interface FlexValue {
+  md?: number | string;
+  [key: string]: number | string | undefined;
+}
+
+interface FormControlProps extends React.HTMLAttributes<HTMLDivElement> {
+  flex?: number | FlexValue;
+}
+
+const FormControl = ({ flex, ...rest }: FormControlProps) => {
+  const style: React.CSSProperties = {
     marginBottom: '1rem',
     width: '100%',
     flex: typeof flex === 'object' ? flex.md : flex
@@ -142,7 +172,6 @@ const SearchBar = () => {
           </Select>
         </FormControl>
         
-        {/* Search Button */}
         <Button 
           variant="solid"
           colorScheme="brand"

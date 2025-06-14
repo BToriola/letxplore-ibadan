@@ -3,24 +3,22 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiMapPin, FiDollarSign, FiStar } from 'react-icons/fi';
+import { FiMapPin, FiStar } from 'react-icons/fi';
 import { EventCardProps } from './EventCard';
 
-const CategoryEventCard: React.FC<EventCardProps> = ({
+type CategoryEventCardProps = EventCardProps;
+
+const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
   id,
   title,
-  date,
-  time,
   location,
   price,
-  image,
   category
 }) => {
   return (
     <Link href={`/events/${id}`} className="group h-full">
-      <div className="bg-[#F4F4F4] rounded-lg overflow-hidden transition-all duration-300 w-full transform hover:-translate-y-1 equal-height-cards">
-        {/* Image at the top */}
-        <div className="relative h-[180px] w-full bg-gray-200 overflow-hidden flex-shrink-0">
+      <div className="bg-[#F4F4F4] p-2 rounded-lg overflow-hidden transition-all duration-300 w-full transform hover:-translate-y-1 equal-height-cards">
+        <div className="relative rounded-lg h-[180px] w-full bg-gray-200 overflow-hidden flex-shrink-0">
           <Image
             src={'/default.svg'}
             alt={title}
@@ -32,7 +30,6 @@ const CategoryEventCard: React.FC<EventCardProps> = ({
           />
         </div>
         
-        {/* Content below the image */}
         <div className="p-4 flex-grow flex flex-col">
           <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-2 truncate">
             {title}

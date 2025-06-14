@@ -7,6 +7,16 @@
   text-align: center;
 }
 
+/* Hide scrollbar for clean UI but keep scrolling functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
 @media (max-width: 1024px) {
   .hero-title {
     font-size: 72px;
@@ -15,12 +25,12 @@
 
 @media (max-width: 768px) {
   .hero-title {
-    font-size: 56px;
+    font-size: 46px;
   }
 }
 
 @media (max-width: 640px) {
   .hero-title {
-    font-size: 48px;
+    font-size: 40px;
   }
 }

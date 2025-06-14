@@ -1,11 +1,18 @@
 "use client";
 
 import React from 'react';
-import { Box, Heading, Text, Container, Flex, Icon } from '@chakra-ui/react';
+import Image from 'next/image';
+import { Box, Heading, Text, Container, Flex } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
-// Temporary component definitions to allow compilation with Chakra UI v3
-const SimpleGrid = ({ columns, spacing, ...rest }: any) => {
+interface SimpleGridProps {
+  columns: number | { base?: number; md?: number; lg?: number; [key: string]: number | undefined };
+  spacing: number | string;
+  children: React.ReactNode;
+  [key: string]: unknown; 
+}
+
+const SimpleGrid = ({ columns, spacing, ...rest }: SimpleGridProps) => {
   const style = {
     display: 'grid',
     gridTemplateColumns: typeof columns === 'object' 
@@ -15,19 +22,44 @@ const SimpleGrid = ({ columns, spacing, ...rest }: any) => {
   };
   return <div style={style} {...rest} />;
 };
-const Avatar = ({ src, size, mr, ...rest }: any) => {
-  const style = {
-    width: size === 'md' ? '48px' : '32px',
-    height: size === 'md' ? '48px' : '32px',
-    borderRadius: '50%',
-    marginRight: mr ? `${mr * 0.25}rem` : '0',
-    objectFit: 'cover' as const
-  };
-  return <img src={src} style={style} {...rest} />;
-};
-const useColorModeValue = (lightValue: any, darkValue: any) => lightValue; // Default to light theme value
 
-// Sample testimonials data
+interface AvatarProps {
+  src: string;
+  alt: string;
+  size?: 'sm' | 'md' | 'lg';
+  mr?: number;
+  [key: string]: unknown; 
+}
+
+const Avatar = ({ src, size = 'sm', mr, alt, ...rest }: AvatarProps) => {
+  const width = size === 'md' ? 48 : 32;
+  const height = size === 'md' ? 48 : 32;
+  
+  return (
+    <div style={{ 
+      position: 'relative',
+      width: `${width}px`, 
+      height: `${height}px`,
+      borderRadius: '50%',
+      marginRight: mr ? `${mr * 0.25}rem` : '0',
+      overflow: 'hidden'
+    }}>
+      <Image 
+        src={src} 
+        alt={alt}
+        fill
+        sizes={`${width}px`}
+        style={{ objectFit: 'cover' }}
+        {...rest} 
+      />
+    </div>
+  );
+};
+
+// Simplified useColorModeValue hook for demo purposes
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const useColorModeValue = <T,>(lightValue: T, _darkValue: T): T => lightValue; 
+
 const testimonials = [
   {
     id: '1',
@@ -63,7 +95,6 @@ const TestimonialsSection = () => {
       bg={useColorModeValue('gray.50', 'gray.900')}
     >
       <Container maxW="container.xl">
-        {/* Section Header */}
         <Box textAlign="center" mb={12}>
           <Text color="brand.500" fontWeight="medium" mb={2}>
             Traveler Stories
@@ -76,7 +107,6 @@ const TestimonialsSection = () => {
           </Text>
         </Box>
         
-        {/* Testimonials Grid */}
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
           {testimonials.map((testimonial) => (
             <TestimonialCard key={testimonial.id} {...testimonial} />
@@ -87,7 +117,6 @@ const TestimonialsSection = () => {
   );
 };
 
-// Define a proper interface for the testimonial card props
 interface TestimonialCardProps {
   name: string;
   location: string;
@@ -107,20 +136,17 @@ const TestimonialCard = ({ name, location, avatar, rating, text }: TestimonialCa
       boxShadow="md"
       position="relative"
     >
-      {/* Quote marks */}
       <Box 
         position="absolute" 
         top={-3} 
         left={6} 
         fontSize="6xl" 
-        color="brand.200" 
-        opacity={0.5}
-        fontFamily="serif"
-      >
-        "
-      </Box>
+        color="brand.200"      opacity={0.5}
+      fontFamily="serif"
+    >
+      &quot;
+    </Box>
       
-      {/* Rating */}
       <Flex mb={4}>
         {Array(5)
           .fill('')
@@ -132,14 +158,17 @@ const TestimonialCard = ({ name, location, avatar, rating, text }: TestimonialCa
           ))}
       </Flex>
       
-      {/* Testimonial Text */}
       <Text fontSize="md" mb={6}>
         {text}
       </Text>
       
-      {/* Author */}
       <Flex align="center">
-        <Avatar src={avatar} size="md" mr={4} />
+        <Avatar 
+          src={avatar} 
+          alt={`${name}'s profile picture`}
+          size="md" 
+          mr={4} 
+        />
         <Box>
           <Text fontWeight="bold">{name}</Text>
           <Text fontSize="sm" color="gray.500">{location}</Text>

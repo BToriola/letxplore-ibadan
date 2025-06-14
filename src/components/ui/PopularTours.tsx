@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, Heading, Text, SimpleGrid, Flex, Button, Badge, Icon } from '@chakra-ui/react';
-import { ArrowForwardIcon, StarIcon, CalendarIcon } from '@chakra-ui/icons';
+import { Box, Text, SimpleGrid, Flex, Button, Badge, Icon } from '@chakra-ui/react';
+import { StarIcon, CalendarIcon } from '@chakra-ui/icons';
 
-// Type definition for Tour data
 interface Tour {
   id: string;
   title: string;
@@ -16,7 +15,6 @@ interface Tour {
   featured: boolean;
 }
 
-// TourCard component with types defined for props
 const TourCard: React.FC<Tour> = ({
   title,
   location,
@@ -44,7 +42,6 @@ const TourCard: React.FC<Tour> = ({
       }}
       position="relative"
     >
-      {/* Image Container */}
       <Box position="relative" h="240px" overflow="hidden">
         <Box 
           position="relative"
@@ -57,7 +54,6 @@ const TourCard: React.FC<Tour> = ({
           _groupHover={{ transform: 'scale(1.05)' }}
         />
         
-        {/* Featured Badge */}
         {featured && (
           <Badge 
             position="absolute" 
@@ -75,7 +71,6 @@ const TourCard: React.FC<Tour> = ({
           </Badge>
         )}
         
-        {/* Discount Badge */}
         {hasDiscount && (
           <Badge 
             position="absolute" 
@@ -94,7 +89,6 @@ const TourCard: React.FC<Tour> = ({
         )}
       </Box>
       
-      {/* Content */}
       <Box p={5}>
         <Flex justify="space-between" align="center" mb={2}>
           <Text fontWeight="medium" color="gray.500" fontSize="sm">

@@ -110,7 +110,7 @@ const ExploreCategories = () => {
                             Find Your Perfect Trip Type
                         </Heading>
                         <Text color="gray.600" maxW="2xl">
-                            Whether you're seeking relaxation or adventure, we have the perfect journey waiting for you.
+                            Whether you&apos;re seeking relaxation or adventure, we have the perfect journey waiting for you.
                         </Text>
                     </Box>
 

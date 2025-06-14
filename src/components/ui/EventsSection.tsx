@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import EventCard, { EventCardProps } from './EventCard';
-import CategoryNavigation from './CategoryNavigation';
 import CategoryEventsRow from './CategoryEventsRow';
 import {
-    events,
     getUniqueCategories,
     getCategoryCount,
     getDateOptions,
@@ -52,16 +50,16 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         };
     }, []);
 
-    const getFilteredEvents = () => {
+    const getFilteredEvents = useCallback(() => {
         const filtered = filterEvents(activeCategory, dateFilter);
         return sortEvents(filtered, sortOrder);
-    };
+    }, [activeCategory, dateFilter, sortOrder]);
 
     useEffect(() => {
         const filteredEvents = getFilteredEvents();
         setDisplayedEvents(filteredEvents.slice(0, eventsPerPage));
         setCurrentPage(1);
-    }, [activeCategory, dateFilter, sortOrder]);
+    }, [getFilteredEvents, eventsPerPage]);
 
     const handleCategoryChange = (category: string, filteredEvents?: EventCardProps[]) => {
         setActiveCategory(category);
@@ -89,7 +87,6 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         }, 800);
     };
 
-    // Get events for each category when in "All" view
     const getCategoryEvents = (categoryName: string) => {
         // Get up to 4 events for each category for the carousel
         const filtered = filterEvents(categoryName, dateFilter);

@@ -1,11 +1,10 @@
 "use client";
 
 import React from 'react';
-import { Box, Image, Heading, Text, Flex, Badge, Icon } from '@chakra-ui/react';
+import { Box, Image, Heading, Text, Flex, Badge } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
 interface DestinationCardProps {
-  id: string;
   title: string;
   location: string;
   image: string;
@@ -16,7 +15,6 @@ interface DestinationCardProps {
 }
 
 const DestinationCard = ({
-  id,
   title,
   location,
   image,
@@ -25,7 +23,7 @@ const DestinationCard = ({
   discount,
   isPopular = false,
 }: DestinationCardProps) => {
-  const cardBg = 'white'; // Use light theme value directly for now
+  const cardBg = 'white';
   const hasDiscount = discount && discount > 0;
   
   return (
@@ -41,7 +39,6 @@ const DestinationCard = ({
       }}
       position="relative"
     >
-      {/* Image */}
       <Box h="200px" position="relative">
         <Image 
           src={image} 
@@ -51,7 +48,6 @@ const DestinationCard = ({
           h="100%"
         />
         
-        {/* Popular Badge */}
         {isPopular && (
           <Badge 
             position="absolute" 
@@ -69,7 +65,6 @@ const DestinationCard = ({
           </Badge>
         )}
         
-        {/* Discount Badge */}
         {hasDiscount && (
           <Badge 
             position="absolute" 
@@ -88,7 +83,6 @@ const DestinationCard = ({
         )}
       </Box>
       
-      {/* Content */}
       <Box p={4}>
         <Heading as="h3" size="md" mb={1} truncate>
           {title}
@@ -117,7 +111,6 @@ const DestinationCard = ({
           </Text>
         </Flex>
         
-        {/* Price */}
         <Flex align="center" justify="space-between">
           <Box>
             {hasDiscount && (

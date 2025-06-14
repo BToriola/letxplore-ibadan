@@ -1,6 +1,6 @@
 // Create a client component wrapper for state sharing
 "use client";
-import React from "react";
+import React, { useState } from "react";
 
 // Import layout components
 import Header from "@/components/layout/Header";
@@ -8,10 +8,6 @@ import Header from "@/components/layout/Header";
 // Import UI components
 import HeroSection from "@/components/ui/HeroSection";
 import EventsSection from "@/components/ui/EventsSection";
-
-
-
-import { useState } from "react";
 
 export default function Home() {
   // Shared state for category between hero and events sections

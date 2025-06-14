@@ -1,8 +1,6 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
-
 interface PlaceholderImageProps {
   text?: string;
   width?: number;
@@ -14,8 +12,6 @@ interface PlaceholderImageProps {
 
 const PlaceholderImage: React.FC<PlaceholderImageProps> = ({
   text = 'Placeholder',
-  width = 300,
-  height = 200,
   bgColor = '#2563eb', // Blue
   textColor = '#ffffff', // White
   className = '',

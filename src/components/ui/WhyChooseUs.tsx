@@ -1,11 +1,18 @@
-"use client";
+"use client"
+
+interface SimpleGridProps {
+  columns: number | { base?: number; md?: number; lg?: number; [key: string]: number | undefined };
+  spacing: number | string;
+  children: React.ReactNode;
+  [key: string]: unknown;
+};
 
 import React from 'react';
-import { Box, Heading, Text, Container, Flex, Icon, Image } from '@chakra-ui/react';
+import { Box, Heading, Text, Container, Flex } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
+import Image from 'next/image';
 
-// Temporary component definition to allow compilation with Chakra UI v3
-const SimpleGrid = ({ columns, spacing, ...rest }: any) => {
+const SimpleGrid = ({ columns, spacing, ...rest }: SimpleGridProps) => {
   const style = {
     display: 'grid',
     gridTemplateColumns: typeof columns === 'object' 
@@ -89,13 +96,16 @@ const WhyChooseUs = () => {
             overflow="hidden"
             borderRadius="xl"
           >
-            <Image
-              src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800"
-              alt="Travelers enjoying their journey"
-              objectFit="cover"
-              w="full"
-              h="full"
-            />
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+              <Image
+                src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800"
+                alt="Travelers enjoying their journey"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                style={{ objectFit: 'cover' }}
+                priority
+              />
+            </div>
           </Box>
         </SimpleGrid>
       </Container>
