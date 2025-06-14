@@ -93,7 +93,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     const getCategoryEvents = (categoryName: string) => {
         // Get up to 4 events for each category for the carousel
         const filtered = filterEvents(categoryName, dateFilter);
-        return sortEvents(filtered, sortOrder).slice(0, 4);
+        return sortEvents(filtered, sortOrder).slice(0, 8);
     };
 
     // Get list of main categories (excluding "All")
@@ -108,11 +108,10 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                 {activeCategory !== 'All' && (
                     <div className="text-left mb-10">
                         <div className="mt-2 flex items-center justify-between px-4 sm:px-0">
-                            <div className="flex items-center space-x-2">
-                                <h1 className="text-2xl font-semibold text-[#1C1C1C]">{activeCategory}</h1>
+                            <div className="flex items-center space-x-2 overflow-hidden">
+                                <h1 className="text-2xl font-semibold text-[#1C1C1C] truncate">{activeCategory}</h1>
                             </div>
-
-                            <div className="flex items-center space-x-4">       
+                            <div className="flex items-center space-x-4 flex-shrink-0">       
                                 <div ref={filterRef} className="relative inline-block">
                                     <button 
                                         onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -221,14 +220,8 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                 )}
 
                 {/* Show category rows when "All" is selected */}
-                {activeCategory === 'All' ? (
-                    <>
-                        <div className="mb-8">
-                            <h1 className="text-3xl font-semibold text-[#1C1C1C]">Explore Ibadan</h1>
-                            <p className="text-gray-600 mt-2">Discover all that Ibadan has to offer</p>
-                        </div>
-                        
-                        <div className="space-y-8">
+                {activeCategory === 'All' ? (         
+                        <div className="space-y-8 h-full">
                             {getMainCategories().map((category) => (
                                 <CategoryEventsRow 
                                     key={category}
@@ -237,12 +230,11 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                 />
                             ))}
                         </div>
-                    </>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {displayedEvents.length > 0 ? (
                             displayedEvents.map((event, index) => (
-                                <div key={event.id} className="flex justify-center animate-fadeIn" style={{ animationDelay: `${index * 0.05}s` }}>
+                                <div key={event.id} className="flex justify-center animate-fadeIn h-full" style={{ animationDelay: `${index * 0.05}s` }}>
                                     <EventCard {...event} />
                                 </div>
                             ))

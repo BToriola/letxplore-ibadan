@@ -1,146 +1,114 @@
 "use client";
 
 import React from 'react';
-import { Box, Container, Text, Heading, Input, Button, Flex, Link } from '@chakra-ui/react';
-import NextLink from 'next/link';
-
-// Temporary component definitions to allow compilation with Chakra UI v3
-const SimpleGrid = ({ columns, spacing, ...rest }: any) => {
-  const style = {
-    display: 'grid',
-    gridTemplateColumns: typeof columns === 'object' 
-      ? `repeat(${columns.base || 1}, 1fr)` 
-      : `repeat(${columns || 1}, 1fr)`,
-    gap: typeof spacing === 'number' ? `${spacing * 0.25}rem` : spacing,
-  };
-  return <div style={style} {...rest} />;
-};
-const Stack = (props: any) => <div style={{ display: 'flex', flexDirection: 'column' }} {...props} />;
-const Divider = ({ my, borderColor, ...rest }: any) => {
-  // Transform Chakra UI props to inline styles
-  const style = {
-    margin: typeof my === 'number' ? `${my * 0.25}rem 0` : my,
-    borderColor: borderColor || 'inherit',
-    borderWidth: '0 0 1px 0',
-    width: '100%'
-  };
-  
-  return <hr style={style} {...rest} />;
-};
+import Link from 'next/link';
+import Image from 'next/image';
+import { FaLinkedin, FaInstagram, FaXTwitter, FaYoutube } from 'react-icons/fa6';
 
 const Footer = () => {
   return (
-    <Box as="footer" bg="gray.50" color="gray.700" py={10}>
-      <Container maxW="container.xl">
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8} mb={8}>
-          {/* Brand Column */}
-          <Stack spacing={6}>
-            <Box>
-              <Heading as="h2" size="md" color="brand.600" fontWeight="bold" mb={2}>
-                LetsExplore
-              </Heading>
-              <Text fontSize="sm">
-                Discover amazing destinations around the world with our curated travel experiences.
-              </Text>
-            </Box>
-            <Box>
-              <Heading as="h3" size="sm" mb={3}>
-                Join Newsletter
-              </Heading>
-              <Stack>
-                <Input placeholder="Your email address" bg="white" />
-                <Button variant="solid" colorScheme="brand" size="md">
-                  Subscribe
-                </Button>
-              </Stack>
-            </Box>
-          </Stack>
-          
-          {/* Links Columns */}
-          <FooterLinkColumn 
-            title="Destinations" 
-            links={[
-              { label: 'Popular Destinations', href: '/destinations/popular' },
-              { label: 'Featured Trips', href: '/destinations/featured' },
-              { label: 'Travel Guides', href: '/guides' },
-              { label: 'Seasonal Offers', href: '/offers' },
-            ]} 
-          />
-          
-          <FooterLinkColumn 
-            title="Company" 
-            links={[
-              { label: 'About Us', href: '/about' },
-              { label: 'Careers', href: '/careers' },
-              { label: 'Blog', href: '/blog' },
-              { label: 'Press', href: '/press' },
-            ]} 
-          />
-          
-          <FooterLinkColumn 
-            title="Support" 
-            links={[
-              { label: 'Help Center', href: '/help' },
-              { label: 'Safety Tips', href: '/safety' },
-              { label: 'Privacy Policy', href: '/privacy' },
-              { label: 'Terms of Service', href: '/terms' },
-            ]} 
-          />
-        </SimpleGrid>
-        
-        <Divider my={6} borderColor="gray.200" />
-        
-        {/* Bottom Bar */}
-        <Flex 
-          direction={{ base: 'column', md: 'row' }}
-          justify="space-between"
-          align={{ base: 'center', md: 'center' }}
-          fontSize="sm"
-        >
-          <Text>&copy; {new Date().getFullYear()} LetsExplore. All rights reserved.</Text>
-          <Flex mt={{ base: 4, md: 0 }} gap={4}>
-            <NextLink href="#" passHref legacyBehavior>
-              <Link>Instagram</Link>
-            </NextLink>
-            <NextLink href="#" passHref legacyBehavior>
-              <Link>Twitter</Link>
-            </NextLink>
-            <NextLink href="#" passHref legacyBehavior>
-              <Link>Facebook</Link>
-            </NextLink>
-          </Flex>
-        </Flex>
-      </Container>
-    </Box>
-  );
-};
+    <footer className="bg-black text-white py-12 overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Top section with logo */}
+        <div className="mb-12 sm:mb-16">
+          <Link href="/" className="inline-block">
+            <div className="flex items-center">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 relative">
+                <Image
+                  src="/images/logo-white.svg" 
+                  alt="LetsXplore Logo"
+                  width={48}
+                  height={48}
+                  className="h-10 w-10 sm:h-12 sm:w-12"
+                />
+              </div>
+              <span className="text-white text-xl sm:text-2xl font-bold ml-2 sm:ml-3">LetsXplore</span>
+            </div>
+          </Link>
+        </div>
 
-// Define interface for the link object
-interface FooterLink {
-  label: string;
-  href: string;
-}
+        {/* Separator line */}
+        <div className="h-px bg-gray-800 w-full mb-8 sm:mb-10"></div>
 
-// Define interface for the FooterLinkColumn props
-interface FooterLinkColumnProps {
-  title: string;
-  links: FooterLink[];
-}
+        {/* Main footer content */}
+        <div className="flex flex-col md:flex-row justify-between gap-12 md:gap-16">
+          {/* Social links - on the left */}
+          <div className="w-full md:w-1/3">
+            <h3 className="text-base font-normal mb-6">Follow us on</h3>
+            <div className="flex gap-6">
+              <Link href="https://linkedin.com" target="_blank" className="hover:text-gray-300 transition-colors">
+                <FaLinkedin size={24} />
+              </Link>
+              <Link href="https://instagram.com" target="_blank" className="hover:text-gray-300 transition-colors">
+                <FaInstagram size={24} />
+              </Link>
+              <Link href="https://twitter.com" target="_blank" className="hover:text-gray-300 transition-colors">
+                <FaXTwitter size={24} />
+              </Link>
+              <Link href="https://youtube.com" target="_blank" className="hover:text-gray-300 transition-colors">
+                <FaYoutube size={24} />
+              </Link>
+            </div>
+          </div>
 
-const FooterLinkColumn = ({ title, links }: FooterLinkColumnProps) => {
-  return (
-    <Stack align="flex-start">
-      <Heading as="h3" size="sm" mb={3}>
-        {title}
-      </Heading>
-      <Stack spacing={2}>
-        {links.map((link: FooterLink, index: number) => (
-          <NextLink key={index} href={link.href} passHref legacyBehavior>
-            <Link fontSize="sm">{link.label}</Link>
-          </NextLink>
-        ))}
-      </Stack>
-    </Stack>
+          {/* Navigation sections - on the right */}
+          <div className="w-full md:w-2/3 flex flex-col sm:flex-row justify-start md:justify-end gap-12 sm:gap-16 lg:gap-24">
+            {/* Explore links */}
+            <div>
+              <h3 className="text-base font-normal mb-6">Explore</h3>
+              <div className="grid grid-cols-1 gap-y-3">
+                <Link href="/" className="text-sm hover:text-gray-300 transition-colors">
+                  Home
+                </Link>
+                <Link href="/about" className="text-sm hover:text-gray-300 transition-colors">
+                  About us
+                </Link>
+                <Link href="/contact" className="text-sm hover:text-gray-300 transition-colors">
+                  Contact us
+                </Link>
+              </div>
+            </div>
+
+            {/* Locations links */}
+            <div>
+              <h3 className="text-base font-normal mb-6">Locations</h3>
+              <div className="grid grid-cols-1 gap-y-5">
+                {/* First row: Ibadan, Lagos, Abeokuta */}
+                <div className="flex flex-wrap gap-4">
+                  <Link href="/locations/ibadan" className="text-sm hover:text-gray-300 transition-colors">
+                    Ibadan
+                  </Link>
+                  <Link href="/locations/lagos" className="text-sm hover:text-gray-300 transition-colors">
+                    Lagos
+                  </Link>
+                  <Link href="/locations/abokuta" className="text-sm hover:text-gray-300 transition-colors">
+                    Abeokuta
+                  </Link>
+                </div>
+                
+                {/* Second row: Ekiti, Osun, Ogun */}
+                <div className="flex flex-wrap gap-4">
+                  <Link href="/locations/ekiti" className="text-sm hover:text-gray-300 transition-colors">
+                    Ekiti
+                  </Link>
+                  <Link href="/locations/osun" className="text-sm hover:text-gray-300 transition-colors">
+                    Osun
+                  </Link>
+                  <Link href="/locations/ogun" className="text-sm hover:text-gray-300 transition-colors">
+                    Ogun
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-12 sm:mt-16 text-sm text-gray-400">
+          ©LetsXplore 2025 - All rights reserved
+        </div>
+      </div>
+    </footer>
   );
 };
 
