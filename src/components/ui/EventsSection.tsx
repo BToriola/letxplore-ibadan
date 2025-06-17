@@ -27,12 +27,35 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     const [dateFilter, setDateFilter] = useState('All dates');
     const [sortOrder, setSortOrder] = useState('Most recent');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    
+    // State for filter values in the modal
+    const [tempCategory, setTempCategory] = useState(sharedCategory);
+    const [tempNeighborhood, setTempNeighborhood] = useState('All');
+    const [tempPrice, setTempPrice] = useState('All');
+    
+    // Actual filter values that are applied
+    const [neighborhoodFilter, setNeighborhoodFilter] = useState('All');
+    const [priceFilter, setPriceFilter] = useState('All');
     const eventsPerPage = 12;
     const filterRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setActiveCategory(sharedCategory);
+        setTempCategory(sharedCategory);
     }, [sharedCategory]);
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isFilterOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isFilterOpen]);
 
     const categories = getUniqueCategories();
     const dateOptions = getDateOptions();
@@ -41,6 +64,10 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         function handleClickOutside(event: MouseEvent) {
             if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
                 setIsFilterOpen(false);
+                // Reset temp values when closing by clicking outside
+                setTempCategory(activeCategory);
+                setTempNeighborhood(neighborhoodFilter);
+                setTempPrice(priceFilter);
             }
         }
         
@@ -48,12 +75,12 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [activeCategory, neighborhoodFilter, priceFilter]);
 
     const getFilteredEvents = useCallback(() => {
-        const filtered = filterEvents(activeCategory, dateFilter);
+        const filtered = filterEvents(activeCategory, dateFilter, neighborhoodFilter, priceFilter);
         return sortEvents(filtered, sortOrder);
-    }, [activeCategory, dateFilter, sortOrder]);
+    }, [activeCategory, dateFilter, neighborhoodFilter, priceFilter, sortOrder]);
 
     useEffect(() => {
         const filteredEvents = getFilteredEvents();
@@ -111,8 +138,14 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                             <div className="flex items-center space-x-4 flex-shrink-0">       
                                 <div ref={filterRef} className="relative inline-block">
                                     <button 
-                                        onClick={() => setIsFilterOpen(!isFilterOpen)}
-                                        className="flex items-center bg-[#0063BF]/[0.1] hover:bg-[#0063BF]/[.5] text-[#1C1C1C] font-medium py-2 px-4 rounded-full transition-colors"
+                                        onClick={() => {
+                                            // Reset temp values to current filter values when opening
+                                            setTempCategory(activeCategory);
+                                            setTempNeighborhood(neighborhoodFilter);
+                                            setTempPrice(priceFilter);
+                                            setIsFilterOpen(!isFilterOpen);
+                                        }}
+                                        className="flex items-center bg-white hover:bg-gray-50 text-[#1C1C1C] font-medium py-2 px-4 rounded-full transition-colors border border-gray-200 shadow-sm"
                                     >
                                         <span className="pr-2 text-xs">Filter</span>
                                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -126,83 +159,146 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                     </button>
                                     
                                     {isFilterOpen && (
-                                        <div className="absolute left-0 mt-2 w-64 rounded-xl bg-white shadow-lg z-10 overflow-hidden border border-gray-200">
-                                            <div className="p-4">
-                                                <h3 className="text-sm font-medium text-gray-900 mb-3">Filter by Date</h3>
-                                                <div className="space-y-2">
-                                                    {dateOptions.map((option) => (
-                                                        <div key={option} className="flex items-center">
-                                                            <input
-                                                                id={`date-${option}`}
-                                                                name="date-filter"
-                                                                type="radio"
-                                                                checked={dateFilter === option}
-                                                                onChange={() => setDateFilter(option)}
-                                                                className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                            />
-                                                            <label htmlFor={`date-${option}`} className="ml-2 text-sm text-gray-700">
-                                                                {option}
-                                                            </label>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                
-                                                <div className="border-t border-gray-200 my-4"></div>
-                                                
-                                                <h3 className="text-sm font-medium text-gray-900 mb-3">Filter by Category</h3>
-                                                <div className="space-y-2">
-                                                    {categories.map((category) => (
-                                                        <div key={category} className="flex items-center">
-                                                            <input
-                                                                id={`category-${category}`}
-                                                                name="category-filter"
-                                                                type="radio"
-                                                                checked={activeCategory === category}
-                                                                onChange={() => handleCategoryChange(category)}
-                                                                className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                            />
-                                                            <label htmlFor={`category-${category}`} className="ml-2 text-sm text-gray-700">
-                                                                {category} {category !== 'All' && `(${getCategoryCount(category)})`}
-                                                            </label>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
+                                        <>
+                                            {/* Dark overlay */}
+                                            <div 
+                                                className="fixed inset-0 bg-black bg-opacity-50 z-40 overscroll-none"
+                                                onClick={() => {
+                                                    setIsFilterOpen(false);
+                                                    setTempCategory(activeCategory);
+                                                    setTempNeighborhood(neighborhoodFilter);
+                                                    setTempPrice(priceFilter);
+                                                }}
+                                            ></div>
                                             
-                                            <div className="bg-gray-50 px-4 py-3 flex justify-end">
-                                                <button 
-                                                    onClick={() => {
-                                                        handleCategoryChange('All');
-                                                        setDateFilter('All dates');
-                                                        setIsFilterOpen(false);
-                                                    }}
-                                                    className="text-xs text-gray-600 hover:text-gray-900 mr-4"
-                                                >
-                                                    Reset filters
-                                                </button>
-                                                <button
-                                                    onClick={() => setIsFilterOpen(false)}
-                                                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-1 px-3 rounded-full"
-                                                >
-                                                    Apply
-                                                </button>
+                                            {/* Filter modal */}
+                                            <div className="fixed top-16 md:top-40 left-1/2 transform -translate-x-1/2 w-[95%] md:w-11/12 max-w-4xl bg-white shadow-lg z-50 rounded-xl overflow-hidden max-h-[85vh]">
+                                                <div className="px-4 py-6 md:px-6 md:py-6 overflow-y-auto max-h-[85vh]">
+                                                    <div className="flex justify-between items-center mb-6">
+                                                        <h3 className="text-base font-semibold text-[#1C1C1C]">Filter</h3>
+                                                        <button 
+                                                            onClick={() => {
+                                                                setIsFilterOpen(false);
+                                                                // Reset temp values when closing with X button
+                                                                setTempCategory(activeCategory);
+                                                                setTempNeighborhood(neighborhoodFilter);
+                                                                setTempPrice(priceFilter);
+                                                            }}
+                                                            className="text-[#1C1C1C] hover:text-gray-700"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                
+                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                                                    {/* Categories Dropdown */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-[#939393] mb-2">Categories</label>
+                                                        <div className="relative">
+                                                            <select
+                                                                value={tempCategory}
+                                                                onChange={(e) => setTempCategory(e.target.value)}
+                                                                className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
+                                                            >
+                                                                {categories.map((category) => (
+                                                                    <option key={category} value={category}>
+                                                                        {category} {category !== 'All' && `(${getCategoryCount(category)})`}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
+                                                                <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Neighborhood Dropdown */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-[#939393] mb-2">Neighborhood</label>
+                                                        <div className="relative">
+                                                            <select
+                                                                value={tempNeighborhood}
+                                                                onChange={(e) => setTempNeighborhood(e.target.value)}
+                                                                className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
+                                                            >
+                                                                <option value="All">All</option>
+                                                                <option value="Downtown">Downtown</option>
+                                                                <option value="Bodija">Bodija</option>
+                                                                <option value="Mokola">Mokola</option>
+                                                                <option value="Ring Road">Ring Road</option>
+                                                                <option value="Dugbe">Dugbe</option>
+                                                                <option value="Iwo Road">Iwo Road</option>
+                                                            </select>
+                                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
+                                                                <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Price Dropdown */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-[#939393] mb-2">Price</label>
+                                                        <div className="relative">
+                                                            <select
+                                                                value={tempPrice}
+                                                                onChange={(e) => setTempPrice(e.target.value)}
+                                                                className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
+                                                            >
+                                                                <option value="All">All</option>
+                                                                <option value="Free">Free</option>
+                                                                <option value="Under $10">Under $10</option>
+                                                                <option value="$10 - $25">$10 - $25</option>
+                                                                <option value="$25 - $50">$25 - $50</option>
+                                                                <option value="$50+">$50+</option>
+                                                            </select>
+                                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
+                                                                <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="flex justify-center mt-6 sm:mt-8 pb-4 sm:pb-4">
+                                                    <button
+                                                        onClick={() => {
+                                                            // Apply all filter values at once
+                                                            setActiveCategory(tempCategory);
+                                                            sharedCategoryChange(tempCategory);
+                                                            setNeighborhoodFilter(tempNeighborhood);
+                                                            setPriceFilter(tempPrice);
+                                                            setIsFilterOpen(false);
+                                                        }}
+                                                        className="bg-[#0063BF] text-white font-medium py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl w-full max-w-4xl hover:bg-[#0057A8] transition-colors"
+                                                    >
+                                                        Apply filter
+                                                    </button>
+                                                </div>
+                                               
+                                                </div>
                                             </div>
-                                        </div>
+                                        </>
                                     )}
                                 </div>
 
                                 <div className="relative inline-block">
-                                    <div className="flex items-center bg-[#0063BF]/[0.1] hover:bg-[#0063BF]/[.5] text-[#1C1C1C] font-medium rounded-full">
+                                    <div className="flex items-center bg-[#0063BF]/[0.1] hover:bg-[#0063BF]/[.3] text-[#1C1C1C] font-medium rounded-full transition-colors">
                                         <span className="pl-4 py-2 text-xs">Sort by:</span>
                                         <select
                                             value={sortOrder}
                                             onChange={(e) => setSortOrder(e.target.value)}
                                             className="appearance-none bg-transparent border-none text-[#1C1C1C] py-2 pl-1 pr-8 focus:outline-none text-xs font-medium cursor-pointer"
                                         >
+                                            <option value="Top-rated">Top-rated</option>
                                             <option value="Most recent">Most recent</option>
-                                            <option value="Price: Low to high">Price: Low to high</option>
-                                            <option value="Price: High to low">Price: High to low</option>
-                                            <option value="Alphabetical">Alphabetical</option>
+                                            <option value="Featured">Featured</option>
                                         </select>
                                         <div className="pointer-events-none flex items-center px-2 text-gray-700">
                                             <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -242,8 +338,8 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-xl font-medium text-gray-900">No events found</h3>
-                                <p className="mt-2 text-gray-600">
+                                <h3 className="text-xl font-medium text-[#1C1C1C]">No events found</h3>
+                                <p className="mt-2 text-[#939393]">
                                     {activeCategory !== 'All' && dateFilter !== 'All dates'
                                         ? `There are no ${activeCategory} events for ${dateFilter.toLowerCase()}.`
                                         : activeCategory !== 'All'
@@ -253,10 +349,18 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                                 : 'There are no events currently available.'}
                                 </p>
                                 <button
-                                    className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    className="mt-4 inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#0063BF] hover:bg-[#0057A8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                                     onClick={() => {
+                                        // Reset all filters to default
                                         handleCategoryChange('All');
                                         setDateFilter('All dates');
+                                        setNeighborhoodFilter('All');
+                                        setPriceFilter('All');
+                                        
+                                        // Also reset temp values
+                                        setTempCategory('All');
+                                        setTempNeighborhood('All');
+                                        setTempPrice('All');
                                     }}
                                 >
                                     Reset filters
@@ -269,7 +373,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                 <div className="mt-10 text-center">
                     {activeCategory !== 'All' && displayedEvents.length < getFilteredEvents().length && (
                         <button
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-full transition-colors flex items-center justify-center mx-auto"
+                            className="bg-[#0063BF] hover:bg-[#0057A8] text-white font-medium py-3 px-6 rounded-xl transition-colors flex items-center justify-center mx-auto"
                             onClick={loadMoreEvents}
                             disabled={loading}
                         >
@@ -287,7 +391,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                         </button>
                     )}
                     {activeCategory !== 'All' && (
-                        <div className="mt-4 text-sm text-gray-600">
+                        <div className="mt-4 text-sm text-[#939393]">
                             Showing {displayedEvents.length} of {getFilteredEvents().length} {activeCategory} events
                         </div>
                     )}

@@ -398,36 +398,33 @@ export const getDateOptions = (): string[] => {
 
 export const filterEvents = (
   category: string = 'All',
-  dateFilter: string = 'All dates'
+  dateFilter: string = 'All dates',
+  neighborhood: string = 'All',
+  priceRange: string = 'All'
 ): EventCardProps[] => {
   let filtered = events;
   
   // Apply category filter
   if (category !== 'All') {
     if (category === 'Events') {
-      // For "Events" category, include all events with categories related to events
       filtered = filtered.filter(event => 
         ['Music', 'Tech', 'Business', 'Art', 'Culture', 'Festival'].includes(event.category)
       );
     } else if (category === 'Eat & drink') {
-      // For "Eat & drink" category, include all food and drink related events
       filtered = filtered.filter(event => 
         ['Food', 'Restaurant', 'Cafe', 'Bar'].includes(event.category)
       );
     } else if (category === 'Stay') {
-      // For "Stay" category, include all accommodation related events
       filtered = filtered.filter(event => 
         ['Hotel', 'Accommodation', 'Resort'].includes(event.category)
       );  
     } else if (category === 'See & do') {
-      // For "See & do" category, include all activity related events
       filtered = filtered.filter(event => 
         ['Fitness', 'Sports', 'Adventure', 'Wellness', 'Craft'].includes(event.category)
       );
     } else if (category === 'Shopping') {
       filtered = filtered.filter(event => event.category === 'Shopping');
     } else {
-      // Default case for any other category
       filtered = filtered.filter(event => event.category === category);
     }
   }
@@ -435,20 +432,58 @@ export const filterEvents = (
   // Apply date filter
   if (dateFilter !== 'All dates') {
     if (dateFilter === 'Today') {
-      // Just for demo purposes, filter events on May 31st (which is "today" per context)
       filtered = filtered.filter(event => event.date.includes('May 31st'));
     } else if (dateFilter === 'This weekend') {
-      // Filter for upcoming weekend (Jun 1-2)
       filtered = filtered.filter(event => 
         event.date.includes('June 1st') || 
         event.date.includes('June 2nd')
       );
     } else if (dateFilter === 'This month') {
-      // Filter for June events
       filtered = filtered.filter(event => event.date.includes('June'));
     } else if (dateFilter === 'Next month') {
-      // Filter for July events
       filtered = filtered.filter(event => event.date.includes('July'));
+    }
+  }
+  
+  // Apply neighborhood filter
+  if (neighborhood !== 'All') {
+    filtered = filtered.filter(event => {
+      return event.location.includes(neighborhood);
+    });
+  }
+  
+  // Apply price range filter
+  if (priceRange !== 'All') {
+    if (priceRange === 'Free') {
+      filtered = filtered.filter(event => event.price === 'Free');
+    } else if (priceRange === 'Under $10') {
+      filtered = filtered.filter(event => {
+        const price = typeof event.price === 'string' ? 
+          parseInt(event.price.replace(/[^\d]/g, '')) : 
+          Number(event.price);
+        return price < 1000; // Assuming ₦1000 is roughly $10
+      });
+    } else if (priceRange === '$10 - $25') {
+      filtered = filtered.filter(event => {
+        const price = typeof event.price === 'string' ? 
+          parseInt(event.price.replace(/[^\d]/g, '')) : 
+          Number(event.price);
+        return price >= 1000 && price <= 2500;
+      });
+    } else if (priceRange === '$25 - $50') {
+      filtered = filtered.filter(event => {
+        const price = typeof event.price === 'string' ? 
+          parseInt(event.price.replace(/[^\d]/g, '')) : 
+          Number(event.price);
+        return price > 2500 && price <= 5000;
+      });
+    } else if (priceRange === '$50+') {
+      filtered = filtered.filter(event => {
+        const price = typeof event.price === 'string' ? 
+          parseInt(event.price.replace(/[^\d]/g, '')) : 
+          Number(event.price);
+        return price > 5000;
+      });
     }
   }
   
@@ -468,7 +503,7 @@ export const sortEvents = (events: EventCardProps[], sortOrder: string): EventCa
         return idB - idA;
       });
       
-    case 'Price: Low to high':
+    case 'Top rated':
       return sortedEvents.sort((a, b) => {
         const priceA = a.price === 'Free' ? 0 : 
           typeof a.price === 'number' ? a.price : 
@@ -479,7 +514,7 @@ export const sortEvents = (events: EventCardProps[], sortOrder: string): EventCa
         return priceA - priceB;
       });
       
-    case 'Price: High to low':
+    case 'Featured':
       return sortedEvents.sort((a, b) => {
         const priceA = a.price === 'Free' ? 0 : 
           typeof a.price === 'number' ? a.price : 
