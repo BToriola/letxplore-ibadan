@@ -34,7 +34,7 @@ export default function EventDetailPage() {
       
       {/* Main Content */}
       <main className="pt-24 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24">
           
           {/* Event Header Section */}
           <div className="flex flex-col md:flex-row">
@@ -42,7 +42,7 @@ export default function EventDetailPage() {
             <div className="flex-1">
               <div className="relative rounded-lg overflow-hidden mb-6" style={{ height: '400px' }}>
                 <Image
-                  src={event.image || '/default.svg'}
+                  src={ '/images/frame-details.png'}
                   alt={event.title}
                   fill
                   priority
@@ -81,7 +81,7 @@ export default function EventDetailPage() {
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="aspect-w-1 aspect-h-1 relative rounded-lg overflow-hidden">
                       <Image
-                        src={event.image || '/default.svg'}
+                        src={'/default.svg'}
                         alt={`${event.title} - image ${i}`}
                         fill
                         className="object-cover hover:scale-110 transition-transform cursor-pointer"
@@ -93,19 +93,19 @@ export default function EventDetailPage() {
               </div>
               
               <div className="mb-10">
-                <h2 className="text-lg font-semibold mb-4">Similar events you can attend</h2>
+                <h2 className="text-lg text-[#1C1C1C] font-semibold mb-4">Similar places you can explore</h2>   
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {events.slice(0, 3).filter(e => e.id !== eventId).map((similarEvent) => (
                     <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
                       <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                         <div className="relative" style={{ height: '150px' }}>
                           <Image
-                            src={similarEvent.image || '/default.svg'}
+                            src={'/default.svg'}
                             alt={similarEvent.title}
                             fill
                             className="object-cover"
                             sizes="(max-width: 768px) 100vw, 33vw"
-                          />
+                />
                         </div>
                         <div className="p-4">
                           <h3 className="font-medium text-[#1C1C1C] truncate">{similarEvent.title}</h3>
