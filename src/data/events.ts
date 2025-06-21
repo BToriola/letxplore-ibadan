@@ -1,5 +1,8 @@
 import { EventCardProps } from '../components/ui/EventCard';
 
+// Use event1.jpg for all events since it's the only image we have
+const DEFAULT_IMAGE = '/images/events/event1.jpg';
+
 export const events: EventCardProps[] = [
   // Row 1
   {
@@ -9,7 +12,7 @@ export const events: EventCardProps[] = [
     time: '7PM',
     location: 'Bodija, Ibadan',
     price: '₦5,000',
-    image: '/images/events/music-night.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Music'
   },
   {
@@ -19,7 +22,7 @@ export const events: EventCardProps[] = [
     time: '12PM',
     location: 'Agodi Gardens, Ibadan',
     price: '₦3,000',
-    image: '/images/events/food-festival.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Food'
   },
   {
@@ -29,7 +32,7 @@ export const events: EventCardProps[] = [
     time: '10AM',
     location: 'UI Conference Center',
     price: '₦2,000',
-    image: '/images/events/tech-meetup.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Tech'
   },
   // Row 2
@@ -40,7 +43,7 @@ export const events: EventCardProps[] = [
     time: '4PM',
     location: 'Cultural Centre, Mokola',
     price: '₦1,500',
-    image: '/images/events/art-exhibition.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Art'
   },
   {
@@ -50,7 +53,7 @@ export const events: EventCardProps[] = [
     time: '6:30AM',
     location: 'Agodi Park, Ibadan',
     price: '₦1,000',
-    image: '/images/events/fitness-bootcamp.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Fitness'
   },
   {
@@ -60,7 +63,7 @@ export const events: EventCardProps[] = [
     time: '11AM',
     location: 'Palms Mall, Ring Road',
     price: 'Free',
-    image: '/images/events/business-expo.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Business'
   },
   // Row 3
@@ -71,7 +74,7 @@ export const events: EventCardProps[] = [
     time: '9AM',
     location: 'Adamasingba Stadium',
     price: '₦500',
-    image: '/images/events/food-festival.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Shopping'
   },
   {
@@ -81,7 +84,7 @@ export const events: EventCardProps[] = [
     time: '8PM',
     location: 'Ventura Mall, Ibadan',
     price: '₦7,000',
-    image: '/images/events/music-night.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Music'
   },
   {
@@ -91,7 +94,7 @@ export const events: EventCardProps[] = [
     time: '1PM',
     location: 'Tech Hub, Dugbe',
     price: '₦3,500',
-    image: '/images/events/tech-meetup.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Tech'
   },
   // Row 4
@@ -102,7 +105,7 @@ export const events: EventCardProps[] = [
     time: '5PM',
     location: 'Liberty Stadium, Ibadan',
     price: '₦2,500',
-    image: '/images/events/art-exhibition.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Culture'
   },
   {
@@ -112,7 +115,7 @@ export const events: EventCardProps[] = [
     time: '7AM',
     location: 'Recreation Club, Ibadan',
     price: '₦1,500',
-    image: '/images/events/fitness-bootcamp.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Wellness'
   },
   {
@@ -122,7 +125,7 @@ export const events: EventCardProps[] = [
     time: '3PM',
     location: 'Premier Hotel, Mokola',
     price: '₦5,000',
-    image: '/images/events/business-expo.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Business'
   },
   // Row 5
@@ -133,7 +136,7 @@ export const events: EventCardProps[] = [
     time: '2PM',
     location: 'Bodija Market Area',
     price: '₦4,000',
-    image: '/images/events/food-festival.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Food'
   },
   {
@@ -143,7 +146,7 @@ export const events: EventCardProps[] = [
     time: '7:30PM',
     location: 'Cafe de Vie, Samonda',
     price: '₦3,000',
-    image: '/images/events/music-night.jpg',
+    image: DEFAULT_IMAGE,
     category: 'Music'
   },
   {

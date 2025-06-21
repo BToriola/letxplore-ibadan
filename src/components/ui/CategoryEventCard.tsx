@@ -13,6 +13,7 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
   title,
   location,
   price,
+  image,
   category
 }) => {
   return (
@@ -27,6 +28,10 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
             style={{ objectFit: 'cover' }}
             className="group-hover:scale-110 transition-transform duration-500"
             priority
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/default.svg';
+            }}
           />
         </div>
         

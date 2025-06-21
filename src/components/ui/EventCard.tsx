@@ -36,6 +36,10 @@ const EventCard: React.FC<EventCardProps> = ({
             style={{ objectFit: 'cover' }}
             className="group-hover:scale-110 transition-transform duration-500"
             priority
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/default.svg';
+            }}
           />
         </div>
         
