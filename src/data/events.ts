@@ -13,7 +13,8 @@ export const events: EventCardProps[] = [
     location: 'Bodija, Ibadan',
     price: '₦5,000',
     image: DEFAULT_IMAGE,
-    category: 'Music'
+    category: 'Music',
+    description: 'Experience a magical evening of smooth jazz at Cafe Chrysalis. Our talented local musicians bring you the best of contemporary and classic jazz in a cozy atmosphere perfect for music lovers.'
   },
   {
     id: '2',
@@ -23,7 +24,8 @@ export const events: EventCardProps[] = [
     location: 'Agodi Gardens, Ibadan',
     price: '₦3,000',
     image: DEFAULT_IMAGE,
-    category: 'Food'
+    category: 'Food',
+    description: 'Celebrate the rich culinary traditions of Ibadan at our annual food festival. Sample delicious local dishes, watch cooking demonstrations, and enjoy live entertainment in the beautiful Agodi Gardens.'
   },
   {
     id: '3',
@@ -33,7 +35,8 @@ export const events: EventCardProps[] = [
     location: 'UI Conference Center',
     price: '₦2,000',
     image: DEFAULT_IMAGE,
-    category: 'Tech'
+    category: 'Tech',
+    description: 'Join us for an insightful discussion on the future of AI in Africa. Industry experts and academics will share their knowledge on current trends, opportunities, and challenges in the African AI landscape.'
   },
   // Row 2
   {

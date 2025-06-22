@@ -13,6 +13,7 @@ export interface EventCardProps {
   price: string | number;
   image: string;
   category: string;
+  description?: string; // Optional description field for event details
 }
 
 const EventCard: React.FC<EventCardProps> = ({
