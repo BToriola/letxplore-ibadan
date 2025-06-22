@@ -13,7 +13,6 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
   title,
   location,
   price,
-  image,
   category
 }) => {
   return (

@@ -22,7 +22,6 @@ const EventCard: React.FC<EventCardProps> = ({
   time,
   location,
   price,
-  image,
 }) => {
   return (
     <Link href={`/events/${id}`} className="group ">

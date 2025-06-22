@@ -6,7 +6,6 @@ import CategoryEventsRow from './CategoryEventsRow';
 import {
     getUniqueCategories,
     getCategoryCount,
-    getDateOptions,
     filterEvents,
     sortEvents
 } from '../../data/events';
@@ -58,13 +57,11 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     }, [isFilterOpen]);
 
     const categories = getUniqueCategories();
-    const dateOptions = getDateOptions();
     
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
                 setIsFilterOpen(false);
-                // Reset temp values when closing by clicking outside
                 setTempCategory(activeCategory);
                 setTempNeighborhood(neighborhoodFilter);
                 setTempPrice(priceFilter);
