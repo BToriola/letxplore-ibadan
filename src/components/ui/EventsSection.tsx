@@ -112,7 +112,6 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     };
 
     const getCategoryEvents = (categoryName: string) => {
-        // Get up to 4 events for each category for the carousel
         const filtered = filterEvents(categoryName, dateFilter);
         return sortEvents(filtered, sortOrder).slice(0, 8);
     };
@@ -122,7 +121,16 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         return categories.filter(cat => cat !== 'All');
     };
     
-    // Simple return statement to test if syntax is correct
+    // Handler when user clicks "See all" on a category row
+    const handleSeeAll = (categoryName: string) => {
+        const filtered = filterEvents(categoryName, dateFilter, neighborhoodFilter, priceFilter);
+        const sorted = sortEvents(filtered, sortOrder);
+        setActiveCategory(categoryName);
+        sharedCategoryChange(categoryName);
+        setDisplayedEvents(sorted);
+        setCurrentPage(1);
+    };
+
     return (
         <section className="py-6 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -136,15 +144,14 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                 <div ref={filterRef} className="relative inline-block">
                                     <button 
                                         onClick={() => {
-                                            // Reset temp values to current filter values when opening
                                             setTempCategory(activeCategory);
                                             setTempNeighborhood(neighborhoodFilter);
                                             setTempPrice(priceFilter);
                                             setIsFilterOpen(!isFilterOpen);
                                         }}
-                                        className="flex items-center bg-white hover:bg-gray-50 text-[#1C1C1C] font-medium py-2 px-4 rounded-full transition-colors border border-gray-200 shadow-sm"
+                                        className="pl-4 py-2 pr-4  flex items-center bg-[#0063BF]/[0.1] hover:bg-[#0063BF]/[.3] text-[#1C1C1C] font-medium rounded-full transition-colors"
                                     >
-                                        <span className="pr-2 text-xs">Filter</span>
+                                        <span className="text-xs pr-2">Filter</span>
                                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <mask id="mask0_547_33587" maskUnits="userSpaceOnUse" x="0" y="0" width="12" height="12">
                                                 <rect width="12" height="12" fill="#D9D9D9" />
@@ -317,6 +324,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                     key={category}
                                     categoryName={category} 
                                     events={getCategoryEvents(category)}
+                                    onSeeAll={handleSeeAll}
                                 />
                             ))}
                         </div>

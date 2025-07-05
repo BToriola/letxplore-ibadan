@@ -14,6 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        'gotham': ['Gotham', 'Helvetica', 'Arial', 'sans-serif'], // Default body font
         'primera': ['"Primera Trial"', 'sans-serif'],
       },
       colors: {

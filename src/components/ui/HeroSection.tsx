@@ -45,8 +45,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-4 relative z-10">
         {/* Hero Content */}
-        <div className="text-center text-white max-w-3xl mx-auto pt-4">
-          <h1 className="font-primera font-semibold hero-title mb-4">
+        <div className="text-center text-white w-full mx-auto pt-4">
+          <h1 className="font-primera font-medium hero-title mb-4">
             LetXplore Ibadan
           </h1>
           <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
