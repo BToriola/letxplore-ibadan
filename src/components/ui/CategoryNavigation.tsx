@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface CategoryNavigationProps {
   categories: string[];
@@ -15,10 +17,24 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({
   onCategoryChange = () => {},
 }) => {
   const [active, setActive] = useState(activeCategory);
+  const router = useRouter();
+  
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setActive(activeCategory);
+  }, [activeCategory]);
   
   const handleCategoryClick = (category: string) => {
     setActive(category);
     onCategoryChange(category);
+    
+    // Navigate to category route if not "All"
+    if (category === "All") {
+      router.push('/');
+    } else {
+      const slug = category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      router.push(`/categories/${slug}`);
+    }
   };
   
   return (

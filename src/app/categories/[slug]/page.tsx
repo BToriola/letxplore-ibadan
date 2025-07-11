@@ -1,22 +1,29 @@
 import { events } from '@/data/events';
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { EventCardProps } from '@/components/ui/EventCard';
-import CategoryEventCard from '@/components/ui/CategoryEventCard';
+import ClientWrapper from '@/app/categories/[slug]/ClientWrapper';
 
 interface PageProps {
   params: { slug: string };
 }
 
+// Utility to slugify category names
+const slugify = (str: string) =>
+  str
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 export async function generateStaticParams() {
-  const uniqueCategories = Array.from(new Set(events.map(e => e.category)));
-  return uniqueCategories.map(category => ({
-    slug: category.toLowerCase().replace(/\s+/g, '-')
+  const displayCategories = ["Events", "Eat & drink", "Stay", "See & do", "Shopping"];
+  return displayCategories.map(category => ({
+    slug: slugify(category)
   }));
 }
 
 export function generateMetadata({ params }: PageProps): Metadata {
-  const categoryName = params.slug.replace(/-/g, ' ');
+  const displayCategories = ["Events", "Eat & drink", "Stay", "See & do", "Shopping"];
+  const matched = displayCategories.find(cat => slugify(cat) === params.slug);
+  const categoryName = matched ?? params.slug.replace(/-/g, ' ');
   return {
     title: `${categoryName} | Let's Explore`,
     description: `Find events in the category: ${categoryName}`,
@@ -24,23 +31,12 @@ export function generateMetadata({ params }: PageProps): Metadata {
 }
 
 export default function CategoryPage({ params }: PageProps) {
-  const categoryName = params.slug.replace(/-/g, ' ');
-  const categoryEvents = events.filter(e => e.category.toLowerCase() === categoryName);
+  // Map from display categories (used in navigation) to the slug and back
+  const displayCategories = ["All", "Events", "Eat & drink", "Stay", "See & do", "Shopping"];
+  
+  // Find the display category that matches this slug
+  const matched = displayCategories.find(cat => slugify(cat) === params.slug);
+  const categoryName = matched ?? params.slug.replace(/-/g, ' ');
 
-  if (!categoryEvents.length) {
-    return <p className="p-8 text-center">No events found in {categoryName}</p>;
-  }
-
-  return (
-    <div className="min-h-screen py-16 bg-gray-50">
-      <h1 className="text-3xl font-semibold text-[#1C1C1C] mb-6 text-center capitalize">{categoryName}</h1>
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-8">
-        {categoryEvents.map((event:EventCardProps) => (
-          <Link key={event.id} href={`/events/${event.id}`}>  
-            <CategoryEventCard {...event} />  
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
+  return <ClientWrapper categoryName={categoryName} />;
 }
