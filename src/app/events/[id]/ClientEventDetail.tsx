@@ -1,19 +1,70 @@
 "use client";
 
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { events } from '@/data/events';
-import Header from '@/components/layout/Header';
-import { FiMapPin, FiStar } from 'react-icons/fi';
-import { EventCardProps } from '@/components/ui/EventCard';
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { events } from "@/data/events";
+import Header from "@/components/layout/Header";
+import { FiMapPin, FiStar } from "react-icons/fi";
+import {
+  DeliveryIcon, DineIcon, OutdoorSeatingIcon, CardPaymentIcon,
+  ParkingIcon, AirConditionerIcon, FreeWiFiIcon, CoffeeIcon,
+  CocktailsIcon, InstagramIcon, FacebookIcon, TwitterIcon,
+  Delivery,
+  Dine,
+  Outdoor,
+  Card,
+  Ac,
+  Wifi,
+  Park,
+  Cocktails,
+  Cofee,
+  Karaoke,
+  Ambience,
+  Salsa,
+  Spend,
+  NoPicture,
+} from "@/components/icons/SvgIcons";
 
-export default function ClientEventDetail({ eventData }: { eventData?: EventCardProps }) {
-  // Use the passed event data or fetch using client-side params as backup
+const ReviewCard = () => (
+  <div className="bg-[#f4f4f4] rounded-lg p-4">
+    <div className="flex items-center mb-2">
+      <Image
+        src="/default.svg"
+        alt="Ayobami Israel"
+        width={40}
+        height={40}
+        className="rounded-full object-cover mr-3"
+      />
+      <div>
+        <h3 className="text-sm font-medium text-[#1c1c1c]">Ayobami Israel</h3>
+        <p className="text-xs text-gray-500">16 minute ago</p>
+      </div>
+    </div>
+    <div className="flex text-yellow-400 mb-2">
+      {[...Array(4)].map((_, i) => <FiStar key={i} className="fill-current" size={16} />)}
+      <FiStar className="fill-current text-gray-300" size={16} />
+    </div>
+    <p className="text-xs text-[#1c1c1c]">
+      Let'sExplore have the best and surest location to have fun. And the website is so easy to use. Let'sExplore...
+    </p>
+  </div>
+);
+
+const ActionButton = ({ icon, label, color = "#1c1c1c" }: { icon: React.ReactNode; label: string; color?: string }) => (
+  <div className="flex flex-col items-center justify-center bg-gray-100 rounded-2xl px-6 py-2 space-y-1">
+    <div className={`rounded-full p-2 ${color === "#0063BF" ? "bg-blue-100" : "bg-gray-100"} mb-1`}>
+      {icon}
+    </div>
+    <span className={`text-xs ${color === "#0063BF" ? "text-[#0063BF]" : "text-[#1c1c1c]"}`}>{label}</span>
+  </div>
+);
+
+export default function ClientEventDetail({ eventData }: { eventData?: any }) {
   const params = useParams();
-  const eventId = eventData?.id || params.id as string;
-  const eventItem = eventData || events.find(e => e.id === eventId);
+  const eventId = eventData?.id || params.id;
+  const eventItem = eventData || events.find((e) => e.id === eventId);
 
   if (!eventItem) {
     return (
@@ -29,16 +80,36 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
     );
   }
 
+  const amenities = [
+    { icon: <Delivery className="text-gray-500 pr-4" />, label: "Delivery" },
+    { icon: <Dine className="text-gray-500 pr-4" />, label: "Dine" },
+    { icon: <Outdoor className="text-gray-500 mr-2" />, label: "Outdoor seating" },
+    { icon: <Card className="text-gray-500 mr-2" />, label: "Card payment" },
+    { icon: <Park className="text-gray-500 mr-2" />, label: "Parking" },
+    { icon: <Ac className="text-gray-500 mr-2" />, label: "Air conditioner" },
+    { icon: <Wifi className="text-gray-500 mr-2" />, label: "Free Wi-Fi" },
+  ];
+
+  const highlights = [
+    { icon: <Cofee className="text-gray-500 mr-2" />, label: "Coffee" },
+    { icon: <Cocktails className="text-gray-500 mr-2" />, label: "Cocktails" },
+    { icon: <Ambience className="text-gray-500 mr-2" />, label: "Great ambience" },
+    { icon: <Karaoke className="text-gray-500 mr-2" />, label: "Karaoke" },
+    { icon: <Salsa className="text-gray-500 mr-2" />, label: "Salsa" },
+    { icon: <Spend className="text-gray-500 mr-2" />, label: "Minimum spend of ₦50,000" },
+    { icon: <NoPicture className="text-gray-500 mr-2" />, label: "No picture policy" },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 md:pr-44">
       <Header />
-      <main className="pt-24 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24">
+      <main className="md:pt-24 pb-16">
+        <div className="max-w-7xl mx-auto md:px-4 sm:md:px-6 lg:px-8 md:pt-24">
           <div className="flex flex-col md:flex-row">
-            <div className="flex-1">
-              <div className="relative rounded-lg overflow-hidden mb-6" style={{ height: '400px' }}>
+            <div className="flex-1 md:mr-8">
+              <div className="relative md:rounded-lg overflow-hidden mb-6" style={{ height: "400px" }}>
                 <Image
-                  src={'/images/frame-details.png'}
+                  src="/images/frame-details.png"
                   alt={eventItem.title}
                   fill
                   priority
@@ -46,431 +117,276 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                   sizes="(max-width: 768px) 100vw, 50vw"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = '/default.svg';
+                    target.src = "/default.svg";
                   }}
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-between items-start mb-2">
-                <div className="mb-4 sm:mb-0">
-                  <h1 className="text-base font-bold text-gray-900">{eventItem.title}</h1>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <button className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
-                  </button>
-                  <button className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Event details in CategoryEventCard style */}
-              <div className="mb-6">
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <span className="text-gray-900 font-medium">{eventItem.category}<span className="mx-2 text-gray-400">•</span><span className="text-green-600">Open</span><span className="mx-2 text-gray-400">•</span>{eventItem.price === 'Free' ? 'Free' : `${eventItem.price}`}</span> <div className=" mx-2 flex items-center text-sm text-[#1C1C1C]">
-                      <FiMapPin className="mr-2 text-gray-500 flex-shrink-0" size={14} />
-                      <span className="truncate">{eventItem.location}</span>
-                    </div>
+              <div className="px-4 md:px-0">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="mb-4 sm:mb-0">
+                    <h1 className="text-base font-bold text-gray-900">{eventItem.title}</h1>
                   </div>
+                  <div className="flex items-center space-x-4">
+                    <button className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
+                      <svg className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                      </svg>
+                    </button>
+                    <button className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
+                      <svg className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
 
-                  {/* Event description */}
-                  {eventItem.description && (
-                    <div className="mt-4 text-sm text-[#1c1c1c]">
-                      <p>{eventItem.description}</p>
+                <div className="mb-6">
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="text-gray-900 font-medium">
+                        {eventItem.category}<span className="mx-2 text-gray-400">•</span><span className="text-green-600">Open</span><span className="mx-2 text-gray-400">•</span>{eventItem.price === "Free" ? "Free" : eventItem.price}
+                      </span>
+                      <div className="mx-2 flex items-center text-sm text-[#1C1C1C]">
+                        <FiMapPin className="mr-2 text-gray-500 flex-shrink-0" size={14} />
+                        <span className="truncate">{eventItem.location}</span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="mb-8">
-                <h1 className="text-sm text-[#1c1c1c] font-semibold mb-4">About Us</h1>
-                <p className="text-[#1c1c1c] text-xs leading-relaxed">
-                  Let&apos;s Explore have the best and event location to have fun. And the website is so easy to use. Let&apos;s Explore have the best and event location to have fun. And the website is so easy to use. Let&apos;s Explore have the best and event location to have fun. And the website is so easy to use Let&apos;s Explore...
-                </p>
-              </div>
-
-              <div className="mb-10">
-                <h2 className="text-sm text-[#1c1c1c] font-semibold mb-4">More images</h2>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
-                      <Image
-                        src={'/default.svg'}
-                        alt={`Gallery image ${i}`}
-                        fill
-                        className="object-cover hover:scale-110 transition-transform cursor-pointer"
-                        sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/default.svg';
-                        }}
-                      />
+                    <div className="flex items-center space-x-2">
+                      <div className="flex text-yellow-400">
+                        {[...Array(4)].map((_, i) => <FiStar key={i} className="fill-current" size={16} />)}
+                        <FiStar className="fill-current text-gray-300" size={16} />
+                      </div>
+                      <span className="text-sm text-gray-600">4.5</span>
+                      <span className="text-sm text-blue-600 underline cursor-pointer">234 Reviews</span>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              <div className="mb-10">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-sm text-[#1c1c1c] font-semibold">Ratings and reviews</h2>
-                  <button className="bg-[#f6f9fd] text-blue-600 px-4 py-2 rounded-md text-sm hover:bg-blue-50 transition-colors">
-                    Write a review
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Review Card 1 */}
-                  <div className="bg-[#f4f4f4] rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
-                        <Image
-                          src={'/default.svg'}
-                          alt="Ayobami Israel"
-                          width={40}
-                          height={40}
-                          className="object-cover"
+                    {/* Action buttons for mobile - shown only on mobile */}
+                    <div className="md:hidden mt-6">
+                      <div className="grid grid-cols-5 gap-1 mb-6">
+                        <ActionButton
+                          icon={
+                            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8.80013 15.3337C7.78902 15.3337 6.83624 15.142 5.9418 14.7587C5.04735 14.3753 4.26957 13.8531 3.60846 13.192C2.94735 12.5309 2.42513 11.7531 2.0418 10.8587C1.65846 9.96421 1.4668 9.01144 1.4668 8.00033C1.4668 6.9781 1.65846 6.02255 2.0418 5.13366C2.42513 4.24477 2.94735 3.46977 3.60846 2.80866C4.26957 2.14755 5.04735 1.62533 5.9418 1.24199C6.83624 0.858659 7.78902 0.666992 8.80013 0.666992C9.82235 0.666992 10.7779 0.858659 11.6668 1.24199C12.5557 1.62533 13.3307 2.14755 13.9918 2.80866C14.6529 3.46977 15.1751 4.24477 15.5585 5.13366C15.9418 6.02255 16.1335 6.9781 16.1335 8.00033C16.1335 9.01144 15.9418 9.96421 15.5585 10.8587C15.1751 11.7531 14.6529 12.5309 13.9918 13.192C13.3307 13.8531 12.5557 14.3753 11.6668 14.7587C10.7779 15.142 9.82235 15.3337 8.80013 15.3337ZM8.38346 13.1837C8.49457 13.2948 8.62235 13.3503 8.7668 13.3503C8.91124 13.3503 9.03902 13.2948 9.15013 13.1837L13.9501 8.38366C14.0612 8.27255 14.1168 8.13921 14.1168 7.98366C14.1168 7.8281 14.0612 7.69477 13.9501 7.58366L9.15013 2.78366C9.03902 2.67255 8.91124 2.61699 8.7668 2.61699C8.62235 2.61699 8.49457 2.67255 8.38346 2.78366L3.58346 7.58366C3.47235 7.69477 3.4168 7.8281 3.4168 7.98366C3.4168 8.13921 3.47235 8.27255 3.58346 8.38366L8.38346 13.1837ZM6.1168 9.98366V7.31699C6.1168 7.11699 6.17791 6.95588 6.30013 6.83366C6.42235 6.71144 6.58346 6.65033 6.78346 6.65033H9.55013L8.85013 5.91699L9.78346 4.98366L12.1168 7.31699L9.78346 9.65032L8.85013 8.71699L9.55013 7.98366H7.45013V9.98366H6.1168Z" fill="#D2D2D2" />
+                            </svg>
+                          }
+                          label="Direction"
+                        />
+                        <ActionButton
+                          icon={
+                            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8.39909 14.6663C7.48798 14.6663 6.62687 14.4913 5.81576 14.1413C5.00464 13.7913 4.29631 13.3136 3.69076 12.708C3.0852 12.1025 2.60742 11.3941 2.25742 10.583C1.90742 9.7719 1.73242 8.91079 1.73242 7.99967C1.73242 7.07745 1.90742 6.21356 2.25742 5.40801C2.60742 4.60245 3.0852 3.8969 3.69076 3.29134C4.29631 2.68579 5.00464 2.20801 5.81576 1.85801C6.62687 1.50801 7.48798 1.33301 8.39909 1.33301C9.32131 1.33301 10.1852 1.50801 10.9908 1.85801C11.7963 2.20801 12.5019 2.68579 13.1074 3.29134C13.713 3.8969 14.1908 4.60245 14.5408 5.40801C14.8908 6.21356 15.0658 7.07745 15.0658 7.99967C15.0658 8.91079 14.8908 9.7719 14.5408 10.583C14.1908 11.3941 13.713 12.1025 13.1074 12.708C12.5019 13.3136 11.7963 13.7913 10.9908 14.1413C10.1852 14.4913 9.32131 14.6663 8.39909 14.6663ZM8.39909 13.2997C8.68798 12.8997 8.93798 12.483 9.14909 12.0497C9.3602 11.6163 9.53242 11.1552 9.66576 10.6663H7.13242C7.26576 11.1552 7.43798 11.6163 7.64909 12.0497C7.8602 12.483 8.1102 12.8997 8.39909 13.2997ZM6.66576 13.033C6.46576 12.6663 6.29076 12.2858 6.14076 11.8913C5.99076 11.4969 5.86576 11.0886 5.76576 10.6663H3.79909C4.12131 11.2219 4.52409 11.7052 5.00742 12.1163C5.49076 12.5275 6.04353 12.833 6.66576 13.033ZM10.1324 13.033C10.7546 12.833 11.3074 12.5275 11.7908 12.1163C12.2741 11.7052 12.6769 11.2219 12.9991 10.6663H11.0324C10.9324 11.0886 10.8074 11.4969 10.6574 11.8913C10.5074 12.2858 10.3324 12.6663 10.1324 13.033ZM3.23242 9.33301H5.49909C5.46576 9.11079 5.44076 8.89134 5.42409 8.67467C5.40742 8.45801 5.39909 8.23301 5.39909 7.99967C5.39909 7.76634 5.40742 7.54134 5.42409 7.32467C5.44076 7.10801 5.46576 6.88856 5.49909 6.66634H3.23242C3.17687 6.88856 3.1352 7.10801 3.10742 7.32467C3.07964 7.54134 3.06576 7.76634 3.06576 7.99967C3.06576 8.23301 3.07964 8.45801 3.10742 8.67467C3.1352 8.89134 3.17687 9.11079 3.23242 9.33301ZM6.83242 9.33301H9.96576C9.99909 9.11079 10.0241 8.89134 10.0408 8.67467C10.0574 8.45801 10.0658 8.23301 10.0658 7.99967C10.0658 7.76634 10.0574 7.54134 10.0408 7.32467C10.0241 7.10801 9.99909 6.88856 9.96576 6.66634H6.83242C6.79909 6.88856 6.77409 7.10801 6.75742 7.32467C6.74076 7.54134 6.73242 7.76634 6.73242 7.99967C6.73242 8.23301 6.74076 8.45801 6.75742 8.67467C6.77409 8.89134 6.79909 9.11079 6.83242 9.33301ZM11.2991 9.33301H13.5658C13.6213 9.11079 13.663 8.89134 13.6908 8.67467C13.7185 8.45801 13.7324 8.23301 13.7324 7.99967C13.7324 7.76634 13.7185 7.54134 13.6908 7.32467C13.663 7.10801 13.6213 6.88856 13.5658 6.66634H11.2991C11.3324 6.88856 11.3574 7.10801 11.3741 7.32467C11.3908 7.54134 11.3991 7.76634 11.3991 7.99967C11.3991 8.23301 11.3908 8.45801 11.3741 8.67467C11.3574 8.89134 11.3324 9.11079 11.2991 9.33301ZM11.0324 5.33301H12.9991C12.6769 4.77745 12.2741 4.29412 11.7908 3.88301C11.3074 3.4719 10.7546 3.16634 10.1324 2.96634C10.3324 3.33301 10.5074 3.71356 10.6574 4.10801C10.8074 4.50245 10.9324 4.91079 11.0324 5.33301ZM7.13242 5.33301H9.66576C9.53242 4.84412 9.3602 4.38301 9.14909 3.94967C8.93798 3.51634 8.68798 3.09967 8.39909 2.69967C8.1102 3.09967 7.8602 3.51634 7.64909 3.94967C7.43798 4.38301 7.26576 4.84412 7.13242 5.33301ZM3.79909 5.33301H5.76576C5.86576 4.91079 5.99076 4.50245 6.14076 4.10801C6.29076 3.71356 6.46576 3.33301 6.66576 2.96634C6.04353 3.16634 5.49076 3.4719 5.00742 3.88301C4.52409 4.29412 4.12131 4.77745 3.79909 5.33301Z" fill="#D2D2D2" />
+                            </svg>
+                          }
+                          label="Links"
+                        />
+                        <ActionButton
+                          icon={
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M13.3 14C11.9111 14 10.5389 13.6972 9.18333 13.0917C7.82778 12.4861 6.59444 11.6278 5.48333 10.5167C4.37222 9.40556 3.51389 8.17222 2.90833 6.81667C2.30278 5.46111 2 4.08889 2 2.7C2 2.5 2.06667 2.33333 2.2 2.2C2.33333 2.06667 2.5 2 2.7 2H5.4C5.55556 2 5.69444 2.05278 5.81667 2.15833C5.93889 2.26389 6.01111 2.38889 6.03333 2.53333L6.46667 4.86667C6.48889 5.04444 6.48333 5.19444 6.45 5.31667C6.41667 5.43889 6.35556 5.54444 6.26667 5.63333L4.65 7.26667C4.87222 7.67778 5.13611 8.075 5.44167 8.45833C5.74722 8.84167 6.08333 9.21111 6.45 9.56667C6.79444 9.91111 7.15556 10.2306 7.53333 10.525C7.91111 10.8194 8.31111 11.0889 8.73333 11.3333L10.3 9.76667C10.4 9.66667 10.5306 9.59167 10.6917 9.54167C10.8528 9.49167 11.0111 9.47778 11.1667 9.5L13.4667 9.96667C13.6222 10.0111 13.75 10.0917 13.85 10.2083C13.95 10.325 14 10.4556 14 10.6V13.3C14 13.5 13.9333 13.6667 13.8 13.8C13.6667 13.9333 13.5 14 13.3 14Z" fill="#D6D6D6" />
+                            </svg>
+                          }
+                          label="Contact"
+                        />
+                        <ActionButton
+                          icon={
+                            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8.59961 9.33301C8.41072 9.33301 8.25239 9.26912 8.12461 9.14134C7.99683 9.01356 7.93294 8.85523 7.93294 8.66634C7.93294 8.47745 7.99683 8.31912 8.12461 8.19134C8.25239 8.06356 8.41072 7.99967 8.59961 7.99967C8.7885 7.99967 8.94683 8.06356 9.07461 8.19134C9.20239 8.31912 9.26628 8.47745 9.26628 8.66634C9.26628 8.85523 9.20239 9.01356 9.07461 9.14134C8.94683 9.26912 8.7885 9.33301 8.59961 9.33301ZM5.93294 9.33301C5.74405 9.33301 5.58572 9.26912 5.45794 9.14134C5.33016 9.01356 5.26628 8.85523 5.26628 8.66634C5.26628 8.47745 5.33016 8.31912 5.45794 8.19134C5.58572 8.06356 5.74405 7.99967 5.93294 7.99967C6.12183 7.99967 6.28017 8.06356 6.40794 8.19134C6.53572 8.31912 6.59961 8.47745 6.59961 8.66634C6.59961 8.85523 6.53572 9.01356 6.40794 9.14134C6.28017 9.26912 6.12183 9.33301 5.93294 9.33301ZM11.2663 9.33301C11.0774 9.33301 10.9191 9.26912 10.7913 9.14134C10.6635 9.01356 10.5996 8.85523 10.5996 8.66634C10.5996 8.47745 10.6635 8.31912 10.7913 8.19134C10.9191 8.06356 11.0774 7.99967 11.2663 7.99967C11.4552 7.99967 11.6135 8.06356 11.7413 8.19134C11.8691 8.31912 11.9329 8.47745 11.9329 8.66634C11.9329 8.85523 11.8691 9.01356 11.7413 9.14134C11.6135 9.26912 11.4552 9.33301 11.2663 9.33301ZM8.59961 11.9997C8.41072 11.9997 8.25239 11.9358 8.12461 11.808C7.99683 11.6802 7.93294 11.5219 7.93294 11.333C7.93294 11.1441 7.99683 10.9858 8.12461 10.858C8.25239 10.7302 8.41072 10.6663 8.59961 10.6663C8.7885 10.6663 8.94683 10.7302 9.07461 10.858C9.20239 10.9858 9.26628 11.1441 9.26628 11.333C9.26628 11.5219 9.20239 11.6802 9.07461 11.808C8.94683 11.9358 8.7885 11.9997 8.59961 11.9997ZM5.93294 11.9997C5.74405 11.9997 5.58572 11.9358 5.45794 11.808C5.33016 11.6802 5.26628 11.5219 5.26628 11.333C5.26628 11.1441 5.33016 10.9858 5.45794 10.858C5.58572 10.7302 5.74405 10.6663 5.93294 10.6663C6.12183 10.6663 6.28017 10.7302 6.40794 10.858C6.53572 10.9858 6.59961 11.1441 6.59961 11.333C6.59961 11.5219 6.53572 11.6802 6.40794 11.808C6.28017 11.9358 6.12183 11.9997 5.93294 11.9997ZM11.2663 11.9997C11.0774 11.9997 10.9191 11.9358 10.7913 11.808C10.6635 11.6802 10.5996 11.5219 10.5996 11.333C10.5996 11.1441 10.6635 10.9858 10.7913 10.858C10.9191 10.7302 11.0774 10.6663 11.2663 10.6663C11.4552 10.6663 11.6135 10.7302 11.7413 10.858C11.8691 10.9858 11.9329 11.1441 11.9329 11.333C11.9329 11.5219 11.8691 11.6802 11.7413 11.808C11.6135 11.9358 11.4552 11.9997 11.2663 11.9997ZM3.93294 14.6663C3.56628 14.6663 3.25239 14.5358 2.99128 14.2747C2.73016 14.0136 2.59961 13.6997 2.59961 13.333V3.99967C2.59961 3.63301 2.73016 3.31912 2.99128 3.05801C3.25239 2.7969 3.56628 2.66634 3.93294 2.66634H4.59961V1.33301H5.93294V2.66634H11.2663V1.33301H12.5996V2.66634H13.2663C13.6329 2.66634 13.9468 2.7969 14.2079 3.05801C14.4691 3.31912 14.5996 3.63301 14.5996 3.99967V13.333C14.5996 13.6997 14.4691 14.0136 14.2079 14.2747C13.9468 14.5358 13.6329 14.6663 13.2663 14.6663H3.93294ZM3.93294 13.333H13.2663V6.66634H3.93294V13.333Z" fill="#0063BF" />
+                            </svg>
+                          }
+                          label="Reserve"
+                          color="#0063BF"
+                        />
+                        <ActionButton
+                          icon={
+                            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M4.20052 9.33366C3.83385 9.33366 3.51997 9.2031 3.25885 8.94199C2.99774 8.68088 2.86719 8.36699 2.86719 8.00033C2.86719 7.63366 2.99774 7.31977 3.25885 7.05866C3.51997 6.79755 3.83385 6.66699 4.20052 6.66699C4.56719 6.66699 4.88108 6.79755 5.14219 7.05866C5.4033 7.31977 5.53385 7.63366 5.53385 8.00033C5.53385 8.36699 5.4033 8.68088 5.14219 8.94199C4.88108 9.2031 4.56719 9.33366 4.20052 9.33366ZM8.20052 9.33366C7.83385 9.33366 7.51997 9.2031 7.25885 8.94199C6.99774 8.68088 6.86719 8.36699 6.86719 8.00033C6.86719 7.63366 6.99774 7.31977 7.25885 7.05866C7.51997 6.79755 7.83385 6.66699 8.20052 6.66699C8.56719 6.66699 8.88108 6.79755 9.14219 7.05866C9.4033 7.31977 9.53385 7.63366 9.53385 8.00033C9.53385 8.36699 9.4033 8.68088 9.14219 8.94199C8.88108 9.2031 8.56719 9.33366 8.20052 9.33366ZM12.2005 9.33366C11.8339 9.33366 11.52 9.2031 11.2589 8.94199C10.9977 8.68088 10.8672 8.36699 10.8672 8.00033C10.8672 7.63366 10.9977 7.31977 11.2589 7.05866C11.52 6.79755 11.8339 6.66699 12.2005 6.66699C12.5672 6.66699 12.8811 6.79755 13.1422 7.05866C13.4033 7.31977 13.5339 7.63366 13.5339 8.00033C13.5339 8.36699 13.4033 8.68088 13.1422 8.94199C12.8811 9.2031 12.5672 9.33366 12.2005 9.33366ZM8.59961 11.9997C8.41072 11.9997 8.25239 11.9358 8.12461 11.808C7.99683 11.6802 7.93294 11.5219 7.93294 11.333C7.93294 11.1441 7.99683 10.9858 8.12461 10.858C8.25239 10.7302 8.41072 10.6663 8.59961 10.6663C8.7885 10.6663 8.94683 10.7302 9.07461 10.858C9.20239 10.9858 9.26628 11.1441 9.26628 11.333C9.26628 11.5219 9.20239 11.6802 9.07461 11.808C8.94683 11.9358 8.7885 11.9997 8.59961 11.9997ZM5.93294 11.9997C5.74405 11.9997 5.58572 11.9358 5.45794 11.808C5.33016 11.6802 5.26628 11.5219 5.26628 11.333C5.26628 11.1441 5.33016 10.9858 5.45794 10.858C5.58572 10.7302 5.74405 10.6663 5.93294 10.6663C6.12183 10.6663 6.28017 10.7302 6.40794 10.858C6.53572 10.9858 6.59961 11.1441 6.59961 11.333C6.59961 11.5219 6.53572 11.6802 6.40794 11.808C6.28017 11.9358 6.12183 11.9997 5.93294 11.9997ZM11.2663 11.9997C11.0774 11.9997 10.9191 11.9358 10.7913 11.808C10.6635 11.6802 10.5996 11.5219 10.5996 11.333C10.5996 11.1441 10.6635 10.9858 10.7913 10.858C10.9191 10.7302 11.0774 10.6663 11.2663 10.6663C11.4552 10.6663 11.6135 10.7302 11.7413 10.858C11.8691 10.9858 11.9329 11.1441 11.9329 11.333C11.9329 11.5219 11.8691 11.6802 11.7413 11.808C11.6135 11.9358 11.4552 11.9997 11.2663 11.9997ZM3.93294 14.6663C3.56628 14.6663 3.25239 14.5358 2.99128 14.2747C2.73016 14.0136 2.59961 13.6997 2.59961 13.333V3.99967C2.59961 3.63301 2.73016 3.31912 2.99128 3.05801C3.25239 2.7969 3.56628 2.66634 3.93294 2.66634H4.59961V1.33301H5.93294V2.66634H11.2663V1.33301H12.5996V2.66634H13.2663C13.6329 2.66634 13.9468 2.7969 14.2079 3.05801C14.4691 3.31912 14.5996 3.63301 14.5996 3.99967V13.333C14.5996 13.6997 14.4691 14.0136 14.2079 14.2747C13.9468 14.5358 13.6329 14.6663 13.2663 14.6663H3.93294ZM3.93294 13.333H13.2663V6.66634H3.93294V13.333Z" fill="#0063BF" />
+                            </svg>
+                          }
+                          label="More"
+                          color="#0063BF"
                         />
                       </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-[#1c1c1c]">Ayobami Israel</h3>
-                        <p className="text-xs text-gray-500">16 minute ago</p>
-                      </div>
                     </div>
-                    <div className="flex text-yellow-400 mb-2">
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current text-gray-300" size={16} />
-                    </div>
-                    <p className="text-xs text-[#1c1c1c]">
-                      Let&apos;sExplore have the best and surest location to have fun. And the website is so easy to use. Let&apos;sExplore...
-                    </p>
-                  </div>
 
-                  {/* Review Card 2 */}
-                  <div className="bg-[#f4f4f4] rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
+                    {eventItem.description && (
+                      <div className="mt-4 text-sm text-[#1c1c1c]">
+                        <p>{eventItem.description}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mb-8">
+                  <h1 className="text-sm text-[#1c1c1c] font-semibold mb-4">About Us</h1>
+                  <p className="text-[#1c1c1c] text-xs leading-relaxed">
+                    Let's Explore have the best and event location to have fun. And the website is so easy to use...
+                  </p>
+                </div>
+
+                <div className="mb-10">
+                  <h2 className="text-sm text-[#1c1c1c] font-semibold mb-4">More images</h2>
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="relative w-24 h-24 md:w-32 md:h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
                         <Image
-                          src={'/default.svg'}
-                          alt="Ayobami Israel"
-                          width={40}
-                          height={40}
-                          className="object-cover"
+                          src="/default.svg"
+                          alt={`Gallery image ${i}`}
+                          fill
+                          className="object-cover hover:scale-110 transition-transform cursor-pointer"
+                          sizes="(max-width: 768px) 96px, 128px"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/default.svg";
+                          }}
                         />
                       </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-[#1c1c1c]">Ayobami Israel</h3>
-                        <p className="text-xs text-gray-500">16 minute ago</p>
-                      </div>
-                    </div>
-                    <div className="flex text-yellow-400 mb-2">
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current text-gray-300" size={16} />
-                    </div>
-                    <p className="text-xs text-[#1c1c1c]">
-                      Let&apos;sExplore have the best and surest location to have fun. And the website is so easy to use. Let&apos;sExplore...
-                    </p>
-                  </div>
-
-                  {/* Review Card 3 */}
-                  <div className=" rounded-lg p-4  bg-[#f4f4f4] ">
-                    <div className="flex items-center mb-2">
-                      <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
-                        <Image
-                          src={'/default.svg'}
-                          alt="Ayobami Israel"
-                          width={40}
-                          height={40}
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-[#1c1c1c]">Ayobami Israel</h3>
-                        <p className="text-xs text-gray-500">16 minute ago</p>
-                      </div>
-                    </div>
-                    <div className="flex text-yellow-400 mb-2">
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current" size={16} />
-                      <FiStar className="fill-current text-gray-300" size={16} />
-                    </div>
-                    <p className="text-xs text-[#1c1c1c]">
-                      Let&apos;sExplore have the best and surest location to have fun. And the website is so easy to use. Let&apos;sExplore...
-                    </p>
+                    ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Amenities Section */}
-              <div className="mb-10">
-                <h2 className="text-sm text-[#1c1c1c]  mb-4">Amenities</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 9.5H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H5v-8h14v8zm-7-5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6.39-9.65l1.42-1.42C7.79 2.67 9.34 2 11 2c1.66 0 3.21.67 4.38 1.85l1.41 1.42 1.41-1.42-1.41-1.42C15.04 .64 13.1 0 11 0 8.9 0 6.96.64 5.21 2.43L3.79 3.85l1.41 1.42z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Delivery</span>
+                <div className="mb-10">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-sm text-[#1c1c1c] font-semibold">Ratings and reviews</h2>
+                    <button className="bg-[#f6f9fd] text-blue-600 px-4 py-2 rounded-md text-sm hover:bg-blue-50 transition-colors">
+                      Write a review
+                    </button>
                   </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 3H6C4.9 3 4 3.9 4 5v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H6V5h12v14z" fill="currentColor" />
-                        <path d="M11 7h2v2h-2zm0 4h2v2h-2zm0 4h2v2h-2z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Dine</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 9H5c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-9c0-1.1-.9-2-2-2zm0 11H5v-9h14v9zm-5-9v-2c0-1.1-.9-2-2-2s-2 .9-2 2v2H5V5c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2v6h-5z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Outdoor seating</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Card payment</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-6h2v2h-2zm0-8h2v6h-2z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Parking</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22 4H2v16h20V4zm-8 8.5c0 .83-.67 1.5-1.5 1.5h-3v2H8v-6h4.5c.83 0 1.5.67 1.5 1.5v1zm4 3.5h-1.5V8H18v8zm-3-4h-3v-2h3v2z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Air conditioner</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0-2C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 10c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Free Wi-Fi</span>
+                  <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:pb-0">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="w-72 flex-shrink-0 md:w-auto md:flex-shrink">
+                        <ReviewCard />
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Highlights Section */}
-              <div className="mb-10">
-                <h2 className="text-sm text-[#1c1c1c] mb-4">Highlights</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3zM16 9v1c0 2.76-2.24 5-5 5s-5-2.24-5-5V5h12.5c.83 0 1.5.67 1.5 1.5S19.33 8 18.5 8H16z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Coffee</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 5V3H3v2l8 9v5H6v2h12v-2h-5v-5l8-9zM7.43 7L5.66 5h12.69l-1.78 2H7.43z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Cocktails</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8-1.41-1.42z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Great ambience</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 9h-1.56c.35-.59.56-1.27.56-2 0-2.21-1.79-4-4-4-.34 0-.66.05-.98.13-.32-.08-.64-.13-.98-.13-2.21 0-4 1.79-4 4 0 .73.21 1.41.56 2H7c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-9c0-1.1-.9-2-2-2zm0 11H7v-7h12v7zm-6-9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Karaoke</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22 4h-5v7h3v9l-5-6v-3h-2v3l-5 6v-9h3V4H6v7h1v11h10v-9l5 5v-7h-3V4z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Salsa</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 2h1.5v3l2-3h1.7l-2 3 2 3h-1.7l-2-3v3H12V5zM7 7.25h2.5V6.5H7V5h4v3.75H8.5v.75H11V11H7V7.25zM19 13l-6 6-4-4-4 4v-2.5l4-4 4 4 6-6V13z" fill="currentColor" />
-                        <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">Minimum spend of ₦50,000</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="text-xs text-[#1c1c1c]">No picture policy</span>
+                <div className="mb-10">
+                  <h2 className="text-sm text-[#1c1c1c] mb-4">Amenities</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
+                    {amenities.map(({ icon, label }, i) => (
+                      <div key={i} className="flex items-center">
+                        {icon}
+                        <span className="text-xs text-[#1c1c1c] px-2">{label}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Perfect for Section */}
-              <div className="mb-10">
-                <h2 className="text-sm text-[#1c1c1c] mb-4">Perfect for</h2>
-                <ul className="list-disc pl-5 text-xs text-[#1c1c1c] space-y-1">
-                  <li>Proposal</li>
-                  <li>Small hangout</li>
-                  <li>Corporate events</li>
-                  <li>Dinners</li>
-                </ul>
-              </div>
+                <div className="mb-10">
+                  <h2 className="text-sm text-[#1c1c1c] mb-4">Highlights</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
+                    {highlights.map(({ icon, label }, i) => (
+                      <div key={i} className="flex items-center">
+                        {icon}
+                        <span className="text-xs text-[#1c1c1c] px-2">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-              <div className="mb-10">
-                <h2 className="text-sm text-[#1C1C1C] font-semibold mb-4">Similar places you can explore</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {events.slice(0, 3).filter(e => e.id !== eventId).map((similarEvent) => (
-                    <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
-                      <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                        <div className="relative" style={{ height: '150px' }}>
-                          <Image
-                            src={similarEvent.image || '/default.svg'}
-                            alt={similarEvent.title}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = '/default.svg';
-                            }}
-                          />
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-medium text-[#1C1C1C] truncate">{similarEvent.title}</h3>
-                          <div className="flex items-center text-xs text-gray-600 mt-1">
-                            <span>{similarEvent.date}, {similarEvent.time}</span>
+                <div className="mb-10">
+                  <h2 className="text-sm text-[#1c1c1c] mb-4">Perfect for</h2>
+                  <ul className="list-disc pl-5 text-xs text-[#1c1c1c] space-y-1">
+                    {["Proposal", "Small hangout", "Corporate events", "Dinners"].map((item, i) => (
+                      <li key={i}>{item}</li>
+                    ))}
+                    </ul>
+                </div>
+
+                {/* Similar places section for desktop - hidden on mobile */}
+                <div className="mb-10 hidden md:block">
+                  <h2 className="text-sm text-[#1C1C1C] font-semibold mb-4">Similar places you can explore</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {events
+                      .filter((e) => e.id !== eventId)
+                      .slice(0, 3)
+                      .map((similarEvent) => (
+                        <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
+                          <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <div className="relative" style={{ height: "150px" }}>
+                              <Image
+                                src={similarEvent.image || "/default.svg"}
+                                alt={similarEvent.title}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 33vw"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = "/default.svg";
+                                }}
+                              />
+                            </div>
+                            <div className="p-4">
+                              <h3 className="font-medium text-[#1C1C1C] truncate">{similarEvent.title}</h3>
+                              <div className="flex items-center text-xs text-gray-600 mt-1">
+                                <span>{similarEvent.date}, {similarEvent.time}</span>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                        </Link>
+                      ))}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Side - Event Details */}
-            <div className="w-full md:w-80 md:ml-8 flex-shrink-0">
-              <div className=" p-6 rounded-lg mb-6 sticky top-24">
-                {/* Action Buttons */}
-                <div className="flex justify-between space-x-4 mb-6">
-
-
-                  <div className="flex flex-col items-center justify-center bg-gray-100 rounded-2xl px-6 py-2 space-y-1">
-                    <div className="rounded-full bg-gray-100 p-2">
+            <div className="w-full md:w-80 flex-shrink-0 px-4 pt-4 md:px-0 md:pt-0">
+              <div className="rounded-lg mb-6 sticky top-24">
+                {/* Action buttons for desktop - hidden on mobile */}
+                <div className="hidden md:flex md:justify-between md:space-x-2 mb-6">
+                  <ActionButton
+                    icon={
                       <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <mask id="mask0_509_16615" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="17" height="16">
-                          <rect x="0.799805" width="16" height="16" fill="#D9D9D9" />
-                        </mask>
-                        <g mask="url(#mask0_509_16615)">
-                          <path d="M8.80013 15.3337C7.78902 15.3337 6.83624 15.142 5.9418 14.7587C5.04735 14.3753 4.26957 13.8531 3.60846 13.192C2.94735 12.5309 2.42513 11.7531 2.0418 10.8587C1.65846 9.96421 1.4668 9.01144 1.4668 8.00033C1.4668 6.9781 1.65846 6.02255 2.0418 5.13366C2.42513 4.24477 2.94735 3.46977 3.60846 2.80866C4.26957 2.14755 5.04735 1.62533 5.9418 1.24199C6.83624 0.858659 7.78902 0.666992 8.80013 0.666992C9.82235 0.666992 10.7779 0.858659 11.6668 1.24199C12.5557 1.62533 13.3307 2.14755 13.9918 2.80866C14.6529 3.46977 15.1751 4.24477 15.5585 5.13366C15.9418 6.02255 16.1335 6.9781 16.1335 8.00033C16.1335 9.01144 15.9418 9.96421 15.5585 10.8587C15.1751 11.7531 14.6529 12.5309 13.9918 13.192C13.3307 13.8531 12.5557 14.3753 11.6668 14.7587C10.7779 15.142 9.82235 15.3337 8.80013 15.3337ZM8.38346 13.1837C8.49457 13.2948 8.62235 13.3503 8.7668 13.3503C8.91124 13.3503 9.03902 13.2948 9.15013 13.1837L13.9501 8.38366C14.0612 8.27255 14.1168 8.13921 14.1168 7.98366C14.1168 7.8281 14.0612 7.69477 13.9501 7.58366L9.15013 2.78366C9.03902 2.67255 8.91124 2.61699 8.7668 2.61699C8.62235 2.61699 8.49457 2.67255 8.38346 2.78366L3.58346 7.58366C3.47235 7.69477 3.4168 7.8281 3.4168 7.98366C3.4168 8.13921 3.47235 8.27255 3.58346 8.38366L8.38346 13.1837ZM6.1168 9.98366V7.31699C6.1168 7.11699 6.17791 6.95588 6.30013 6.83366C6.42235 6.71144 6.58346 6.65033 6.78346 6.65033H9.55013L8.85013 5.91699L9.78346 4.98366L12.1168 7.31699L9.78346 9.65032L8.85013 8.71699L9.55013 7.98366H7.45013V9.98366H6.1168Z" fill="#D2D2D2" />
-                        </g>
+                        <path d="M8.80013 15.3337C7.78902 15.3337 6.83624 15.142 5.9418 14.7587C5.04735 14.3753 4.26957 13.8531 3.60846 13.192C2.94735 12.5309 2.42513 11.7531 2.0418 10.8587C1.65846 9.96421 1.4668 9.01144 1.4668 8.00033C1.4668 6.9781 1.65846 6.02255 2.0418 5.13366C2.42513 4.24477 2.94735 3.46977 3.60846 2.80866C4.26957 2.14755 5.04735 1.62533 5.9418 1.24199C6.83624 0.858659 7.78902 0.666992 8.80013 0.666992C9.82235 0.666992 10.7779 0.858659 11.6668 1.24199C12.5557 1.62533 13.3307 2.14755 13.9918 2.80866C14.6529 3.46977 15.1751 4.24477 15.5585 5.13366C15.9418 6.02255 16.1335 6.9781 16.1335 8.00033C16.1335 9.01144 15.9418 9.96421 15.5585 10.8587C15.1751 11.7531 14.6529 12.5309 13.9918 13.192C13.3307 13.8531 12.5557 14.3753 11.6668 14.7587C10.7779 15.142 9.82235 15.3337 8.80013 15.3337ZM8.38346 13.1837C8.49457 13.2948 8.62235 13.3503 8.7668 13.3503C8.91124 13.3503 9.03902 13.2948 9.15013 13.1837L13.9501 8.38366C14.0612 8.27255 14.1168 8.13921 14.1168 7.98366C14.1168 7.8281 14.0612 7.69477 13.9501 7.58366L9.15013 2.78366C9.03902 2.67255 8.91124 2.61699 8.7668 2.61699C8.62235 2.61699 8.49457 2.67255 8.38346 2.78366L3.58346 7.58366C3.47235 7.69477 3.4168 7.8281 3.4168 7.98366C3.4168 8.13921 3.47235 8.27255 3.58346 8.38366L8.38346 13.1837ZM6.1168 9.98366V7.31699C6.1168 7.11699 6.17791 6.95588 6.30013 6.83366C6.42235 6.71144 6.58346 6.65033 6.78346 6.65033H9.55013L8.85013 5.91699L9.78346 4.98366L12.1168 7.31699L9.78346 9.65032L8.85013 8.71699L9.55013 7.98366H7.45013V9.98366H6.1168Z" fill="#D2D2D2" />
                       </svg>
-                    </div>
-                    <span className="text-xs text-[#1c1c1c]">Direction</span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center bg-gray-100 rounded-2xl px-6 py-2 space-y-1">
-                    <div className="rounded-full bg-gray-100 p-2 mb-1">
+                    }
+                    label="Direction"
+                  />
+                  <ActionButton
+                    icon={
                       <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <mask id="mask0_509_16618" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="17" height="16">
-                          <rect x="0.399414" width="16" height="16" fill="#D9D9D9" />
-                        </mask>
-                        <g mask="url(#mask0_509_16618)">
-                          <path d="M8.39909 14.6663C7.48798 14.6663 6.62687 14.4913 5.81576 14.1413C5.00464 13.7913 4.29631 13.3136 3.69076 12.708C3.0852 12.1025 2.60742 11.3941 2.25742 10.583C1.90742 9.7719 1.73242 8.91079 1.73242 7.99967C1.73242 7.07745 1.90742 6.21356 2.25742 5.40801C2.60742 4.60245 3.0852 3.8969 3.69076 3.29134C4.29631 2.68579 5.00464 2.20801 5.81576 1.85801C6.62687 1.50801 7.48798 1.33301 8.39909 1.33301C9.32131 1.33301 10.1852 1.50801 10.9908 1.85801C11.7963 2.20801 12.5019 2.68579 13.1074 3.29134C13.713 3.8969 14.1908 4.60245 14.5408 5.40801C14.8908 6.21356 15.0658 7.07745 15.0658 7.99967C15.0658 8.91079 14.8908 9.7719 14.5408 10.583C14.1908 11.3941 13.713 12.1025 13.1074 12.708C12.5019 13.3136 11.7963 13.7913 10.9908 14.1413C10.1852 14.4913 9.32131 14.6663 8.39909 14.6663ZM8.39909 13.2997C8.68798 12.8997 8.93798 12.483 9.14909 12.0497C9.3602 11.6163 9.53242 11.1552 9.66576 10.6663H7.13242C7.26576 11.1552 7.43798 11.6163 7.64909 12.0497C7.8602 12.483 8.1102 12.8997 8.39909 13.2997ZM6.66576 13.033C6.46576 12.6663 6.29076 12.2858 6.14076 11.8913C5.99076 11.4969 5.86576 11.0886 5.76576 10.6663H3.79909C4.12131 11.2219 4.52409 11.7052 5.00742 12.1163C5.49076 12.5275 6.04353 12.833 6.66576 13.033ZM10.1324 13.033C10.7546 12.833 11.3074 12.5275 11.7908 12.1163C12.2741 11.7052 12.6769 11.2219 12.9991 10.6663H11.0324C10.9324 11.0886 10.8074 11.4969 10.6574 11.8913C10.5074 12.2858 10.3324 12.6663 10.1324 13.033ZM3.23242 9.33301H5.49909C5.46576 9.11079 5.44076 8.89134 5.42409 8.67467C5.40742 8.45801 5.39909 8.23301 5.39909 7.99967C5.39909 7.76634 5.40742 7.54134 5.42409 7.32467C5.44076 7.10801 5.46576 6.88856 5.49909 6.66634H3.23242C3.17687 6.88856 3.1352 7.10801 3.10742 7.32467C3.07964 7.54134 3.06576 7.76634 3.06576 7.99967C3.06576 8.23301 3.07964 8.45801 3.10742 8.67467C3.1352 8.89134 3.17687 9.11079 3.23242 9.33301ZM6.83242 9.33301H9.96576C9.99909 9.11079 10.0241 8.89134 10.0408 8.67467C10.0574 8.45801 10.0658 8.23301 10.0658 7.99967C10.0658 7.76634 10.0574 7.54134 10.0408 7.32467C10.0241 7.10801 9.99909 6.88856 9.96576 6.66634H6.83242C6.79909 6.88856 6.77409 7.10801 6.75742 7.32467C6.74076 7.54134 6.73242 7.76634 6.73242 7.99967C6.73242 8.23301 6.74076 8.45801 6.75742 8.67467C6.77409 8.89134 6.79909 9.11079 6.83242 9.33301ZM11.2991 9.33301H13.5658C13.6213 9.11079 13.663 8.89134 13.6908 8.67467C13.7185 8.45801 13.7324 8.23301 13.7324 7.99967C13.7324 7.76634 13.7185 7.54134 13.6908 7.32467C13.663 7.10801 13.6213 6.88856 13.5658 6.66634H11.2991C11.3324 6.88856 11.3574 7.10801 11.3741 7.32467C11.3908 7.54134 11.3991 7.76634 11.3991 7.99967C11.3991 8.23301 11.3908 8.45801 11.3741 8.67467C11.3574 8.89134 11.3324 9.11079 11.2991 9.33301ZM11.0324 5.33301H12.9991C12.6769 4.77745 12.2741 4.29412 11.7908 3.88301C11.3074 3.4719 10.7546 3.16634 10.1324 2.96634C10.3324 3.33301 10.5074 3.71356 10.6574 4.10801C10.8074 4.50245 10.9324 4.91079 11.0324 5.33301ZM7.13242 5.33301H9.66576C9.53242 4.84412 9.3602 4.38301 9.14909 3.94967C8.93798 3.51634 8.68798 3.09967 8.39909 2.69967C8.1102 3.09967 7.8602 3.51634 7.64909 3.94967C7.43798 4.38301 7.26576 4.84412 7.13242 5.33301ZM3.79909 5.33301H5.76576C5.86576 4.91079 5.99076 4.50245 6.14076 4.10801C6.29076 3.71356 6.46576 3.33301 6.66576 2.96634C6.04353 3.16634 5.49076 3.4719 5.00742 3.88301C4.52409 4.29412 4.12131 4.77745 3.79909 5.33301Z" fill="#D2D2D2" />
-                        </g>
+                        <path d="M8.39909 14.6663C7.48798 14.6663 6.62687 14.4913 5.81576 14.1413C5.00464 13.7913 4.29631 13.3136 3.69076 12.708C3.0852 12.1025 2.60742 11.3941 2.25742 10.583C1.90742 9.7719 1.73242 8.91079 1.73242 7.99967C1.73242 7.07745 1.90742 6.21356 2.25742 5.40801C2.60742 4.60245 3.0852 3.8969 3.69076 3.29134C4.29631 2.68579 5.00464 2.20801 5.81576 1.85801C6.62687 1.50801 7.48798 1.33301 8.39909 1.33301C9.32131 1.33301 10.1852 1.50801 10.9908 1.85801C11.7963 2.20801 12.5019 2.68579 13.1074 3.29134C13.713 3.8969 14.1908 4.60245 14.5408 5.40801C14.8908 6.21356 15.0658 7.07745 15.0658 7.99967C15.0658 8.91079 14.8908 9.7719 14.5408 10.583C14.1908 11.3941 13.713 12.1025 13.1074 12.708C12.5019 13.3136 11.7963 13.7913 10.9908 14.1413C10.1852 14.4913 9.32131 14.6663 8.39909 14.6663ZM8.39909 13.2997C8.68798 12.8997 8.93798 12.483 9.14909 12.0497C9.3602 11.6163 9.53242 11.1552 9.66576 10.6663H7.13242C7.26576 11.1552 7.43798 11.6163 7.64909 12.0497C7.8602 12.483 8.1102 12.8997 8.39909 13.2997ZM6.66576 13.033C6.46576 12.6663 6.29076 12.2858 6.14076 11.8913C5.99076 11.4969 5.86576 11.0886 5.76576 10.6663H3.79909C4.12131 11.2219 4.52409 11.7052 5.00742 12.1163C5.49076 12.5275 6.04353 12.833 6.66576 13.033ZM10.1324 13.033C10.7546 12.833 11.3074 12.5275 11.7908 12.1163C12.2741 11.7052 12.6769 11.2219 12.9991 10.6663H11.0324C10.9324 11.0886 10.8074 11.4969 10.6574 11.8913C10.5074 12.2858 10.3324 12.6663 10.1324 13.033ZM3.23242 9.33301H5.49909C5.46576 9.11079 5.44076 8.89134 5.42409 8.67467C5.40742 8.45801 5.39909 8.23301 5.39909 7.99967C5.39909 7.76634 5.40742 7.54134 5.42409 7.32467C5.44076 7.10801 5.46576 6.88856 5.49909 6.66634H3.23242C3.17687 6.88856 3.1352 7.10801 3.10742 7.32467C3.07964 7.54134 3.06576 7.76634 3.06576 7.99967C3.06576 8.23301 3.07964 8.45801 3.10742 8.67467C3.1352 8.89134 3.17687 9.11079 3.23242 9.33301ZM6.83242 9.33301H9.96576C9.99909 9.11079 10.0241 8.89134 10.0408 8.67467C10.0574 8.45801 10.0658 8.23301 10.0658 7.99967C10.0658 7.76634 10.0574 7.54134 10.0408 7.32467C10.0241 7.10801 9.99909 6.88856 9.96576 6.66634H6.83242C6.79909 6.88856 6.77409 7.10801 6.75742 7.32467C6.74076 7.54134 6.73242 7.76634 6.73242 7.99967C6.73242 8.23301 6.74076 8.45801 6.75742 8.67467C6.77409 8.89134 6.79909 9.11079 6.83242 9.33301ZM11.2991 9.33301H13.5658C13.6213 9.11079 13.663 8.89134 13.6908 8.67467C13.7185 8.45801 13.7324 8.23301 13.7324 7.99967C13.7324 7.76634 13.7185 7.54134 13.6908 7.32467C13.663 7.10801 13.6213 6.88856 13.5658 6.66634H11.2991C11.3324 6.88856 11.3574 7.10801 11.3741 7.32467C11.3908 7.54134 11.3991 7.76634 11.3991 7.99967C11.3991 8.23301 11.3908 8.45801 11.3741 8.67467C11.3574 8.89134 11.3324 9.11079 11.2991 9.33301ZM11.0324 5.33301H12.9991C12.6769 4.77745 12.2741 4.29412 11.7908 3.88301C11.3074 3.4719 10.7546 3.16634 10.1324 2.96634C10.3324 3.33301 10.5074 3.71356 10.6574 4.10801C10.8074 4.50245 10.9324 4.91079 11.0324 5.33301ZM7.13242 5.33301H9.66576C9.53242 4.84412 9.3602 4.38301 9.14909 3.94967C8.93798 3.51634 8.68798 3.09967 8.39909 2.69967C8.1102 3.09967 7.8602 3.51634 7.64909 3.94967C7.43798 4.38301 7.26576 4.84412 7.13242 5.33301ZM3.79909 5.33301H5.76576C5.86576 4.91079 5.99076 4.50245 6.14076 4.10801C6.29076 3.71356 6.46576 3.33301 6.66576 2.96634C6.04353 3.16634 5.49076 3.4719 5.00742 3.88301C4.52409 4.29412 4.12131 4.77745 3.79909 5.33301Z" fill="#D2D2D2" />
                       </svg>
-                    </div>
-                    <span className="text-xs text-[#1c1c1c] ">Links</span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center bg-gray-100 rounded-2xl px-6 py-2 space-y-1">
-                    <div className="rounded-full bg-gray-100 p-2 mb-1">
+                    }
+                    label="Links"
+                  />
+                  <ActionButton
+                    icon={
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <mask id="mask0_509_16621" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">
-                          <rect width="16" height="16" fill="#D9D9D9" />
-                        </mask>
-                        <g mask="url(#mask0_509_16621)">
-                          <path d="M13.3 14C11.9111 14 10.5389 13.6972 9.18333 13.0917C7.82778 12.4861 6.59444 11.6278 5.48333 10.5167C4.37222 9.40556 3.51389 8.17222 2.90833 6.81667C2.30278 5.46111 2 4.08889 2 2.7C2 2.5 2.06667 2.33333 2.2 2.2C2.33333 2.06667 2.5 2 2.7 2H5.4C5.55556 2 5.69444 2.05278 5.81667 2.15833C5.93889 2.26389 6.01111 2.38889 6.03333 2.53333L6.46667 4.86667C6.48889 5.04444 6.48333 5.19444 6.45 5.31667C6.41667 5.43889 6.35556 5.54444 6.26667 5.63333L4.65 7.26667C4.87222 7.67778 5.13611 8.075 5.44167 8.45833C5.74722 8.84167 6.08333 9.21111 6.45 9.56667C6.79444 9.91111 7.15556 10.2306 7.53333 10.525C7.91111 10.8194 8.31111 11.0889 8.73333 11.3333L10.3 9.76667C10.4 9.66667 10.5306 9.59167 10.6917 9.54167C10.8528 9.49167 11.0111 9.47778 11.1667 9.5L13.4667 9.96667C13.6222 10.0111 13.75 10.0917 13.85 10.2083C13.95 10.325 14 10.4556 14 10.6V13.3C14 13.5 13.9333 13.6667 13.8 13.8C13.6667 13.9333 13.5 14 13.3 14Z" fill="#D6D6D6" />
-                        </g>
+                        <path d="M13.3 14C11.9111 14 10.5389 13.6972 9.18333 13.0917C7.82778 12.4861 6.59444 11.6278 5.48333 10.5167C4.37222 9.40556 3.51389 8.17222 2.90833 6.81667C2.30278 5.46111 2 4.08889 2 2.7C2 2.5 2.06667 2.33333 2.2 2.2C2.33333 2.06667 2.5 2 2.7 2H5.4C5.55556 2 5.69444 2.05278 5.81667 2.15833C5.93889 2.26389 6.01111 2.38889 6.03333 2.53333L6.46667 4.86667C6.48889 5.04444 6.48333 5.19444 6.45 5.31667C6.41667 5.43889 6.35556 5.54444 6.26667 5.63333L4.65 7.26667C4.87222 7.67778 5.13611 8.075 5.44167 8.45833C5.74722 8.84167 6.08333 9.21111 6.45 9.56667C6.79444 9.91111 7.15556 10.2306 7.53333 10.525C7.91111 10.8194 8.31111 11.0889 8.73333 11.3333L10.3 9.76667C10.4 9.66667 10.5306 9.59167 10.6917 9.54167C10.8528 9.49167 11.0111 9.47778 11.1667 9.5L13.4667 9.96667C13.6222 10.0111 13.75 10.0917 13.85 10.2083C13.95 10.325 14 10.4556 14 10.6V13.3C14 13.5 13.9333 13.6667 13.8 13.8C13.6667 13.9333 13.5 14 13.3 14Z" fill="#D6D6D6" />
                       </svg>
-                    </div>
-                    <span className="text-xs text-[#1c1c1c] ">Contact</span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center bg-gray-100 rounded-2xl px-6 py-2 space-y-1">
-                    <div className="rounded-full bg-blue-100 p-2 mb-1">
+                    }
+                    label="Contact"
+                  />
+                  <ActionButton
+                    icon={
                       <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <mask id="mask0_509_16624" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="17" height="16">
-                          <rect x="0.599609" width="16" height="16" fill="#D9D9D9" />
-                        </mask>
-                        <g mask="url(#mask0_509_16624)">
-                          <path d="M8.59961 9.33301C8.41072 9.33301 8.25239 9.26912 8.12461 9.14134C7.99683 9.01356 7.93294 8.85523 7.93294 8.66634C7.93294 8.47745 7.99683 8.31912 8.12461 8.19134C8.25239 8.06356 8.41072 7.99967 8.59961 7.99967C8.7885 7.99967 8.94683 8.06356 9.07461 8.19134C9.20239 8.31912 9.26628 8.47745 9.26628 8.66634C9.26628 8.85523 9.20239 9.01356 9.07461 9.14134C8.94683 9.26912 8.7885 9.33301 8.59961 9.33301ZM5.93294 9.33301C5.74405 9.33301 5.58572 9.26912 5.45794 9.14134C5.33016 9.01356 5.26628 8.85523 5.26628 8.66634C5.26628 8.47745 5.33016 8.31912 5.45794 8.19134C5.58572 8.06356 5.74405 7.99967 5.93294 7.99967C6.12183 7.99967 6.28017 8.06356 6.40794 8.19134C6.53572 8.31912 6.59961 8.47745 6.59961 8.66634C6.59961 8.85523 6.53572 9.01356 6.40794 9.14134C6.28017 9.26912 6.12183 9.33301 5.93294 9.33301ZM11.2663 9.33301C11.0774 9.33301 10.9191 9.26912 10.7913 9.14134C10.6635 9.01356 10.5996 8.85523 10.5996 8.66634C10.5996 8.47745 10.6635 8.31912 10.7913 8.19134C10.9191 8.06356 11.0774 7.99967 11.2663 7.99967C11.4552 7.99967 11.6135 8.06356 11.7413 8.19134C11.8691 8.31912 11.9329 8.47745 11.9329 8.66634C11.9329 8.85523 11.8691 9.01356 11.7413 9.14134C11.6135 9.26912 11.4552 9.33301 11.2663 9.33301ZM8.59961 11.9997C8.41072 11.9997 8.25239 11.9358 8.12461 11.808C7.99683 11.6802 7.93294 11.5219 7.93294 11.333C7.93294 11.1441 7.99683 10.9858 8.12461 10.858C8.25239 10.7302 8.41072 10.6663 8.59961 10.6663C8.7885 10.6663 8.94683 10.7302 9.07461 10.858C9.20239 10.9858 9.26628 11.1441 9.26628 11.333C9.26628 11.5219 9.20239 11.6802 9.07461 11.808C8.94683 11.9358 8.7885 11.9997 8.59961 11.9997ZM5.93294 11.9997C5.74405 11.9997 5.58572 11.9358 5.45794 11.808C5.33016 11.6802 5.26628 11.5219 5.26628 11.333C5.26628 11.1441 5.33016 10.9858 5.45794 10.858C5.58572 10.7302 5.74405 10.6663 5.93294 10.6663C6.12183 10.6663 6.28017 10.7302 6.40794 10.858C6.53572 10.9858 6.59961 11.1441 6.59961 11.333C6.59961 11.5219 6.53572 11.6802 6.40794 11.808C6.28017 11.9358 6.12183 11.9997 5.93294 11.9997ZM11.2663 11.9997C11.0774 11.9997 10.9191 11.9358 10.7913 11.808C10.6635 11.6802 10.5996 11.5219 10.5996 11.333C10.5996 11.1441 10.6635 10.9858 10.7913 10.858C10.9191 10.7302 11.0774 10.6663 11.2663 10.6663C11.4552 10.6663 11.6135 10.7302 11.7413 10.858C11.8691 10.9858 11.9329 11.1441 11.9329 11.333C11.9329 11.5219 11.8691 11.6802 11.7413 11.808C11.6135 11.9358 11.4552 11.9997 11.2663 11.9997ZM3.93294 14.6663C3.56628 14.6663 3.25239 14.5358 2.99128 14.2747C2.73016 14.0136 2.59961 13.6997 2.59961 13.333V3.99967C2.59961 3.63301 2.73016 3.31912 2.99128 3.05801C3.25239 2.7969 3.56628 2.66634 3.93294 2.66634H4.59961V1.33301H5.93294V2.66634H11.2663V1.33301H12.5996V2.66634H13.2663C13.6329 2.66634 13.9468 2.7969 14.2079 3.05801C14.4691 3.31912 14.5996 3.63301 14.5996 3.99967V13.333C14.5996 13.6997 14.4691 14.0136 14.2079 14.2747C13.9468 14.5358 13.6329 14.6663 13.2663 14.6663H3.93294ZM3.93294 13.333H13.2663V6.66634H3.93294V13.333Z" fill="#0063BF" />
-                        </g>
+                        <path d="M8.59961 9.33301C8.41072 9.33301 8.25239 9.26912 8.12461 9.14134C7.99683 9.01356 7.93294 8.85523 7.93294 8.66634C7.93294 8.47745 7.99683 8.31912 8.12461 8.19134C8.25239 8.06356 8.41072 7.99967 8.59961 7.99967C8.7885 7.99967 8.94683 8.06356 9.07461 8.19134C9.20239 8.31912 9.26628 8.47745 9.26628 8.66634C9.26628 8.85523 9.20239 9.01356 9.07461 9.14134C8.94683 9.26912 8.7885 9.33301 8.59961 9.33301ZM5.93294 9.33301C5.74405 9.33301 5.58572 9.26912 5.45794 9.14134C5.33016 9.01356 5.26628 8.85523 5.26628 8.66634C5.26628 8.47745 5.33016 8.31912 5.45794 8.19134C5.58572 8.06356 5.74405 7.99967 5.93294 7.99967C6.12183 7.99967 6.28017 8.06356 6.40794 8.19134C6.53572 8.31912 6.59961 8.47745 6.59961 8.66634C6.59961 8.85523 6.53572 9.01356 6.40794 9.14134C6.28017 9.26912 6.12183 9.33301 5.93294 9.33301ZM11.2663 9.33301C11.0774 9.33301 10.9191 9.26912 10.7913 9.14134C10.6635 9.01356 10.5996 8.85523 10.5996 8.66634C10.5996 8.47745 10.6635 8.31912 10.7913 8.19134C10.9191 8.06356 11.0774 7.99967 11.2663 7.99967C11.4552 7.99967 11.6135 8.06356 11.7413 8.19134C11.8691 8.31912 11.9329 8.47745 11.9329 8.66634C11.9329 8.85523 11.8691 9.01356 11.7413 9.14134C11.6135 9.26912 11.4552 9.33301 11.2663 9.33301ZM8.59961 11.9997C8.41072 11.9997 8.25239 11.9358 8.12461 11.808C7.99683 11.6802 7.93294 11.5219 7.93294 11.333C7.93294 11.1441 7.99683 10.9858 8.12461 10.858C8.25239 10.7302 8.41072 10.6663 8.59961 10.6663C8.7885 10.6663 8.94683 10.7302 9.07461 10.858C9.20239 10.9858 9.26628 11.1441 9.26628 11.333C9.26628 11.5219 9.20239 11.6802 9.07461 11.808C8.94683 11.9358 8.7885 11.9997 8.59961 11.9997ZM5.93294 11.9997C5.74405 11.9997 5.58572 11.9358 5.45794 11.808C5.33016 11.6802 5.26628 11.5219 5.26628 11.333C5.26628 11.1441 5.33016 10.9858 5.45794 10.858C5.58572 10.7302 5.74405 10.6663 5.93294 10.6663C6.12183 10.6663 6.28017 10.7302 6.40794 10.858C6.53572 10.9858 6.59961 11.1441 6.59961 11.333C6.59961 11.5219 6.53572 11.6802 6.40794 11.808C6.28017 11.9358 6.12183 11.9997 5.93294 11.9997ZM11.2663 11.9997C11.0774 11.9997 10.9191 11.9358 10.7913 11.808C10.6635 11.6802 10.5996 11.5219 10.5996 11.333C10.5996 11.1441 10.6635 10.9858 10.7913 10.858C10.9191 10.7302 11.0774 10.6663 11.2663 10.6663C11.4552 10.6663 11.6135 10.7302 11.7413 10.858C11.8691 10.9858 11.9329 11.1441 11.9329 11.333C11.9329 11.5219 11.8691 11.6802 11.7413 11.808C11.6135 11.9358 11.4552 11.9997 11.2663 11.9997ZM3.93294 14.6663C3.56628 14.6663 3.25239 14.5358 2.99128 14.2747C2.73016 14.0136 2.59961 13.6997 2.59961 13.333V3.99967C2.59961 3.63301 2.73016 3.31912 2.99128 3.05801C3.25239 2.7969 3.56628 2.66634 3.93294 2.66634H4.59961V1.33301H5.93294V2.66634H11.2663V1.33301H12.5996V2.66634H13.2663C13.6329 2.66634 13.9468 2.7969 14.2079 3.05801C14.4691 3.31912 14.5996 3.63301 14.5996 3.99967V13.333C14.5996 13.6997 14.4691 14.0136 14.2079 14.2747C13.9468 14.5358 13.6329 14.6663 13.2663 14.6663H3.93294ZM3.93294 13.333H13.2663V6.66634H3.93294V13.333Z" fill="#0063BF" />
                       </svg>
-                    </div>
-                    <span className="text-xs text-[#0063BF] ">Reserve</span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center bg-gray-100 rounded-2xl px-6 py-2 space-y-1">
-
-                    <div className="rounded-full bg-gray-100 p-2 mb-1">
+                    }
+                    label="Reserve"
+                    color="#0063BF"
+                  />
+                  <ActionButton
+                    icon={
                       <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <mask id="mask0_509_16627" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="17" height="16">
-                          <rect x="0.200195" width="16" height="16" fill="#D9D9D9" />
-                        </mask>
-                        <g mask="url(#mask0_509_16627)">
-                          <path d="M4.20052 9.33366C3.83385 9.33366 3.51997 9.2031 3.25885 8.94199C2.99774 8.68088 2.86719 8.36699 2.86719 8.00033C2.86719 7.63366 2.99774 7.31977 3.25885 7.05866C3.51997 6.79755 3.83385 6.66699 4.20052 6.66699C4.56719 6.66699 4.88108 6.79755 5.14219 7.05866C5.4033 7.31977 5.53385 7.63366 5.53385 8.00033C5.53385 8.36699 5.4033 8.68088 5.14219 8.94199C4.88108 9.2031 4.56719 9.33366 4.20052 9.33366ZM8.20052 9.33366C7.83385 9.33366 7.51997 9.2031 7.25885 8.94199C6.99774 8.68088 6.86719 8.36699 6.86719 8.00033C6.86719 7.63366 6.99774 7.31977 7.25885 7.05866C7.51997 6.79755 7.83385 6.66699 8.20052 6.66699C8.56719 6.66699 8.88108 6.79755 9.14219 7.05866C9.4033 7.31977 9.53385 7.63366 9.53385 8.00033C9.53385 8.36699 9.4033 8.68088 9.14219 8.94199C8.88108 9.2031 8.56719 9.33366 8.20052 9.33366ZM12.2005 9.33366C11.8339 9.33366 11.52 9.2031 11.2589 8.94199C10.9977 8.68088 10.8672 8.36699 10.8672 8.00033C10.8672 7.63366 10.9977 7.31977 11.2589 7.05866C11.52 6.79755 11.8339 6.66699 12.2005 6.66699C12.5672 6.66699 12.8811 6.79755 13.1422 7.05866C13.4033 7.31977 13.5339 7.63366 13.5339 8.00033C13.5339 8.36699 13.4033 8.68088 13.1422 8.94199C12.8811 9.2031 12.5672 9.33366 12.2005 9.33366Z" fill="#D2D2D2" />
-                        </g>
+                        <path d="M4.20052 9.33366C3.83385 9.33366 3.51997 9.2031 3.25885 8.94199C2.99774 8.68088 2.86719 8.36699 2.86719 8.00033C2.86719 7.63366 2.99774 7.31977 3.25885 7.05866C3.51997 6.79755 3.83385 6.66699 4.20052 6.66699C4.56719 6.66699 4.88108 6.79755 5.14219 7.05866C5.4033 7.31977 5.53385 7.63366 5.53385 8.00033C5.53385 8.36699 5.4033 8.68088 5.14219 8.94199C4.88108 9.2031 4.56719 9.33366 4.20052 9.33366ZM8.20052 9.33366C7.83385 9.33366 7.51997 9.2031 7.25885 8.94199C6.99774 8.68088 6.86719 8.36699 6.86719 8.00033C6.86719 7.63366 6.99774 7.31977 7.25885 7.05866C7.51997 6.79755 7.83385 6.66699 8.20052 6.66699C8.56719 6.66699 8.88108 6.79755 9.14219 7.05866C9.4033 7.31977 9.53385 7.63366 9.53385 8.00033C9.53385 8.36699 9.4033 8.68088 9.14219 8.94199C8.88108 9.2031 8.56719 9.33366 8.20052 9.33366ZM12.2005 9.33366C11.8339 9.33366 11.52 9.2031 11.2589 8.94199C10.9977 8.68088 10.8672 8.36699 10.8672 8.00033C10.8672 7.63366 10.9977 7.31977 11.2589 7.05866C11.52 6.79755 11.8339 6.66699 12.2005 6.66699C12.5672 6.66699 12.8811 6.79755 13.1422 7.05866C13.4033 7.31977 13.5339 7.63366 13.5339 8.00033C13.5339 8.36699 13.4033 8.68088 13.1422 8.94199C12.8811 9.2031 12.5672 9.33366 12.2005 9.33366ZM8.59961 11.9997C8.41072 11.9997 8.25239 11.9358 8.12461 11.808C7.99683 11.6802 7.93294 11.5219 7.93294 11.333C7.93294 11.1441 7.99683 10.9858 8.12461 10.858C8.25239 10.7302 8.41072 10.6663 8.59961 10.6663C8.7885 10.6663 8.94683 10.7302 9.07461 10.858C9.20239 10.9858 9.26628 11.1441 9.26628 11.333C9.26628 11.5219 9.20239 11.6802 9.07461 11.808C8.94683 11.9358 8.7885 11.9997 8.59961 11.9997ZM5.93294 11.9997C5.74405 11.9997 5.58572 11.9358 5.45794 11.808C5.33016 11.6802 5.26628 11.5219 5.26628 11.333C5.26628 11.1441 5.33016 10.9858 5.45794 10.858C5.58572 10.7302 5.74405 10.6663 5.93294 10.6663C6.12183 10.6663 6.28017 10.7302 6.40794 10.858C6.53572 10.9858 6.59961 11.1441 6.59961 11.333C6.59961 11.5219 6.53572 11.6802 6.40794 11.808C6.28017 11.9358 6.12183 11.9997 5.93294 11.9997ZM11.2663 11.9997C11.0774 11.9997 10.9191 11.9358 10.7913 11.808C10.6635 11.6802 10.5996 11.5219 10.5996 11.333C10.5996 11.1441 10.6635 10.9858 10.7913 10.858C10.9191 10.7302 11.0774 10.6663 11.2663 10.6663C11.4552 10.6663 11.6135 10.7302 11.7413 10.858C11.8691 10.9858 11.9329 11.1441 11.9329 11.333C11.9329 11.5219 11.8691 11.6802 11.7413 11.808C11.6135 11.9358 11.4552 11.9997 11.2663 11.9997ZM3.93294 14.6663C3.56628 14.6663 3.25239 14.5358 2.99128 14.2747C2.73016 14.0136 2.59961 13.6997 2.59961 13.333V3.99967C2.59961 3.63301 2.73016 3.31912 2.99128 3.05801C3.25239 2.7969 3.56628 2.66634 3.93294 2.66634H4.59961V1.33301H5.93294V2.66634H11.2663V1.33301H12.5996V2.66634H13.2663C13.6329 2.66634 13.9468 2.7969 14.2079 3.05801C14.4691 3.31912 14.5996 3.63301 14.5996 3.99967V13.333C14.5996 13.6997 14.4691 14.0136 14.2079 14.2747C13.9468 14.5358 13.6329 14.6663 13.2663 14.6663H3.93294ZM3.93294 13.333H13.2663V6.66634H3.93294V13.333Z" fill="#0063BF" />
                       </svg>
-
-                    </div>
-                    <span className="text-xs text-[#1c1c1c]">More</span>
-                  </div>
+                    }
+                    label="More"
+                    color="#0063BF"
+                  />
                 </div>
                 <h2 className="text-sm text-[#1C1C1C] mb-4">Details</h2>
-
-                <div className="space-y-4">
+                <div className="space-y-4 ml-4">
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 mb-1">Phone number</h3>
                     <div className="flex items-center">
-                      <p className="text-sm text-[#1C1C1C]">+234 900 455 9889</p>
+                      <p className="text-sm text-[#0063BF]">+234 900 455 9889</p>
                     </div>
                   </div>
-
+                  <hr className="border-t border-gray-200 my-4" />
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 mb-1">Time</h3>
                     <div className="flex items-center">
@@ -480,7 +396,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       <p className="text-sm text-[#1C1C1C]">7:00PM - 10:00PM</p>
                     </div>
                   </div>
-
+                  <hr className="border-t border-gray-200 my-4" />
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 mb-1">Address</h3>
                     <div className="flex items-center">
@@ -494,7 +410,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       <p className="text-sm text-[#1C1C1C]">{eventItem.location}</p>
                     </div>
                   </div>
-
+                  <hr className="border-t border-gray-200 my-4" />
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 mb-1">Contact</h3>
                     <div className="flex items-center">
@@ -504,60 +420,68 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       <p className="text-sm text-[#1c1c1c]">+234 800-555-0000</p>
                     </div>
                   </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-1">Social</h3>
-                    <div className="flex space-x-2">
-                      <a href="#" className="bg-gray-100 p-1 rounded-full">
-                        <Image
-                          src="/images/instagram-icon.png"
-                          width={20}
-                          height={20}
-                          alt="Instagram"
-                          className="opacity-70 hover:opacity-100 transition-opacity"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/default.svg';
-                          }}
-                        />
-                      </a>
-                      <a href="#" className="bg-gray-100 p-1 rounded-full">
-                        <Image
-                          src="/images/facebook-icon.png"
-                          width={20}
-                          height={20}
-                          alt="Facebook"
-                          className="opacity-70 hover:opacity-100 transition-opacity"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/default.svg';
-                          }}
-                        />
-                      </a>
-                      <a href="#" className="bg-gray-100 p-1 rounded-full">
-                        <Image
-                          src="/images/twitter-icon.png"
-                          width={20}
-                          height={20}
-                          alt="Twitter"
-                          className="opacity-70 hover:opacity-100 transition-opacity"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/default.svg';
-                          }}
-                        />
-                      </a>
-                    </div>
-                  </div>
-
+                  <hr className="border-t border-gray-200 my-4" />
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 mb-1">Website</h3>
-                    <a href="https://www.letsexplore.com" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                    <a href="https://www.letsexplore.com" target="_blank" rel="noopener noreferrer" className="text-sm text-[#0063BF] hover:underline">
                       www.letsexplore.com
                     </a>
                   </div>
+                  <hr className="border-t border-gray-200 my-4" />
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Social</h3>
+                    <div className="flex md:justify-between items-stretch gap-2">
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-xl flex-1 justify-center md:justify-start">
+                        <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
+                      </a>
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-xl flex-1 justify-center md:justify-start">
+                        <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
+                      </a>
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-xl flex-1 justify-center md:justify-start">
+                        <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Similar places section for mobile - shown only on mobile at the bottom */}
+          <div className="mb-10 md:hidden px-4">
+            <h2 className="text-sm text-[#1C1C1C] font-semibold mb-4">Similar places you can explore</h2>
+            <div className="grid grid-cols-1 gap-4">
+              {events
+                .filter((e) => e.id !== eventId)
+                .slice(0, 3)
+                .map((similarEvent) => (
+                  <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
+                    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                      <div className="relative" style={{ height: "150px" }}>
+                        <Image
+                          src={similarEvent.image || "/default.svg"}
+                          alt={similarEvent.title}
+                          fill
+                          className="object-cover"
+                          sizes="100vw"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/default.svg";
+                          }}
+                        />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-medium text-[#1C1C1C] truncate">{similarEvent.title}</h3>
+                        <div className="flex items-center text-xs text-gray-600 mt-1">
+                          <span>{similarEvent.date}, {similarEvent.time}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
             </div>
           </div>
         </div>
