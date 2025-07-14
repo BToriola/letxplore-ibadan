@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 
 export interface IconProps {
@@ -8,55 +9,6 @@ export interface IconProps {
   height?: number | string;
 }
 
-
-
-export const DeliveryIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M19 9.5H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H5v-8h14v8zm-7-5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6.39-9.65l1.42-1.42C7.79 2.67 9.34 2 11 2c1.66 0 3.21.67 4.38 1.85l1.41 1.42 1.41-1.42-1.41-1.42C15.04 .64 13.1 0 11 0 8.9 0 6.96.64 5.21 2.43L3.79 3.85l1.41 1.42z" fill="currentColor" />
-  </svg>
-);
-export const DineIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18 3H6C4.9 3 4 3.9 4 5v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="currentColor" />
-    <path d="M11 7h2v2h-2zm0 4h2v2h-2zm0 4h2v2h-2z" fill="currentColor" />
-  </svg>
-);
-export const OutdoorSeatingIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M19 9H5c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-9c0-1.1-.9-2-2-2z" fill="currentColor" />
-    <path d="M19 20H5v-9h14v9zm-5-9v-2c0-1.1-.9-2-2-2s-2 .9-2 2v2H5V5c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2v6h-5z" fill="currentColor" />
-  </svg>
-);
-export const CardPaymentIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" fill="currentColor" />
-  </svg>
-);
-export const ParkingIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-6h2v2h-2zm0-8h2v6h-2z" fill="currentColor" />
-  </svg>
-);
-export const AirConditionerIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M22 4H2v16h20V4zm-8 8.5c0 .83-.67 1.5-1.5 1.5h-3v2H8v-6h4.5c.83 0 1.5.67 1.5 1.5v1zm4 3.5h-1.5V8H18v8zm-3-4h-3v-2h3v2z" fill="currentColor" />
-  </svg>
-);
-export const FreeWiFiIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0-2C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 10c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor" />
-  </svg>
-);
-export const CoffeeIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3zM16 9v1c0 2.76-2.24 5-5 5s-5-2.24-5-5V5h12.5c.83 0 1.5.67 1.5 1.5S19.33 8 18.5 8H16z" fill="currentColor" />
-  </svg>
-);
-export const CocktailsIcon = ({ className = '', width = 20, height = 20 }: IconProps) => (
-  <svg className={className} width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M21 5V3H3v2l8 9v5H6v2h12v-2h-5v-5l8-9zM7.43 7L5.66 5h12.69l-1.78 2H7.43z" fill="currentColor" />
-  </svg>
-);
 
 export const DirectionIcon = ({ className = '', width = 17, height = 16 }: IconProps) => (
   <svg className={className} width={width} height={height} viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -86,12 +38,12 @@ export const MoreIcon = ({ className = '', width = 17, height = 16 }: IconProps)
   </svg>
 );
 
-export const ClockIcon = ({ className = '', width = 24, height = 24 }: IconProps) => (
+export const ClockIcon = ({ className = '' }: { className?: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 );
-export const PhoneIcon = ({ className = '', width = 24, height = 24 }: IconProps) => (
+export const PhoneIcon = ({ className = '' }: { className?: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
   </svg>

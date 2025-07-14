@@ -17,7 +17,8 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
     const [loading, setLoading] = useState(false);
     const [displayedEvents, setDisplayedEvents] = useState<EventCardProps[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [dateFilter, setDateFilter] = useState('All dates');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [dateFilter, _setDateFilter] = useState('All dates');
     const [sortOrder, setSortOrder] = useState('Most recent');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     

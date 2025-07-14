@@ -5,12 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { events } from "@/data/events";
+import { EventCardProps } from "@/components/ui/EventCard";
 import Header from "@/components/layout/Header";
 import { FiMapPin, FiStar } from "react-icons/fi";
 import {
-  DeliveryIcon, DineIcon, OutdoorSeatingIcon, CardPaymentIcon,
-  ParkingIcon, AirConditionerIcon, FreeWiFiIcon, CoffeeIcon,
-  CocktailsIcon, InstagramIcon, FacebookIcon, TwitterIcon,
+ InstagramIcon, FacebookIcon, TwitterIcon,
   Delivery,
   Dine,
   Outdoor,
@@ -47,7 +46,7 @@ const ReviewCard = () => (
       <FiStar className="fill-current text-gray-300" size={16} />
     </div>
     <p className="text-xs text-[#1c1c1c]">
-      Let'sExplore have the best and surest location to have fun. And the website is so easy to use. Let'sExplore...
+      Let&apos;sExplore have the best and surest location to have fun. And the website is so easy to use. Let&apos;sExplore...
     </p>
   </div>
 );
@@ -61,7 +60,7 @@ const ActionButton = ({ icon, label, color = "#1c1c1c" }: { icon: React.ReactNod
   </div>
 );
 
-export default function ClientEventDetail({ eventData }: { eventData?: any }) {
+export default function ClientEventDetail({ eventData }: { eventData?: EventCardProps }) {
   const params = useParams();
   const eventId = eventData?.id || params.id;
   const eventItem = eventData || events.find((e) => e.id === eventId);
@@ -220,7 +219,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: any }) {
                 <div className="mb-8">
                   <h1 className="text-sm text-[#1c1c1c] font-semibold mb-4">About Us</h1>
                   <p className="text-[#1c1c1c] text-xs leading-relaxed">
-                    Let's Explore have the best and event location to have fun. And the website is so easy to use...
+                    Let&apos;s Explore have the best and event location to have fun. And the website is so easy to use...
                   </p>
                 </div>
 

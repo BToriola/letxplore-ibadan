@@ -1,9 +1,8 @@
-import { events } from '@/data/events';
 import { Metadata } from 'next';
 import ClientWrapper from '@/app/categories/[slug]/ClientWrapper';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 // Utility to slugify category names
@@ -20,23 +19,25 @@ export async function generateStaticParams() {
   }));
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const resolvedParams = await params;
   const displayCategories = ["Events", "Eat & drink", "Stay", "See & do", "Shopping"];
-  const matched = displayCategories.find(cat => slugify(cat) === params.slug);
-  const categoryName = matched ?? params.slug.replace(/-/g, ' ');
+  const matched = displayCategories.find(cat => slugify(cat) === resolvedParams.slug);
+  const categoryName = matched ?? resolvedParams.slug.replace(/-/g, ' ');
   return {
     title: `${categoryName} | Let's Explore`,
     description: `Find events in the category: ${categoryName}`,
   };
 }
 
-export default function CategoryPage({ params }: PageProps) {
+export default async function CategoryPage({ params }: PageProps) {
+  const resolvedParams = await params;
   // Map from display categories (used in navigation) to the slug and back
   const displayCategories = ["All", "Events", "Eat & drink", "Stay", "See & do", "Shopping"];
   
   // Find the display category that matches this slug
-  const matched = displayCategories.find(cat => slugify(cat) === params.slug);
-  const categoryName = matched ?? params.slug.replace(/-/g, ' ');
+  const matched = displayCategories.find(cat => slugify(cat) === resolvedParams.slug);
+  const categoryName = matched ?? resolvedParams.slug.replace(/-/g, ' ');
 
   return <ClientWrapper categoryName={categoryName} />;
 }
