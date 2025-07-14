@@ -42,7 +42,7 @@ const ReviewCard = () => (
       </div>
     </div>
     <div className="flex text-yellow-400 mb-2">
-      {[...Array(4)].map((_, i) => <FiStar key={i} className="fill-current" size={16} />)}
+      {Array.from({ length: 4 }).map((_, i) => <FiStar key={i} className="fill-current" size={16} />)}
       <FiStar className="fill-current text-gray-300" size={16} />
     </div>
     <p className="text-xs text-[#1c1c1c]">
@@ -153,7 +153,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="flex text-yellow-400">
-                        {[...Array(4)].map((_, i) => <FiStar key={i} className="fill-current" size={16} />)}
+                        {Array.from({ length: 4 }).map((_, i) => <FiStar key={i} className="fill-current" size={16} />)}
                         <FiStar className="fill-current text-gray-300" size={16} />
                       </div>
                       <span className="text-sm text-gray-600">4.5</span>
