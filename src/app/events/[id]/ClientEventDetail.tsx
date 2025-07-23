@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { events } from "@/data/events";
 import { EventCardProps } from "@/components/ui/EventCard";
-import Header from "@/components/layout/Header";
+import DetailPageHeader from "@/components/layout/DetailPageHeader";
 import { FiMapPin, FiStar } from "react-icons/fi";
 import {
   InstagramIcon, FacebookIcon, TwitterIcon,
@@ -29,10 +29,6 @@ import {
   ContactIcon,
   ReserveIcon,
   MoreIcon,
-  ClockIcon,
-  PhoneIcon,
-  ShareIcon,
-  BookmarkIcon,
   Share,
   Bookmark,
 } from "@/components/icons/SvgIcons";
@@ -68,7 +64,7 @@ const ActionButton = ({ icon, label, color = "#1c1c1c" }: { icon: React.ReactNod
       flex flex-col items-center justify-center 
       bg-gray-100 rounded-xl p-2
       w-[65.2px] h-[48px] 
-      md:w-[73.7px] md:h-[48px]
+      md:w-[83.7px] md:h-[48px]
     `}
   >
     <div className={`rounded-full ${color === "#0063BF" ? "bg-blue-100" : "bg-gray-100"} mb-1 flex items-center justify-center`}>
@@ -82,11 +78,41 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
   const params = useParams();
   const eventId = eventData?.id || params.id;
   const eventItem = eventData || events.find((e) => e.id === eventId);
+  const [showDesktopArrows, setShowDesktopArrows] = React.useState(false);
+  const [showMobileArrows, setShowMobileArrows] = React.useState(false);
+  const desktopContainerRef = React.useRef<HTMLDivElement>(null);
+  const mobileContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Check if arrows should be shown based on content width
+  React.useEffect(() => {
+    const checkArrowVisibility = () => {
+      if (desktopContainerRef.current) {
+        const container = desktopContainerRef.current;
+        const containerWidth = container.clientWidth;
+        const scrollWidth = container.scrollWidth;
+        setShowDesktopArrows(scrollWidth > containerWidth);
+      }
+
+      if (mobileContainerRef.current) {
+        const container = mobileContainerRef.current;
+        const containerWidth = container.clientWidth;
+        const scrollWidth = container.scrollWidth;
+        setShowMobileArrows(scrollWidth > containerWidth);
+      }
+    };
+
+    checkArrowVisibility();
+    window.addEventListener('resize', checkArrowVisibility);
+
+    return () => {
+      window.removeEventListener('resize', checkArrowVisibility);
+    };
+  }, [eventId]);
 
   if (!eventItem) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <Header />
+        <DetailPageHeader />
         <div className="mt-24 text-center p-8">
           <h1 className="text-2xl font-bold mb-4">Event not found</h1>
           <Link href="/" className="text-blue-500 hover:underline">
@@ -119,9 +145,9 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
 
   return (
     <div className="min-h-screen bg-gray-50 md:pr-44">
-      <Header />
-      <main className="md:pt-24 pb-16">
-        <div className="max-w-7xl mx-auto md:px-4 sm:md:px-6 lg:px-8 md:pt-24">
+      <DetailPageHeader />
+      <main className="pt-0 md:pt-4 pb-16">
+        <div className="max-w-7xl mx-auto md:px-4 sm:md:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row">
             <div className="flex-1 md:mr-8">
               <div className="relative md:rounded-lg overflow-hidden mb-6" style={{ height: "400px" }}>
@@ -278,42 +304,102 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
 
                 {/* Similar places section for desktop - hidden on mobile */}
                 <div className="mb-10 hidden md:block">
-                  <h2 className="text-base text-[#1C1C1C] font-semibold mb-4">Similar places you can explore</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {events
-                      .filter((e) => e.id !== eventId)
-                      .slice(0, 3)
-                      .map((similarEvent) => (
-                        <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
-                          <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <div className="relative" style={{ height: "150px" }}>
-                              <Image
-                                src={similarEvent.image || "/default.svg"}
-                                alt={similarEvent.title}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 33vw"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = "/default.svg";
-                                }}
-                              />
-                            </div>
-                            <div className="p-4">
-                              <h3 className="font-medium text-[#1C1C1C] truncate">{similarEvent.title}</h3>
-                              <div className="flex items-center text-xs text-gray-600 mt-1">
-                                <span>{similarEvent.date}, {similarEvent.time}</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base text-[#1C1C1C] font-semibold">Similar places you can explore</h2>
+                  </div>
+                  <div className="relative">
+                    {showDesktopArrows && (
+                      <>
+                        <button
+                          onClick={() => {
+                            if (desktopContainerRef.current) {
+                              desktopContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+                            }
+                          }}
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 p-2 rounded-full bg-white/90 hover:bg-white shadow-lg transition-colors"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-gray-600">
+                            <path d="M12.5 5L7.5 10L12.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (desktopContainerRef.current) {
+                              desktopContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+                            }
+                          }}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 p-2 rounded-full bg-white/90 hover:bg-white shadow-lg transition-colors"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-gray-600">
+                            <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                    <div
+                      ref={desktopContainerRef}
+                      className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 max-w-4xl"
+                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    >
+                      <style jsx>{`
+                      .scrollbar-hide::-webkit-scrollbar {
+                        display: none;
+                      }
+                    `}</style>
+                      {events
+                        .filter((e) => e.id !== eventId)
+                        .slice(0, 6)
+                        .map((similarEvent) => (
+                          <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
+                            <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-[280px] flex-shrink-0">
+                              <div className="relative rounded-lg overflow-hidden" style={{ height: "200px" }}>
+                                <Image
+                                  src={similarEvent.image || "/default.svg"}
+                                  alt={similarEvent.title}
+                                  fill
+                                  className="object-cover"
+                                  sizes="(max-width: 768px) 100vw, 33vw"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = "/default.svg";
+                                  }}
+                                />
+                              </div>
+                              <div className="p-4">
+                                <h3 className="text-base text-left font-semibold text-[#1C1C1C] mb-2">{similarEvent.title}</h3>
+
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <div className="flex text-[#FFA300] space-x-1">
+                                    {Array.from({ length: 4 }).map((_, i) => <FiStar key={i} className="fill-current" size={12} />)}
+                                    <FiStar className="fill-current text-gray-300" size={12} />
+                                  </div>
+                                  <span className="text-xs text-[#1C1C1C]">4.5</span>
+                                  <span className="text-xs text-gray-500">(234 Reviews)</span>
+                                </div>
+
+                                <div className="flex items-center text-xs text-gray-600 mb-2">
+                                  <FiMapPin className="mr-1 text-gray-500 flex-shrink-0" size={14} />
+                                  <span className="truncate">{similarEvent.location}</span>
+                                </div>
+
+                                <div className="flex items-center text-xs">
+                                  <span className="text-[#1C1C1C] font-medium">{similarEvent.category}</span>
+                                  <span className="mx-2 text-gray-400">•</span>
+                                  <span className="text-[#169200]">Open</span>
+                                  <span className="mx-2 text-gray-400">•</span>
+                                  <span className="text-[#1C1C1C]">{similarEvent.price === "Free" ? "₦₦₦₦" : "₦₦₦₦"}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </Link>
-                      ))}
+                          </Link>
+                        ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="w-full md:w-80 flex-shrink-0 px-4 pt-4 md:px-0 md:pt-0">
+            <div className="w-full md:w-96 flex-shrink-0 px-4 pt-4 md:px-0 md:pt-0">
               <div className="rounded-lg mb-6 sticky top-24">
                 {/* Action buttons for desktop - hidden on mobile */}
                 <div className="hidden md:flex md:justify-between md:space-x-2 mb-6">
@@ -354,15 +440,15 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                   <div>
                     <h3 className="text-xs text-[#1c1c1c] mb-1">Socials</h3>
                     <div className="flex md:justify-between items-stretch gap-2">
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-3 rounded-lg flex-1 justify-center md:justify-start">
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
                         <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
                       </a>
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-3 rounded-lg flex-1 justify-center md:justify-start">
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
                         <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
                       </a>
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-3 rounded-lg flex-1 justify-center md:justify-start">
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
                         <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
                       </a>
@@ -377,36 +463,91 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
 
           {/* Similar places section for mobile - shown only on mobile at the bottom */}
           <div className="mb-10 md:hidden px-4">
-            <h2 className="text-sm text-[#1C1C1C] font-semibold mb-4">Similar places you can explore</h2>
-            <div className="grid grid-cols-1 gap-4">
-              {events
-                .filter((e) => e.id !== eventId)
-                .slice(0, 3)
-                .map((similarEvent) => (
-                  <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
-                    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      <div className="relative" style={{ height: "150px" }}>
-                        <Image
-                          src={similarEvent.image || "/default.svg"}
-                          alt={similarEvent.title}
-                          fill
-                          className="object-cover"
-                          sizes="100vw"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "/default.svg";
-                          }}
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-medium text-[#1C1C1C] truncate">{similarEvent.title}</h3>
-                        <div className="flex items-center text-xs text-gray-600 mt-1">
-                          <span>{similarEvent.date}, {similarEvent.time}</span>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm text-[#1C1C1C] font-semibold">Similar places you can explore</h2>
+            </div>
+            <div className="relative">
+              {showMobileArrows && (
+                <>
+                  <button
+                    onClick={() => {
+                      if (mobileContainerRef.current) {
+                        mobileContainerRef.current.scrollBy({ left: -250, behavior: 'smooth' });
+                      }
+                    }}
+                    className="absolute left-1 top-1/2 transform -translate-y-1/2 z-10 p-1.5 rounded-full bg-white/90 hover:bg-white shadow-lg transition-colors"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="text-gray-600">
+                      <path d="M12.5 5L7.5 10L12.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (mobileContainerRef.current) {
+                        mobileContainerRef.current.scrollBy({ left: 250, behavior: 'smooth' });
+                      }
+                    }}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 z-10 p-1.5 rounded-full bg-white/90 hover:bg-white shadow-lg transition-colors"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="text-gray-600">
+                      <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </>
+              )}
+              <div
+                ref={mobileContainerRef}
+                className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 max-w-lg"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {events
+                  .filter((e) => e.id !== eventId)
+                  .slice(0, 6)
+                  .map((similarEvent) => (
+                    <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
+                      <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-[250px] flex-shrink-0">
+                        <div className="relative rounded-lg overflow-hidden" style={{ height: "200px" }}>
+                          <Image
+                            src={similarEvent.image || "/default.svg"}
+                            alt={similarEvent.title}
+                            fill
+                            className="object-cover"
+                            sizes="100vw"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/default.svg";
+                            }}
+                          />
+                        </div>
+                        <div className="p-4">
+                          <h3 className="text-base font-semibold text-[#1C1C1C] mb-2">{similarEvent.title}</h3>
+
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="flex text-[#FFA300] space-x-1">
+                              {Array.from({ length: 4 }).map((_, i) => <FiStar key={i} className="fill-current" size={12} />)}
+                              <FiStar className="fill-current text-gray-300" size={12} />
+                            </div>
+                            <span className="text-xs text-[#1C1C1C]">4.5</span>
+                            <span className="text-xs text-gray-500">(234 Reviews)</span>
+                          </div>
+
+                          <div className="flex items-center text-xs text-gray-600 mb-2">
+                            <FiMapPin className="mr-1 text-gray-500 flex-shrink-0" size={14} />
+                            <span className="truncate">{similarEvent.location}</span>
+                          </div>
+
+                          <div className="flex items-center text-xs">
+                            <span className="text-[#1C1C1C] font-medium">{similarEvent.category}</span>
+                            <span className="mx-2 text-gray-400">•</span>
+                            <span className="text-[#169200]">Open</span>
+                            <span className="mx-2 text-gray-400">•</span>
+                            <span className="text-[#1C1C1C]">{similarEvent.price === "Free" ? "₦₦₦₦" : "₦₦₦₦"}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  ))}
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,176 @@
+import React from "react";
+import Image from "next/image";
+import { FiChevronDown, FiSearch } from "react-icons/fi";
+
+const DetailPageHeader = () => {
+    const [selectedLocation, setSelectedLocation] = React.useState("Ibadan");
+    const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+    const [searchInput, setSearchInput] = React.useState("");
+    const [showSuggestions, setShowSuggestions] = React.useState(false);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = React.useState(false);
+
+    const dropdownRef = React.useRef<HTMLDivElement>(null);
+    const searchRef = React.useRef<HTMLDivElement>(null);
+    const profileDropdownRef = React.useRef<HTMLDivElement>(null);
+
+    // Mock suggestions data
+    const mockSuggestions = [
+        "Art exhibitions in Ibadan",
+        "Music festivals",
+        "Coffee shops in Bodija",
+        "Weekend events",
+    ];
+
+    React.useEffect(() => {
+        if (searchInput.trim() === "") {
+            setShowSuggestions(false);
+        } else {
+            setShowSuggestions(true);
+        }
+    }, [searchInput]);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+            if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+                setIsProfileDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <header className="py-8 top-0 z-50 lg:relative lg:bg-transparent absolute w-full">
+            <div className="lg:bg-transparent bg-black/40 lg:backdrop-blur-none backdrop-blur-sm rounded-full lg:rounded-full mx-2 lg:mx-0 px-1 py-2 lg:py-0">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                {/* Location Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                    <button
+                        className="flex items-center space-x-1 lg:space-x-2 py-2 px-2 rounded"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        aria-label="Select location"
+                    >
+                        <Image
+                            src="/images/logo-mini.png"
+                            alt="Logo"
+                            width={32}
+                            height={32}
+                            className="object-contain lg:hidden"
+                        />
+                        <Image
+                            src="/images/logo-secondary.png"
+                            alt="Logo"
+                            width={48}
+                            height={48}
+                            className="object-contain hidden lg:block"
+                        />
+                        <span className="text-base lg:text-2xl font-bold text-white lg:text-[#0063BF]">
+                            {selectedLocation}
+                        </span>
+                        <FiChevronDown className="w-4 h-4 text-white lg:text-[#0063BF]" />
+                    </button>
+                    {isDropdownOpen && (
+                        <div className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded-md  z-50">
+                            {["Ibadan", "Lagos", "Abeokuta"].map((location) => (
+                                <button
+                                    key={location}
+                                    className={`w-full font-medium text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#0063BF] ${location === selectedLocation ? "bg-blue-50 text-[#0063BF]" : ""
+                                        }`}
+                                    onClick={() => {
+                                        setSelectedLocation(location);
+                                        setIsDropdownOpen(false);
+                                    }}
+                                >
+                                    {location}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Search Bar */}
+                <div className="flex-1 ml-3 mr-3 lg:ml-2 lg:mr-3 max-w-none lg:max-w-lg relative" ref={searchRef}>
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search"
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                            onFocus={() => setShowSuggestions(true)}
+                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-sm text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF]"
+                            aria-label="Search"
+                        />
+                        <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white lg:text-gray-400" />
+                    </div>
+                    {showSuggestions && searchInput && (
+                        <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md  z-50">
+                            {mockSuggestions
+                                .filter((suggestion) =>
+                                    suggestion.toLowerCase().includes(searchInput.toLowerCase())
+                                )
+                                .map((suggestion, index) => (
+                                    <button
+                                        key={index}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                        onClick={() => {
+                                            setSearchInput(suggestion);
+                                            setShowSuggestions(false);
+                                        }}
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* User Icon */}
+                <div className="relative" ref={profileDropdownRef}>
+                    <button
+                        className="flex items-center space-x-2 py-2 px-3  rounded"
+                        onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                        aria-label="User menu"
+                    >
+                        <Image 
+                            src="/images/user-mini.png" 
+                            alt="User" 
+                            width={32} 
+                            height={32} 
+                            className="object-contain lg:hidden"
+                        />
+                        <Image 
+                            src="/images/user.png" 
+                            alt="User" 
+                            width={48} 
+                            height={48} 
+                            className="object-contain hidden lg:block"
+                        />
+                        <FiChevronDown className="w-4 h-4 text-[#0063BF]" />
+                    </button>
+                    {isProfileDropdownOpen && (
+                        <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-md  z-50">
+                            {["Profile", "Saved", "Logout"].map((option) => (
+                                <button
+                                    key={option}
+                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#0063BF]"
+                                    onClick={() => setIsProfileDropdownOpen(false)}
+                                >
+                                    {option}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+        </header>
+    );
+};
+
+export default DetailPageHeader;

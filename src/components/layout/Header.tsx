@@ -133,7 +133,7 @@ const Header = () => {
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Search for where to explore"
                     value={searchInput}
                     onChange={(e) => {
                       setSearchInput(e.target.value);
