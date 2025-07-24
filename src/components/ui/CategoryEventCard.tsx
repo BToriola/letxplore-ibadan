@@ -35,12 +35,12 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
         </div>
         
         <div className="py-4 pl-1 flex-grow flex flex-col">
-          <h3 className="text-base font-semibold text-[#1c1c1c]  transition-colors mb-2 truncate">
+          <h3 className="text-base font-semibold text-[#1c1c1c]  transition-colors  truncate">
             {title}
           </h3>
           
           <div className="space-y-2 mt-auto">
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-xs text-gray-600">
               <div className="flex items-center text-[#FFA300] space-x-1 mr-2">
                 <FiStar className="fill-current" size={14} />
                 <FiStar className="fill-current" size={14} />
