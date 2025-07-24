@@ -85,7 +85,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
 
       <div className="relative">
         <button
-          className={`hidden md:flex absolute left-4 top-[110px] -translate-y-1/2 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollLeft ? 'opacity-30 cursor-default' : 'opacity-100'}`}
+          className={`hidden md:flex absolute left-6 top-[150px] -translate-y-1/2 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollLeft ? 'opacity-30 cursor-default' : 'opacity-100'}`}
           onClick={scrollLeft}
           disabled={!canScrollLeft}
         >
@@ -96,7 +96,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
 
         <div
           ref={scrollContainerRef}
-          className="flex overflow-x-auto pb-5 scrollbar-hide snap-x scroll-pl-6 scroll-pr-6 -mx-4 equal-height-cards-row"
+          className="flex gap-6 overflow-x-auto pb-5 scrollbar-hide snap-x scroll-pl-6 scroll-pr-6 -mx-4 equal-height-cards-row"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           onScroll={checkScrollPosition}
         >
@@ -110,7 +110,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
           {events.map((event, index) => (
             <div
               key={event.id}
-              className="flex-shrink-0 w-[240px] sm:w-[280px] mx-2 snap-start animate-fadeIn h-full"
+              className="flex-shrink-0 snap-start animate-fadeIn h-full"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
               <CategoryEventCard {...event} />
@@ -121,7 +121,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
         </div>
 
         <button
-          className={`hidden md:flex absolute right-4 top-[110px] -translate-y-1/2 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollRight ? 'opacity-30 cursor-default' : 'opacity-100'}`}
+          className={`hidden md:flex absolute right-6 top-[150px] -translate-y-1/2 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollRight ? 'opacity-30 cursor-default' : 'opacity-100'}`}
           onClick={scrollRight}
           disabled={!canScrollRight}
         >

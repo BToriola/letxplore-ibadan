@@ -20,7 +20,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     setActiveCategory(sharedCategory);
   }, [sharedCategory]);
   
-  const categories = ["All", "Events", "Eat & drink", "Stay", "See & do", "Shopping"];
+  const categories = ["All", "Events", "Eat & drink", "Stay", "See & do",  "Services", "Shop"];
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);

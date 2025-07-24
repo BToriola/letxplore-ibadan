@@ -37,7 +37,7 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({
   };
   
   return (
-    <div className="bg-black/10 backdrop-blur-sm rounded-full p-4 flex overflow-x-auto whitespace-nowrap hide-scrollbar">
+    <div className="bg-black/10 backdrop-blur-sm rounded-full p-4 flex md:space-x-8 space-x-4 overflow-x-auto whitespace-nowrap hide-scrollbar">
       {categories.map((category, index) => (
         <button
           key={index}
