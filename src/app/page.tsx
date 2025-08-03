@@ -2,9 +2,6 @@
 "use client";
 import React, { useState } from "react";
 
-// Import layout components
-import Header from "@/components/layout/Header";
-
 // Import UI components
 import HeroSection from "@/components/ui/HeroSection";
 import EventsSection from "@/components/ui/EventsSection";
@@ -21,7 +18,6 @@ export default function Home() {
   return (
     <>
       <div className="relative">
-        <Header />
         <main>
           <HeroSection 
             activeCategory={sharedCategory} 

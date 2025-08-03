@@ -132,7 +132,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     };
 
     return (
-        <section className="py-6 bg-gray-50">
+        <section className="pt-12  bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {activeCategory !== 'All' && (
                     <div className="text-left mb-10">

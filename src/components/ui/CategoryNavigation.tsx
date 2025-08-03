@@ -14,6 +14,7 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({
   categories,
   activeCategory = "All",
   onCategoryChange = () => {},
+  variant = "default",
 }) => {
   const [active, setActive] = useState(activeCategory);
   const router = useRouter();
@@ -37,14 +38,18 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({
   };
   
   return (
-    <div className="bg-black/10 backdrop-blur-sm rounded-full p-4 flex md:space-x-8 space-x-4 overflow-x-auto whitespace-nowrap hide-scrollbar">
+    <div className={`backdrop-blur-sm rounded-full flex md:space-x-8 space-x-4 overflow-x-auto whitespace-nowrap hide-scrollbar ${
+      variant === "collapsed" ? "bg-black/40 p-4 md:p-5" : 
+      variant === "hero" ? "bg-black/40 p-3 md:p-4" : 
+      "bg-black/10 p-3 md:p-4"
+    }`}>
       {categories.map((category, index) => (
         <button
           key={index}
-          className={`px-4 py-2 text-sm font-medium transition-all flex-shrink-0 ${
+          className={`px-4 py-2 text-sm font-medium transition-all flex-shrink-0 relative z-10 ${
             category === active
               ? "text-white border-b-2 border-[#FFA300]" 
-              : "text-white hover:bg-white/10 rounded-lg"
+              : "text-white hover:bg-white/20 rounded-lg"
           }`}
           onClick={() => handleCategoryClick(category)}
         >

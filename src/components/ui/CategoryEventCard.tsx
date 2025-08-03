@@ -3,18 +3,49 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiMapPin, FiStar } from 'react-icons/fi';
+import { Star, StarHalf, StarEmpty, Location, ReserveIcon } from '../icons/SvgIcons';
 import { EventCardProps } from './EventCard';
 
-type CategoryEventCardProps = EventCardProps;
+type CategoryEventCardProps = EventCardProps & {
+  rating?: number;
+  reviewCount?: number;
+  eventDate?: string;
+  eventTime?: string;
+  isEvent?: boolean;
+};
 
 const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
   id,
   title,
   location,
   price,
-  category
+  category,
+  rating = 3.5,
+  reviewCount = 234,
+  eventDate = "Fri, May 10th",
+  eventTime = "7PM",
+  isEvent = false
 }) => {
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Star key={`full-${i}`} width={14} height={14} />);
+    }
+
+    if (hasHalfStar) {
+      stars.push(<StarHalf key="half" width={14} height={14} />);
+    }
+
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<StarEmpty key={`empty-${i}`} width={14} height={14} />);
+    }
+
+    return stars;
+  };
   return (
     <Link href={`/events/${id}`} className="group h-full">
       <div className="bg-[#F4F4F4] p-2 rounded-lg overflow-hidden transition-all duration-300 w-[240px] h-[330px] lg:w-[320px] lg:h-[342px] equal-height-cards flex flex-col">
@@ -35,25 +66,28 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
         </div>
         
         <div className="py-4 pl-1 flex-grow flex flex-col">
-          <h3 className="text-base font-semibold text-[#1c1c1c]  transition-colors  truncate">
+          <h3 className="text-base font-semibold text-[#1c1c1c]  transition-colors  truncate pb-2">
             {title}
           </h3>
           
-          <div className="space-y-2 mt-auto">
-            <div className="flex items-center text-xs text-gray-600">
-              <div className="flex items-center text-[#FFA300] space-x-1 mr-2">
-                <FiStar className="fill-current" size={14} />
-                <FiStar className="fill-current" size={14} />
-                <FiStar className="fill-current" size={14} />
-                <FiStar className="fill-current" size={14} />
-                <FiStar className="fill-current text-gray-300" size={14} />
+          <div className="space-y-3 ">
+            {isEvent || category?.toLowerCase() === 'event' ? (
+              <div className="flex items-center text-xs text-gray-600">
+                <ReserveIcon className="mr-2 text-[#0063BF] flex-shrink-0" width={14} height={14} />
+                <span className="text-gray-700 text-xs font-medium">{eventDate}, {eventTime}</span>
               </div>
-              <span className="text-gray-700 text-xs font-medium">4.5</span>
-              <span className="text-gray-500 text-xs ml-1">({234} Reviews)</span>
-            </div>
+            ) : (
+              <div className="flex items-center text-xs text-gray-600">
+                <div className="flex items-center text-[#FFA300] space-x-1 mr-2">
+                  {renderStars(rating)}
+                </div>
+                <span className="text-gray-700 text-xs font-medium">{rating}</span>
+                <span className="text-gray-500 text-xs ml-1">({reviewCount} Reviews)</span>
+              </div>
+            )}
             
             <div className="flex items-center text-xs text-gray-600">
-              <FiMapPin className="mr-2 text-gray-500 flex-shrink-0" size={14} />
+              <Location className="mr-2 text-gray-500 flex-shrink-0" width={14} height={14} />
               <span className="truncate">{location}</span>
             </div>
             

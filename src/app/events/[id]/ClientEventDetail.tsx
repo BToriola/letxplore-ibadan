@@ -7,7 +7,6 @@ import { useParams } from "next/navigation";
 import { events } from "@/data/events";
 import { EventCardProps } from "@/components/ui/EventCard";
 import DetailPageHeader from "@/components/layout/DetailPageHeader";
-import { FiMapPin, FiStar } from "react-icons/fi";
 import {
   InstagramIcon, FacebookIcon, TwitterIcon,
   Delivery,
@@ -31,6 +30,10 @@ import {
   MoreIcon,
   Share,
   Bookmark,
+  Location,
+  Star,
+  StarHalf,
+  StarEmpty,
 } from "@/components/icons/SvgIcons";
 
 const ReviewCard = () => (
@@ -49,14 +52,39 @@ const ReviewCard = () => (
       </div>
     </div>
     <div className="flex text-[#FFA300] mb-2 space-x-1">
-      {Array.from({ length: 4 }).map((_, i) => <FiStar key={i} className="fill-current" size={16} />)}
-      <FiStar className="fill-current text-gray-300" size={16} />
+      {Array.from({ length: 4 }).map((_, i) => <Star key={i} width={16} height={16} />)}
+      <StarEmpty width={16} height={16} />
     </div>
     <p className="text-xs text-[#1c1c1c]">
       Let&apos;sExplore have the best and surest location to have fun. And the website is so easy to use. Let&apos;sExplore...
     </p>
   </div>
 );
+
+// Function to render stars based on rating
+const renderStars = (rating: number, size: number = 14) => {
+  const stars = [];
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 !== 0;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+  // Add full stars
+  for (let i = 0; i < fullStars; i++) {
+    stars.push(<Star key={`full-${i}`} width={size} height={size} />);
+  }
+
+  // Add half star if needed
+  if (hasHalfStar) {
+    stars.push(<StarHalf key="half" width={size} height={size} />);
+  }
+
+  // Add empty stars
+  for (let i = 0; i < emptyStars; i++) {
+    stars.push(<StarEmpty key={`empty-${i}`} width={size} height={size} />);
+  }
+
+  return stars;
+};
 
 const ActionButton = ({ icon, label, color = "#1c1c1c" }: { icon: React.ReactNode; label: string; color?: string }) => (
   <div
@@ -187,14 +215,13 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                         {eventItem.category}<span className="mx-2 text-gray-400">•</span><span className="text-[#169200]">Open</span><span className="mx-2 text-gray-400">•</span>{eventItem.price === "Free" ? "Free" : eventItem.price}
                       </span>
                       <div className="mx-2 flex items-center text-[#1C1C1C] text-xs">
-                        <FiMapPin className="mr-2 text-gray-500 flex-shrink-0" size={14} />
+                        <Location className="mr-2 text-gray-500 flex-shrink-0" width={14} height={14} />
                         <span className="truncate">{eventItem.location}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 text-xs">
                       <div className="flex text-[#FFA300] text-xs space-x-1">
-                        {Array.from({ length: 4 }).map((_, i) => <FiStar key={i} className="fill-current" size={14} />)}
-                        <FiStar className="fill-current text-gray-300" size={14} />
+                        {renderStars(4.5, 14)}
                       </div>
                       <span className="text-xs text-[#1C1C1C]">4.5</span>
                       <span className="text-xs text-[#0063BF] underline cursor-pointer">234 Reviews</span>
@@ -370,15 +397,14 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
 
                                 <div className="flex items-center space-x-2 mb-2">
                                   <div className="flex text-[#FFA300] space-x-1">
-                                    {Array.from({ length: 4 }).map((_, i) => <FiStar key={i} className="fill-current" size={12} />)}
-                                    <FiStar className="fill-current text-gray-300" size={12} />
+                                    {renderStars(4.5, 12)}
                                   </div>
                                   <span className="text-xs text-[#1C1C1C]">4.5</span>
                                   <span className="text-xs text-gray-500">(234 Reviews)</span>
                                 </div>
 
                                 <div className="flex items-center text-xs text-gray-600 mb-2">
-                                  <FiMapPin className="mr-1 text-gray-500 flex-shrink-0" size={14} />
+                                  <Location className="mr-1 text-gray-500 flex-shrink-0" width={14} height={14} />
                                   <span className="truncate">{similarEvent.location}</span>
                                 </div>
 
@@ -524,15 +550,14 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
 
                           <div className="flex items-center space-x-2 mb-2">
                             <div className="flex text-[#FFA300] space-x-1">
-                              {Array.from({ length: 4 }).map((_, i) => <FiStar key={i} className="fill-current" size={12} />)}
-                              <FiStar className="fill-current text-gray-300" size={12} />
+                              {renderStars(4.5, 12)}
                             </div>
                             <span className="text-xs text-[#1C1C1C]">4.5</span>
                             <span className="text-xs text-gray-500">(234 Reviews)</span>
                           </div>
 
                           <div className="flex items-center text-xs text-gray-600 mb-2">
-                            <FiMapPin className="mr-1 text-gray-500 flex-shrink-0" size={14} />
+                            <Location className="mr-1 text-gray-500 flex-shrink-0" width={14} height={14} />
                             <span className="truncate">{similarEvent.location}</span>
                           </div>
 
