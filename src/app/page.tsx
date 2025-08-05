@@ -5,6 +5,7 @@ import React, { useState } from "react";
 // Import UI components
 import HeroSection from "@/components/ui/HeroSection";
 import EventsSection from "@/components/ui/EventsSection";
+import ReviewsSection from "@/components/ui/ReviewsSection";
 
 export default function Home() {
   // Shared state for category between hero and events sections
@@ -27,6 +28,7 @@ export default function Home() {
             activeCategory={sharedCategory} 
             onCategoryChange={handleCategoryChange} 
           />
+          <ReviewsSection />
         </main>
       </div>
     </>

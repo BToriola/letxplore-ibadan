@@ -1,0 +1,40 @@
+"use client";
+
+import React from "react";
+import { Instagram, Facebook, Website } from "@/components/icons/SvgIcons";
+
+interface LinksModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+const LinksModal = ({ isOpen }: LinksModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 links-modal">
+      <div className="">
+        <button className="w-full px-4 py-3 text-left hover:bg-[#0063BF1A] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center ">
+            <Instagram width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Instagram</span>
+        </button>
+        <button className="w-full px-4 py-3 text-left hover:bg-[#0063BF1A] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center ">
+            <Facebook width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Facebook</span>
+        </button>
+        <button className="w-full px-4 py-3 text-left hover:bg-[#0063BF1A] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center ">
+            <Website width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Website</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default LinksModal;

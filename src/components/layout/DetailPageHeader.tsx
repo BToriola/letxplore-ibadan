@@ -48,33 +48,39 @@ const DetailPageHeader = () => {
     return (
         <header className="py-8 top-0 z-50 lg:relative lg:bg-transparent absolute w-full">
             <div className="lg:bg-transparent bg-black/40 lg:backdrop-blur-none backdrop-blur-sm rounded-full lg:rounded-full mx-2 lg:mx-0 px-1 py-2 lg:py-0">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between lg:pr-0">
+                {/* Location and Search Bar grouped together */}
+                <div className="flex items-center space-x-2 lg:space-x-4 flex-1">
                 {/* Location Dropdown */}
                 <div className="relative" ref={dropdownRef}>
-                    <button
-                        className="flex items-center space-x-1 lg:space-x-2 py-2 px-2 rounded"
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        aria-label="Select location"
-                    >
-                        <Image
-                            src="/images/logo-mini.png"
-                            alt="Logo"
-                            width={32}
-                            height={32}
-                            className="object-contain lg:hidden"
-                        />
-                        <Image
-                            src="/images/logo-secondary.png"
-                            alt="Logo"
-                            width={48}
-                            height={48}
-                            className="object-contain hidden lg:block"
-                        />
-                        <span className="text-base lg:text-2xl font-bold text-white lg:text-[#0063BF]">
-                            {selectedLocation}
-                        </span>
-                        <FiChevronDown className="w-4 h-4 text-white lg:text-[#0063BF]" />
-                    </button>
+                    <div className="flex items-center space-x-1 lg:space-x-2 py-2 px-2 rounded">
+                        <div onClick={() => window.location.href = "/"} className="cursor-pointer">
+                            <Image
+                                src="/images/logo-mini.png"
+                                alt="Logo"
+                                width={32}
+                                height={32}
+                                className="object-contain lg:hidden"
+                            />
+                            <Image
+                                src="/images/logo-secondary.png"
+                                alt="Logo"
+                                width={48}
+                                height={48}
+                                className="object-contain hidden lg:block"
+                            />
+                        </div>
+                        <button
+                            className="flex items-center space-x-1 lg:space-x-2"
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            aria-label="Select location"
+                        >
+                            <span className="text-base lg:text-2xl font-bold text-white lg:text-[#0063BF]">
+                                {selectedLocation}
+                            </span>
+                            <FiChevronDown className="w-4 h-4 text-white lg:text-[#0063BF]" />
+                        </button>
+                    </div>
                     {isDropdownOpen && (
                         <div className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded-md  z-50">
                             {["Ibadan", "Lagos", "Abeokuta"].map((location) => (
@@ -95,15 +101,24 @@ const DetailPageHeader = () => {
                 </div>
 
                 {/* Search Bar */}
-                <div className="flex-1 ml-3 mr-3 lg:ml-2 lg:mr-3 max-w-none lg:max-w-lg relative" ref={searchRef}>
+                <div className="flex-1 ml-3 mr-3 lg:ml-0 lg:mr-0 lg:flex-none lg:w-[500px] max-w-none lg:max-w-lg relative" ref={searchRef}>
                     <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search for where to explore"
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                            onFocus={() => setShowSuggestions(true)}
+                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-sm text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] hidden lg:block"
+                            aria-label="Search"
+                        />
                         <input
                             type="text"
                             placeholder="Search"
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             onFocus={() => setShowSuggestions(true)}
-                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-sm text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF]"
+                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-sm text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] lg:hidden"
                             aria-label="Search"
                         />
                         <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white lg:text-gray-400" />
@@ -129,11 +144,12 @@ const DetailPageHeader = () => {
                         </div>
                     )}
                 </div>
+                </div>
 
                 {/* User Icon */}
-                <div className="relative" ref={profileDropdownRef}>
+                <div className="relative lg:mr-[-4rem]" ref={profileDropdownRef}>
                     <button
-                        className="flex items-center space-x-2 py-2 px-3  rounded"
+                        className="flex items-center space-x-2 py-2 px-3 rounded"
                         onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                         aria-label="User menu"
                     >
@@ -151,7 +167,7 @@ const DetailPageHeader = () => {
                             height={48} 
                             className="object-contain hidden lg:block"
                         />
-                        <FiChevronDown className="w-4 h-4 text-[#0063BF]" />
+                        <FiChevronDown className="w-4 h-4 text-[#0063BF] lg:text-[#0063BF]" />
                     </button>
                     {isProfileDropdownOpen && (
                         <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-md  z-50">

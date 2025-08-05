@@ -3,10 +3,13 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { events } from "@/data/events";
 import { EventCardProps } from "@/components/ui/EventCard";
 import DetailPageHeader from "@/components/layout/DetailPageHeader";
+import ReviewsModal from "@/components/ui/ReviewsModal";
+import ContactModal from "@/components/ui/ContactModal";
+import LinksModal from "@/components/ui/LinksModal";
 import {
   InstagramIcon, FacebookIcon, TwitterIcon,
   Delivery,
@@ -34,7 +37,47 @@ import {
   Star,
   StarHalf,
   StarEmpty,
+  Review,
+  Menu,
+  Save,
+  Report,
+  Time,
 } from "@/components/icons/SvgIcons";
+
+const MoreDropdown = ({ isOpen }: { isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 more-dropdown">
+      <div className="">
+        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center">
+            <Review width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Write review</span>
+        </button>
+        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center">
+            <Menu width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Menu</span>
+        </button>
+        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center">
+            <Save width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Save</span>
+        </button>
+        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center">
+            <Report width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Report issue</span>
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const ReviewCard = () => (
   <div className="bg-[#f4f4f4] rounded-2xl p-4">
@@ -61,24 +104,20 @@ const ReviewCard = () => (
   </div>
 );
 
-// Function to render stars based on rating
 const renderStars = (rating: number, size: number = 14) => {
   const stars = [];
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
-  // Add full stars
   for (let i = 0; i < fullStars; i++) {
     stars.push(<Star key={`full-${i}`} width={size} height={size} />);
   }
 
-  // Add half star if needed
   if (hasHalfStar) {
     stars.push(<StarHalf key="half" width={size} height={size} />);
   }
 
-  // Add empty stars
   for (let i = 0; i < emptyStars; i++) {
     stars.push(<StarEmpty key={`empty-${i}`} width={size} height={size} />);
   }
@@ -86,14 +125,16 @@ const renderStars = (rating: number, size: number = 14) => {
   return stars;
 };
 
-const ActionButton = ({ icon, label, color = "#1c1c1c" }: { icon: React.ReactNode; label: string; color?: string }) => (
+const ActionButton = ({ icon, label, color = "#1c1c1c", onClick }: { icon: React.ReactNode; label: string; color?: string; onClick?: () => void }) => (
   <div
     className={`
       flex flex-col items-center justify-center 
       bg-gray-100 rounded-xl p-2
       w-[65.2px] h-[48px] 
       md:w-[83.7px] md:h-[48px]
+      cursor-pointer relative
     `}
+    onClick={onClick}
   >
     <div className={`rounded-full ${color === "#0063BF" ? "bg-blue-100" : "bg-gray-100"} mb-1 flex items-center justify-center`}>
       {icon}
@@ -104,10 +145,18 @@ const ActionButton = ({ icon, label, color = "#1c1c1c" }: { icon: React.ReactNod
 
 export default function ClientEventDetail({ eventData }: { eventData?: EventCardProps }) {
   const params = useParams();
+  const searchParams = useSearchParams();
   const eventId = eventData?.id || params.id;
   const eventItem = eventData || events.find((e) => e.id === eventId);
+  const categoryFromUrl = searchParams.get('category');
+  const currentCategory = categoryFromUrl || eventItem?.category;
   const [showDesktopArrows, setShowDesktopArrows] = React.useState(false);
   const [showMobileArrows, setShowMobileArrows] = React.useState(false);
+  const [isOpenHourExpanded, setIsOpenHourExpanded] = React.useState(false);
+  const [isMoreDropdownOpen, setIsMoreDropdownOpen] = React.useState(false);
+  const [isReviewsModalOpen, setIsReviewsModalOpen] = React.useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = React.useState(false);
+  const [isLinksModalOpen, setIsLinksModalOpen] = React.useState(false);
   const desktopContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileContainerRef = React.useRef<HTMLDivElement>(null);
 
@@ -129,10 +178,31 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
       }
     };
 
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.open-hour-dropdown')) {
+        setIsOpenHourExpanded(false);
+      }
+      if (!target.closest('.more-dropdown')) {
+        setIsMoreDropdownOpen(false);
+      }
+      if (!target.closest('.contact-modal')) {
+        setIsContactModalOpen(false);
+      }
+      if (!target.closest('.links-modal')) {
+        setIsLinksModalOpen(false);
+      }
+      if (!target.closest('.reviews-modal')) {
+        // Don't close modal on outside click for better UX
+      }
+    };
+
     checkArrowVisibility();
+    document.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('resize', checkArrowVisibility);
 
     return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('resize', checkArrowVisibility);
     };
   }, [eventId]);
@@ -224,17 +294,43 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                         {renderStars(4.5, 14)}
                       </div>
                       <span className="text-xs text-[#1C1C1C]">4.5</span>
-                      <span className="text-xs text-[#0063BF] underline cursor-pointer">234 Reviews</span>
+                      <span
+                        className="text-xs text-[#0063BF] underline cursor-pointer"
+                        onClick={() => setIsReviewsModalOpen(true)}
+                      >
+                        234 Reviews
+                      </span>
                     </div>
 
                     {/* Action buttons for mobile - shown only on mobile */}
                     <div className="md:hidden mt-6">
                       <div className="grid grid-cols-5 gap-1 mb-6">
                         <ActionButton icon={<DirectionIcon width={16} height={16} />} label="Direction" />
-                        <ActionButton icon={<LinksIcon width={16} height={16} />} label="Links" />
-                        <ActionButton icon={<ContactIcon width={16} height={16} />} label="Contact" />
+                        <div className="relative">
+                          <ActionButton
+                            icon={<LinksIcon width={16} height={16} />}
+                            label="Links"
+                            onClick={() => setIsLinksModalOpen(!isLinksModalOpen)}
+                          />
+                          <LinksModal isOpen={isLinksModalOpen} onClose={() => setIsLinksModalOpen(false)} />
+                        </div>
+                        <div className="relative">
+                          <ActionButton
+                            icon={<ContactIcon width={16} height={16} />}
+                            label="Contact"
+                            onClick={() => setIsContactModalOpen(!isContactModalOpen)}
+                          />
+                          <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
+                        </div>
                         <ActionButton icon={<ReserveIcon width={16} height={16} />} label="Reserve" color="#0063BF" />
-                        <ActionButton icon={<MoreIcon width={16} height={16} />} label="More" />
+                        <div className="relative">
+                          <ActionButton
+                            icon={<MoreIcon width={16} height={16} />}
+                            label="More"
+                            onClick={() => setIsMoreDropdownOpen(!isMoreDropdownOpen)}
+                          />
+                          <MoreDropdown isOpen={isMoreDropdownOpen} onClose={() => setIsMoreDropdownOpen(false)} />
+                        </div>
                       </div>
                     </div>
 
@@ -377,7 +473,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                         .filter((e) => e.id !== eventId)
                         .slice(0, 6)
                         .map((similarEvent) => (
-                          <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
+                          <Link key={similarEvent.id} href={`/events/${similarEvent.id}?category=${encodeURIComponent(similarEvent.category)}`}>
                             <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-[280px] flex-shrink-0">
                               <div className="relative rounded-lg overflow-hidden" style={{ height: "200px" }}>
                                 <Image
@@ -392,7 +488,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                                   }}
                                 />
                               </div>
-                              <div className="p-4">
+                              <div className="py-4">
                                 <h3 className="text-base text-left font-semibold text-[#1C1C1C] mb-2">{similarEvent.title}</h3>
 
                                 <div className="flex items-center space-x-2 mb-2">
@@ -430,58 +526,193 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                 {/* Action buttons for desktop - hidden on mobile */}
                 <div className="hidden md:flex md:justify-between md:space-x-2 mb-6">
                   <ActionButton icon={<DirectionIcon />} label="Direction" />
-                  <ActionButton icon={<LinksIcon />} label="Links" />
-                  <ActionButton icon={<ContactIcon />} label="Contact" />
+                  <div className="relative">
+                    <ActionButton
+                      icon={<LinksIcon />}
+                      label="Links"
+                      onClick={() => setIsLinksModalOpen(!isLinksModalOpen)}
+                    />
+                    <LinksModal isOpen={isLinksModalOpen} onClose={() => setIsLinksModalOpen(false)} />
+                  </div>
+                  <div className="relative">
+                    <ActionButton
+                      icon={<ContactIcon />}
+                      label="Contact"
+                      onClick={() => setIsContactModalOpen(!isContactModalOpen)}
+                    />
+                    <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
+                  </div>
                   <ActionButton icon={<ReserveIcon />} label="Reserve" color="#0063BF" />
-                  <ActionButton icon={<MoreIcon />} label="More" />
+                  <div className="relative">
+                    <ActionButton
+                      icon={<MoreIcon />}
+                      label="More"
+                      onClick={() => setIsMoreDropdownOpen(!isMoreDropdownOpen)}
+                    />
+                    <MoreDropdown isOpen={isMoreDropdownOpen} onClose={() => setIsMoreDropdownOpen(false)} />
+                  </div>
                 </div>
                 <h2 className="text-xs text-[#1C1C1C] mb-4">Details</h2>
                 <div className="space-y-4 ml-4">
-                  <div>
-                    <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
-                    <div className="flex items-center">
-                      <p className="text-xs text-[#0063BF]">+234 900 455 9889</p>
-                    </div>
-                  </div>
-                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                  <div>
-                    <h3 className="text-xs text-[#1c1c1c] mb-1">Address</h3>
-                    <p className="text-xs text-[#1C1C1C]">{eventItem.location}</p>
-                  </div>
-                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                  <div>
-                    <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Open hour</h3>
-                    <div className="flex items-center">
-                      <p className="text-xs text-[#1C1C1C]">7:00am - 10:00am</p>
-                    </div>
-                  </div>
-                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                  <div>
-                    <h3 className="text-xs font-medium text-[#1c1c1c] mb-1">Website</h3>
-                    <a href="https://www.letxplore.com" target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
-                      www.letxplore.com
-                    </a>
-                  </div>
-                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                  <div>
-                    <h3 className="text-xs text-[#1c1c1c] mb-1">Socials</h3>
-                    <div className="flex md:justify-between items-stretch gap-2">
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                        <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
-                      </a>
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                        <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
-                      </a>
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                        <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
-                      </a>
-                    </div>
-                  </div>
-                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                  {currentCategory === 'Events' ? (
+                    <>
+                      <div>
+                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Date</h3>
+                        <div className="flex items-center">
+                          <Image
+                            src="/images/calendar_month.png"
+                            alt="Calendar"
+                            width={16}
+                            height={16}
+                            className="mr-2 text-gray-500 flex-shrink-0"
+                          />
+                          <p className="text-xs text-[#1C1C1C]">{eventItem.date}</p>
+                        </div>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Time</h3>
+                        <div className="flex items-center">
+                          <Time className="w-4 h-4 mr-4 text-gray-500" width={16} height={16} />
+                          <p className="pl-2 text-xs text-[#1C1C1C]">{eventItem.time}</p>
+                        </div>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Address</h3>
+                        <div className="flex items-center">
+                          <Location className="w-4 h-4 mr-2 text-gray-500" width={16} height={16} />
+                          <p className="pl-2 text-xs text-[#1C1C1C]">{eventItem.location}</p>
+                        </div>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
+                        <p className="text-xs text-[#0063BF]">+234 900 455 9889</p>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs text-[#1c1c1c] mb-1">Socials</h3>
+                        <div className="flex md:justify-between items-stretch gap-2">
+                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                            <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
+                          </a>
+                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                            <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
+                          </a>
+                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                            <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
+                          </a>
+                        </div>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs font-medium text-[#1c1c1c] mb-1">Website</h3>
+                        <a href="https://www.letxplore.com" target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
+                          www.letxplore.com
+                        </a>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
+                        <div className="flex items-center">
+                          <p className="text-xs text-[#0063BF]">+234 900 455 9889</p>
+                        </div>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs text-[#1c1c1c] mb-1">Address</h3>
+                        <p className="text-xs text-[#1C1C1C]">{eventItem.location}</p>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Open hour</h3>
+                        <div className="relative open-hour-dropdown">
+                          <button
+                            onClick={() => setIsOpenHourExpanded(!isOpenHourExpanded)}
+                            className="flex items-center justify-between w-full text-left"
+                          >
+                            <p className="text-xs text-[#1C1C1C]">8:00 am - 9:00 pm</p>
+                            <svg
+                              className={`w-4 h-4 text-[#0063BF] transition-transform ${isOpenHourExpanded ? 'rotate-180' : ''}`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
 
+                          {isOpenHourExpanded && (
+                            <div className="mt-3">
+                              <div className="space-y-1">
+                                <div className="flex items-center">
+                                  <span className="text-xs text-[#1C1C1C] w-28">Monday</span>
+                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <span className="text-xs text-[#1C1C1C] w-28">Tuesday</span>
+                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <span className="text-xs text-[#1C1C1C] w-28">Wednesday</span>
+                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <span className="text-xs text-[#1C1C1C] w-28">Thursday</span>
+                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <span className="text-xs text-[#1C1C1C] w-28">Friday</span>
+                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <span className="text-xs text-[#1C1C1C] w-28">Saturday</span>
+                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <span className="text-xs text-[#1C1C1C] w-28">Sunday</span>
+                                  <span className="text-xs text-[#1C1C1C]">Close</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs font-medium text-[#1c1c1c] mb-1">Website</h3>
+                        <a href="https://www.letxplore.com" target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
+                          www.letxplore.com
+                        </a>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                      <div>
+                        <h3 className="text-xs text-[#1c1c1c] mb-1">Socials</h3>
+                        <div className="flex md:justify-between items-stretch gap-2">
+                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                            <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
+                          </a>
+                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                            <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
+                          </a>
+                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                            <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
+                          </a>
+                        </div>
+                      </div>
+                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -530,7 +761,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                   .filter((e) => e.id !== eventId)
                   .slice(0, 6)
                   .map((similarEvent) => (
-                    <Link key={similarEvent.id} href={`/events/${similarEvent.id}`}>
+                    <Link key={similarEvent.id} href={`/events/${similarEvent.id}?category=${encodeURIComponent(similarEvent.category)}`}>
                       <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-[250px] flex-shrink-0">
                         <div className="relative rounded-lg overflow-hidden" style={{ height: "200px" }}>
                           <Image
@@ -577,6 +808,12 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
           </div>
         </div>
       </main>
+
+      {/* Reviews Modal */}
+      <ReviewsModal
+        isOpen={isReviewsModalOpen}
+        onClose={() => setIsReviewsModalOpen(false)}
+      />
     </div>
   );
 }

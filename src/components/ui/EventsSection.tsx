@@ -17,7 +17,7 @@ interface EventsSectionProps {
 
 const EventsSection: React.FC<EventsSectionProps> = ({
     activeCategory: sharedCategory = 'All',
-    onCategoryChange: sharedCategoryChange = () => {},
+    onCategoryChange: sharedCategoryChange = () => { },
 }) => {
     const [loading, setLoading] = useState(false);
     const [displayedEvents, setDisplayedEvents] = useState<EventCardProps[]>([]);
@@ -26,12 +26,12 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     const [dateFilter, setDateFilter] = useState('All dates');
     const [sortOrder, setSortOrder] = useState('Most recent');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-    
+
     // State for filter values in the modal
     const [tempCategory, setTempCategory] = useState(sharedCategory);
     const [tempNeighborhood, setTempNeighborhood] = useState('All');
     const [tempPrice, setTempPrice] = useState('All');
-    
+
     // Actual filter values that are applied
     const [neighborhoodFilter, setNeighborhoodFilter] = useState('All');
     const [priceFilter, setPriceFilter] = useState('All');
@@ -50,14 +50,14 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         } else {
             document.body.style.overflow = '';
         }
-        
+
         return () => {
             document.body.style.overflow = '';
         };
     }, [isFilterOpen]);
 
     const categories = getUniqueCategories();
-    
+
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
@@ -67,7 +67,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                 setTempPrice(priceFilter);
             }
         }
-        
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -88,7 +88,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     const handleCategoryChange = (category: string, filteredEvents?: EventCardProps[]) => {
         setActiveCategory(category);
         sharedCategoryChange(category);
-        
+
         if (filteredEvents) {
             const sortedEvents = sortEvents(filteredEvents, sortOrder);
             setDisplayedEvents(sortedEvents.slice(0, eventsPerPage));
@@ -120,7 +120,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     const getMainCategories = () => {
         return categories.filter(cat => cat !== 'All');
     };
-    
+
     // Handler when user clicks "See all" on a category row
     const handleSeeAll = (categoryName: string) => {
         const filtered = filterEvents(categoryName, dateFilter, neighborhoodFilter, priceFilter);
@@ -132,17 +132,17 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     };
 
     return (
-        <section className="pt-12  bg-gray-50">
+        <section className="pt-6 md:pt-12  bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {activeCategory !== 'All' && (
                     <div className="text-left mb-10">
                         <div className="mt-2 flex items-center justify-between px-4 sm:px-0">
                             <div className="flex items-center space-x-2 overflow-hidden">
-                                <h1 className="text-2xl font-semibold text-[#1C1C1C] truncate">{activeCategory}</h1>
+                                <h1 className="text-base md:text-2xl font-semibold text-[#1C1C1C] truncate">{activeCategory}</h1>
                             </div>
-                            <div className="flex items-center space-x-4 flex-shrink-0">       
+                            <div className="flex items-center space-x-4 flex-shrink-0">
                                 <div ref={filterRef} className="relative inline-block">
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             setTempCategory(activeCategory);
                                             setTempNeighborhood(neighborhoodFilter);
@@ -161,11 +161,11 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                             </g>
                                         </svg>
                                     </button>
-                                    
+
                                     {isFilterOpen && (
                                         <>
                                             {/* Dark overlay */}
-                                            <div 
+                                            <div
                                                 className="fixed inset-0 bg-black bg-opacity-50 z-40 overscroll-none"
                                                 onClick={() => {
                                                     setIsFilterOpen(false);
@@ -174,13 +174,13 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                                     setTempPrice(priceFilter);
                                                 }}
                                             ></div>
-                                            
+
                                             {/* Filter modal */}
                                             <div className="fixed top-16 md:top-40 left-1/2 transform -translate-x-1/2 w-[95%] md:w-11/12 max-w-4xl bg-white shadow-lg z-50 rounded-xl overflow-hidden max-h-[85vh]">
                                                 <div className="px-4 py-6 md:px-6 md:py-6 overflow-y-auto max-h-[85vh]">
                                                     <div className="flex justify-between items-center mb-6">
                                                         <h3 className="text-base font-semibold text-[#1C1C1C]">Filter</h3>
-                                                        <button 
+                                                        <button
                                                             onClick={() => {
                                                                 setIsFilterOpen(false);
                                                                 // Reset temp values when closing with X button
@@ -195,97 +195,97 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                                             </svg>
                                                         </button>
                                                     </div>
-                                                
-                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-                                                    {/* Categories Dropdown */}
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-[#939393] mb-2">Categories</label>
-                                                        <div className="relative">
-                                                            <select
-                                                                value={tempCategory}
-                                                                onChange={(e) => setTempCategory(e.target.value)}
-                                                                className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
-                                                            >
-                                                                {categories.map((category) => (
-                                                                    <option key={category} value={category}>
-                                                                        {category} {category !== 'All' && `(${getCategoryCount(category)})`}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
-                                                                <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                                </svg>
+
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                                                        {/* Categories Dropdown */}
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-[#939393] mb-2">Categories</label>
+                                                            <div className="relative">
+                                                                <select
+                                                                    value={tempCategory}
+                                                                    onChange={(e) => setTempCategory(e.target.value)}
+                                                                    className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
+                                                                >
+                                                                    {categories.map((category) => (
+                                                                        <option key={category} value={category}>
+                                                                            {category} {category !== 'All' && `(${getCategoryCount(category)})`}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
+                                                                    <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Neighborhood Dropdown */}
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-[#939393] mb-2">Neighborhood</label>
+                                                            <div className="relative">
+                                                                <select
+                                                                    value={tempNeighborhood}
+                                                                    onChange={(e) => setTempNeighborhood(e.target.value)}
+                                                                    className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
+                                                                >
+                                                                    <option value="All">All</option>
+                                                                    <option value="Downtown">Downtown</option>
+                                                                    <option value="Bodija">Bodija</option>
+                                                                    <option value="Mokola">Mokola</option>
+                                                                    <option value="Ring Road">Ring Road</option>
+                                                                    <option value="Dugbe">Dugbe</option>
+                                                                    <option value="Iwo Road">Iwo Road</option>
+                                                                </select>
+                                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
+                                                                    <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Price Dropdown */}
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-[#939393] mb-2">Price</label>
+                                                            <div className="relative">
+                                                                <select
+                                                                    value={tempPrice}
+                                                                    onChange={(e) => setTempPrice(e.target.value)}
+                                                                    className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
+                                                                >
+                                                                    <option value="All">All</option>
+                                                                    <option value="Free">Free</option>
+                                                                    <option value="Under $10">Under $10</option>
+                                                                    <option value="$10 - $25">$10 - $25</option>
+                                                                    <option value="$25 - $50">$25 - $50</option>
+                                                                    <option value="$50+">$50+</option>
+                                                                </select>
+                                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
+                                                                    <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
-                                                    {/* Neighborhood Dropdown */}
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-[#939393] mb-2">Neighborhood</label>
-                                                        <div className="relative">
-                                                            <select
-                                                                value={tempNeighborhood}
-                                                                onChange={(e) => setTempNeighborhood(e.target.value)}
-                                                                className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
-                                                            >
-                                                                <option value="All">All</option>
-                                                                <option value="Downtown">Downtown</option>
-                                                                <option value="Bodija">Bodija</option>
-                                                                <option value="Mokola">Mokola</option>
-                                                                <option value="Ring Road">Ring Road</option>
-                                                                <option value="Dugbe">Dugbe</option>
-                                                                <option value="Iwo Road">Iwo Road</option>
-                                                            </select>
-                                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
-                                                                <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </div>
-                                                        </div>
+
+                                                    <div className="flex justify-center mt-6 sm:mt-8 pb-4 sm:pb-4">
+                                                        <button
+                                                            onClick={() => {
+                                                                // Apply all filter values at once
+                                                                setActiveCategory(tempCategory);
+                                                                sharedCategoryChange(tempCategory);
+                                                                setNeighborhoodFilter(tempNeighborhood);
+                                                                setPriceFilter(tempPrice);
+                                                                setIsFilterOpen(false);
+                                                            }}
+                                                            className="bg-[#0063BF] text-white font-medium py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl w-full max-w-4xl hover:bg-[#0057A8] transition-colors"
+                                                        >
+                                                            Apply filter
+                                                        </button>
                                                     </div>
-                                                    
-                                                    {/* Price Dropdown */}
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-[#939393] mb-2">Price</label>
-                                                        <div className="relative">
-                                                            <select
-                                                                value={tempPrice}
-                                                                onChange={(e) => setTempPrice(e.target.value)}
-                                                                className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
-                                                            >
-                                                                <option value="All">All</option>
-                                                                <option value="Free">Free</option>
-                                                                <option value="Under $10">Under $10</option>
-                                                                <option value="$10 - $25">$10 - $25</option>
-                                                                <option value="$25 - $50">$25 - $50</option>
-                                                                <option value="$50+">$50+</option>
-                                                            </select>
-                                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
-                                                                <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div className="flex justify-center mt-6 sm:mt-8 pb-4 sm:pb-4">
-                                                    <button
-                                                        onClick={() => {
-                                                            // Apply all filter values at once
-                                                            setActiveCategory(tempCategory);
-                                                            sharedCategoryChange(tempCategory);
-                                                            setNeighborhoodFilter(tempNeighborhood);
-                                                            setPriceFilter(tempPrice);
-                                                            setIsFilterOpen(false);
-                                                        }}
-                                                        className="bg-[#0063BF] text-white font-medium py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl w-full max-w-4xl hover:bg-[#0057A8] transition-colors"
-                                                    >
-                                                        Apply filter
-                                                    </button>
-                                                </div>
-                                               
+
                                                 </div>
                                             </div>
                                         </>
@@ -317,23 +317,23 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                 )}
 
                 {/* Show category rows when "All" is selected */}
-                {activeCategory === 'All' ? (         
-                        <div className="space-y-8 h-full">
-                            {getMainCategories().map((category) => (
-                                <CategoryEventsRow 
-                                    key={category}
-                                    categoryName={category} 
-                                    events={getCategoryEvents(category)}
-                                    onSeeAll={handleSeeAll}
-                                />
-                            ))}
-                        </div>
+                {activeCategory === 'All' ? (
+                    <div className="space-y-8 h-full">
+                        {getMainCategories().map((category) => (
+                            <CategoryEventsRow
+                                key={category}
+                                categoryName={category}
+                                events={getCategoryEvents(category)}
+                                onSeeAll={handleSeeAll}
+                            />
+                        ))}
+                    </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {displayedEvents.length > 0 ? (
                             displayedEvents.map((event, index) => (
                                 <div key={event.id} className="flex justify-center animate-fadeIn h-full" style={{ animationDelay: `${index * 0.05}s` }}>
-                                    <EventCard {...event} />
+                                    <EventCard {...event} navigationCategory={activeCategory} />
                                 </div>
                             ))
                         ) : (
@@ -361,7 +361,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                         setDateFilter('All dates');
                                         setNeighborhoodFilter('All');
                                         setPriceFilter('All');
-                                        
+
                                         // Also reset temp values
                                         setTempCategory('All');
                                         setTempNeighborhood('All');
@@ -375,7 +375,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                     </div>
                 )}
 
-                <div className="mt-10 text-center">
+                <div className=" text-center">
                     {activeCategory !== 'All' && displayedEvents.length < getFilteredEvents().length && (
                         <button
                             className="bg-[#0063BF] hover:bg-[#0057A8] text-white font-medium py-3 px-6 rounded-xl transition-colors flex items-center justify-center mx-auto"

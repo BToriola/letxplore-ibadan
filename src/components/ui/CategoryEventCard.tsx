@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, StarHalf, StarEmpty, Location, ReserveIcon } from '../icons/SvgIcons';
+import { Star, StarHalf, StarEmpty, Location, ReserveIconGray } from '../icons/SvgIcons';
 import { EventCardProps } from './EventCard';
 
 type CategoryEventCardProps = EventCardProps & {
@@ -12,6 +12,7 @@ type CategoryEventCardProps = EventCardProps & {
   eventDate?: string;
   eventTime?: string;
   isEvent?: boolean;
+  navigationCategory?: string; // The category from the current page/section
 };
 
 const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
@@ -24,7 +25,8 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
   reviewCount = 234,
   eventDate = "Fri, May 10th",
   eventTime = "7PM",
-  isEvent = false
+  isEvent = false,
+  navigationCategory
 }) => {
   const renderStars = (rating: number) => {
     const stars = [];
@@ -47,8 +49,8 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
     return stars;
   };
   return (
-    <Link href={`/events/${id}`} className="group h-full">
-      <div className="bg-[#F4F4F4] p-2 rounded-lg overflow-hidden transition-all duration-300 w-[240px] h-[330px] lg:w-[320px] lg:h-[342px] equal-height-cards flex flex-col">
+    <Link href={`/events/${id}?category=${encodeURIComponent(navigationCategory || category)}`} className="group h-full">
+      <div className="bg-[#F4F4F4] p-2 rounded-2xl overflow-hidden transition-all duration-300 w-[240px] h-[330px] lg:w-[320px] lg:h-[342px] equal-height-cards flex flex-col">
         <div className="relative rounded-lg h-[180px] w-full bg-gray-200 overflow-hidden flex-shrink-0">
           <Image
             src={'/default.svg'}
@@ -64,17 +66,17 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
             }}
           />
         </div>
-        
+
         <div className="py-4 pl-1 flex-grow flex flex-col">
           <h3 className="text-base font-semibold text-[#1c1c1c]  transition-colors  truncate pb-2">
             {title}
           </h3>
-          
+
           <div className="space-y-3 ">
             {isEvent || category?.toLowerCase() === 'event' ? (
-              <div className="flex items-center text-xs text-gray-600">
-                <ReserveIcon className="mr-2 text-[#0063BF] flex-shrink-0" width={14} height={14} />
-                <span className="text-gray-700 text-xs font-medium">{eventDate}, {eventTime}</span>
+              <div className="flex items-center text-xs text-gray-600 space-x-1">
+                <ReserveIconGray className="  flex-shrink-0" width={16} height={16} />
+                <span className="text-[#1c1c1c] text-xs font-medium">{eventDate}, {eventTime}</span>
               </div>
             ) : (
               <div className="flex items-center text-xs text-gray-600">
@@ -85,14 +87,27 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
                 <span className="text-gray-500 text-xs ml-1">({reviewCount} Reviews)</span>
               </div>
             )}
-            
-            <div className="flex items-center text-xs text-gray-600">
-              <Location className="mr-2 text-gray-500 flex-shrink-0" width={14} height={14} />
-              <span className="truncate">{location}</span>
+
+            <div className="flex items-center space-x-1 text-xs text-gray-600">
+              <Location className="flex-shrink-0" width={16} height={16} />
+              <span className="truncate text-[#1c1c1c]">{location}</span>
             </div>
-            
-            <div className="flex items-center text-xs text-gray-600">
-              <span className="text-gray-900 font-medium">{category}<span className="mx-2 text-gray-400">•</span><span className="text-green-600">Open</span><span className="mx-2 text-gray-400">•</span>{price === 'Free' ? 'Free' : `${price}`}</span>
+
+            <div className="flex items-center text-xs text-gray-600 ">
+              {isEvent || category?.toLowerCase() === 'event' ? (
+                <div className="flex items-center space-x-1">
+                  <Image
+                    src="/images/local_activity.png"
+                    alt="Price"
+                    width={16}
+                    height={16}
+                    className=" flex-shrink-0"
+                  />
+                  <span className="text-[#1c1c1c] font-medium">{price === 'Free' ? 'Free' : `${price}`}</span>
+                </div>
+              ) : (
+                <span className="text-gray-900 font-medium">{category}<span className="mx-2 text-gray-400">•</span><span className="text-green-600">Open</span><span className="mx-2 text-gray-400">•</span>{price === 'Free' ? 'Free' : `${price}`}</span>
+              )}
             </div>
           </div>
         </div>
