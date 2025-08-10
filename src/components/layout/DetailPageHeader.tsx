@@ -112,7 +112,8 @@ const DetailPageHeader = () => {
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             onFocus={() => setShowSuggestions(true)}
-                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-sm text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] hidden lg:block"
+                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-base text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] hidden lg:block"
+                            style={{ fontSize: '16px' }}
                             aria-label="Search"
                         />
                         <input
@@ -121,7 +122,8 @@ const DetailPageHeader = () => {
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             onFocus={() => setShowSuggestions(true)}
-                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-sm text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] lg:hidden"
+                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-base text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] lg:hidden"
+                            style={{ fontSize: '16px' }}
                             aria-label="Search"
                         />
                         <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white lg:text-gray-400" />

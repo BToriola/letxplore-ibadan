@@ -153,6 +153,13 @@ const Header = () => {
                       setIsSearchExpanded(true);
                     }
                   }}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                        setIsSearchExpanded(false);
+                      }
+                    }, 100);
+                  }}
                   onClick={() => {
                     if (typeof window !== 'undefined' && window.innerWidth < 768) {
                       setIsSearchExpanded(true);
@@ -160,8 +167,11 @@ const Header = () => {
                   }}
                   className={`w-full ${
                     isSearchExpanded ? 'py-3' : 'py-1 md:py-3'
-                  } px-3 lg:px-4 bg-transparent border border-white text-white placeholder-white/75 rounded-full focus:outline-none focus:ring-2 focus:ring-white/50 shadow-sm text-xs sm:text-sm md:text-base`}
-                  style={{ maxWidth: '100%', fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? '16px' : undefined }}
+                  } px-3 lg:px-4 bg-transparent border border-white text-white placeholder-white/75 rounded-full focus:outline-none focus:ring-2 focus:ring-white/50 shadow-sm text-base`}
+                  style={{ 
+                    maxWidth: '100%',
+                    fontSize: '16px'
+                  }}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <FiSearch className="h-4 w-4 md:h-5 md:w-5 text-white/75" />
@@ -171,7 +181,7 @@ const Header = () => {
                     {suggestions.map((suggestion, index) => (
                       <div
                         key={index}
-                        className="px-4 py-3 text-white cursor-pointer hover:bg-blue-900/50 text-xs sm:text-sm"
+                        className="px-4 py-3 text-white cursor-pointer hover:bg-blue-900/50 text-sm"
                         onClick={() => {
                           setSearchInput(suggestion);
                           setShowSuggestions(false);
