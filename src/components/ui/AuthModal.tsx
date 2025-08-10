@@ -88,11 +88,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-[9999] p-4 sm:p-6 pt-24 sm:pt-6">
+      <div className="bg-white rounded-lg w-full max-w-md max-h-[75vh] sm:max-h-[90vh] overflow-y-auto relative mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             {authStep === 'google-complete' ? 'Complete Your Profile' : 'Welcome'}
           </h2>
           <button
@@ -130,7 +130,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
             </div>
 
             {/* Content */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {/* Google Auth Button */}
               <button
                 onClick={handleGoogleAuth}
@@ -302,7 +302,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
 
         {/* Google Sign Up Completion */}
         {authStep === 'google-complete' && (
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <div className="mb-4">
               <p className="text-sm text-gray-600">
                 Please complete your profile to continue

@@ -112,8 +112,7 @@ const DetailPageHeader = () => {
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             onFocus={() => setShowSuggestions(true)}
-                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-base text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] hidden lg:block"
-                            style={{ fontSize: '16px' }}
+                            className="w-full py-2 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-xs text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] hidden lg:block"
                             aria-label="Search"
                         />
                         <input
@@ -122,8 +121,7 @@ const DetailPageHeader = () => {
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             onFocus={() => setShowSuggestions(true)}
-                            className="w-full py-1 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-base text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] lg:hidden"
-                            style={{ fontSize: '16px' }}
+                            className="w-full py-2 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-xs text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] lg:hidden"
                             aria-label="Search"
                         />
                         <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white lg:text-gray-400" />
@@ -155,46 +153,32 @@ const DetailPageHeader = () => {
                 <div className="relative lg:mr-[-4rem]" ref={profileDropdownRef}>
                     {!isAuthenticated ? (
                         <button
-                            className="flex items-center space-x-2 p-3 rounded-full bg-white lg:bg-[#0063BF] hover:bg-gray-50 lg:hover:bg-[#0056a3] transition-colors"
+                            className="flex items-center space-x-2 py-2 px-3 lg:p-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] lg:hover:bg-[#0056a3] transition-colors"
                             onClick={() => setIsAuthModalOpen(true)}
                             aria-label="Sign up"
                         >
-                            <Image 
-                                src="/images/user-mini.png" 
-                                alt="User" 
-                                width={32} 
-                                height={32} 
-                                className="object-contain lg:hidden"
-                            />
-                            <span className="hidden lg:inline text-sm font-medium text-white">Sign up</span>
+                            <span className="text-xs lg:text-sm font-medium text-white lg:text-white">Sign up</span>
                             <WhiteIcon 
-                                width={24} 
-                                height={24} 
-                                className="hidden lg:block"
+                                width={16} 
+                                height={16} 
+                                className="text-white lg:text-white"
                             />
                         </button>
                     ) : (
                         <>
                             <button
-                                className="flex items-center space-x-2 py-2 px-3 rounded"
+                                className="flex items-center space-x-1 lg:space-x-2 p-2 lg:p-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] transition-colors"
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                 aria-label="User menu"
                             >
-                                <Image 
-                                    src="/images/user-mini.png" 
-                                    alt="User" 
-                                    width={32} 
-                                    height={32} 
-                                    className="object-contain lg:hidden"
-                                />
-                                <Image 
-                                    src="/images/user.png" 
-                                    alt="User" 
-                                    width={48} 
-                                    height={48} 
-                                    className="object-contain hidden lg:block"
-                                />
-                                <FiChevronDown className="w-4 h-4 text-white lg:text-[#0063BF]" />
+                                <div className="w-8 h-8 lg:w-10 lg:h-10 bg-[#0063BF] rounded-full flex items-center justify-center">
+                                    <WhiteIcon 
+                                        width={16} 
+                                        height={16} 
+                                        className="lg:w-5 lg:h-5 text-white"
+                                    />
+                                </div>
+                                <FiChevronDown className="w-3 h-3 lg:w-4 lg:h-4 text-white" />
                             </button>
                             {isProfileDropdownOpen && (
                                 <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-md z-50">
