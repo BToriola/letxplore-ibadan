@@ -3,7 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { FiSearch, FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import Link from 'next/link';
+import AuthModal from '../ui/AuthModal';
+import { useLocation } from '../../contexts/LocationContext';
 
 // Mock suggestions data
 const mockSuggestions = [
@@ -18,13 +19,14 @@ const mockSuggestions = [
 ];
 
 const Header = () => {
-  const [selectedLocation, setSelectedLocation] = useState('Ibadan');
+  const { selectedLocation, setSelectedLocation } = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -143,7 +145,7 @@ const Header = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder={typeof window !== 'undefined' && window.innerWidth < 768 ? "Search" : "Search for where to explore"}
+                  placeholder={typeof window !== 'undefined' && window.innerWidth < 768 ? "Search" : "Search "}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onFocus={() => {
@@ -193,26 +195,21 @@ const Header = () => {
               }`}
             >
               {!isAuthenticated ? (
-                <Link href="/signup" passHref>
-                  <button
-                    className="bg-white rounded-full py-1 px-3 md:py-3 md:px-5 cursor-pointer hover:bg-opacity-90 transition-colors flex items-center gap-1 md:gap-2 shadow-sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsAuthenticated(true);
-                    }}
-                  >
-                    <span className="text-gray-900 font-medium text-xs md:text-base">Sign up</span>
-                    <div className="flex items-center justify-center">
-                      <Image
-                        src="/images/person.png"
-                        alt="User"
-                        width={20}
-                        height={20}
-                        className="h-4 w-4 md:h-5 md:w-5 object-contain"
-                      />
-                    </div>
-                  </button>
-                </Link>
+                <button
+                  className="bg-white rounded-full py-1 px-3 md:py-3 md:px-5 cursor-pointer hover:bg-opacity-90 transition-colors flex items-center gap-1 md:gap-2 shadow-sm"
+                  onClick={() => setIsAuthModalOpen(true)}
+                >
+                  <span className="text-gray-900 font-medium text-xs md:text-base">Sign up</span>
+                  <div className="flex items-center justify-center">
+                    <Image
+                      src="/images/person.png"
+                      alt="User"
+                      width={20}
+                      height={20}
+                      className="h-4 w-4 md:h-5 md:w-5 object-contain"
+                    />
+                  </div>
+                </button>
               ) : (
                 <div className="relative" ref={profileDropdownRef}>
                   <div
@@ -258,6 +255,13 @@ const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthenticated={() => setIsAuthenticated(true)}
+      />
     </header>
   );
 };

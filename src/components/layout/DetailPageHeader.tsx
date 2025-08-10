@@ -1,12 +1,17 @@
 import React from "react";
 import Image from "next/image";
 import { FiChevronDown, FiSearch } from "react-icons/fi";
+import { LogoMini, WhiteIcon } from "../icons/SvgIcons";
+import AuthModal from "../ui/AuthModal";
+import { useLocation } from "../../contexts/LocationContext";
 
 const DetailPageHeader = () => {
-    const [selectedLocation, setSelectedLocation] = React.useState("Ibadan");
+    const { selectedLocation, setSelectedLocation } = useLocation();
     const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
     const [searchInput, setSearchInput] = React.useState("");
     const [showSuggestions, setShowSuggestions] = React.useState(false);
+    const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = React.useState(false);
 
     const dropdownRef = React.useRef<HTMLDivElement>(null);
@@ -55,12 +60,10 @@ const DetailPageHeader = () => {
                 <div className="relative" ref={dropdownRef}>
                     <div className="flex items-center space-x-1 lg:space-x-2 py-2 px-2 rounded">
                         <div onClick={() => window.location.href = "/"} className="cursor-pointer">
-                            <Image
-                                src="/images/logo-mini.png"
-                                alt="Logo"
+                            <LogoMini
                                 width={32}
                                 height={32}
-                                className="object-contain lg:hidden"
+                                className="lg:hidden"
                             />
                             <Image
                                 src="/images/logo-secondary.png"
@@ -101,7 +104,7 @@ const DetailPageHeader = () => {
                 </div>
 
                 {/* Search Bar */}
-                <div className="flex-1 ml-3 mr-3 lg:ml-0 lg:mr-0 lg:flex-none lg:w-[500px] max-w-none lg:max-w-lg relative" ref={searchRef}>
+                <div className="flex-none w-32 ml-3 mr-1 lg:ml-0 lg:mr-0 lg:flex-none lg:w-[500px] max-w-none lg:max-w-lg relative" ref={searchRef}>
                     <div className="relative">
                         <input
                             type="text"
@@ -148,41 +151,77 @@ const DetailPageHeader = () => {
 
                 {/* User Icon */}
                 <div className="relative lg:mr-[-4rem]" ref={profileDropdownRef}>
-                    <button
-                        className="flex items-center space-x-2 py-2 px-3 rounded"
-                        onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                        aria-label="User menu"
-                    >
-                        <Image 
-                            src="/images/user-mini.png" 
-                            alt="User" 
-                            width={32} 
-                            height={32} 
-                            className="object-contain lg:hidden"
-                        />
-                        <Image 
-                            src="/images/user.png" 
-                            alt="User" 
-                            width={48} 
-                            height={48} 
-                            className="object-contain hidden lg:block"
-                        />
-                        <FiChevronDown className="w-4 h-4 text-[#0063BF] lg:text-[#0063BF]" />
-                    </button>
-                    {isProfileDropdownOpen && (
-                        <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-md  z-50">
-                            {["Profile", "Saved", "Logout"].map((option) => (
-                                <button
-                                    key={option}
-                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#0063BF]"
-                                    onClick={() => setIsProfileDropdownOpen(false)}
-                                >
-                                    {option}
-                                </button>
-                            ))}
-                        </div>
+                    {!isAuthenticated ? (
+                        <button
+                            className="flex items-center space-x-2 p-3 rounded-full bg-white lg:bg-[#0063BF] hover:bg-gray-50 lg:hover:bg-[#0056a3] transition-colors"
+                            onClick={() => setIsAuthModalOpen(true)}
+                            aria-label="Sign up"
+                        >
+                            <Image 
+                                src="/images/user-mini.png" 
+                                alt="User" 
+                                width={32} 
+                                height={32} 
+                                className="object-contain lg:hidden"
+                            />
+                            <span className="hidden lg:inline text-sm font-medium text-white">Sign up</span>
+                            <WhiteIcon 
+                                width={24} 
+                                height={24} 
+                                className="hidden lg:block"
+                            />
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                className="flex items-center space-x-2 py-2 px-3 rounded"
+                                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                aria-label="User menu"
+                            >
+                                <Image 
+                                    src="/images/user-mini.png" 
+                                    alt="User" 
+                                    width={32} 
+                                    height={32} 
+                                    className="object-contain lg:hidden"
+                                />
+                                <Image 
+                                    src="/images/user.png" 
+                                    alt="User" 
+                                    width={48} 
+                                    height={48} 
+                                    className="object-contain hidden lg:block"
+                                />
+                                <FiChevronDown className="w-4 h-4 text-white lg:text-[#0063BF]" />
+                            </button>
+                            {isProfileDropdownOpen && (
+                                <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-md z-50">
+                                    {["Profile", "Saved", "Logout"].map((option) => (
+                                        <button
+                                            key={option}
+                                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#0063BF]"
+                                            onClick={() => {
+                                                setIsProfileDropdownOpen(false);
+                                                if (option === 'Logout') {
+                                                    setIsAuthenticated(false);
+                                                }
+                                            }}
+                                        >
+                                            {option}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
+
+                {/* Auth Modal */}
+                <AuthModal
+                    isOpen={isAuthModalOpen}
+                    onClose={() => setIsAuthModalOpen(false)}
+                    onAuthenticated={() => setIsAuthenticated(true)}
+                />
             </div>
         </div>
         </header>

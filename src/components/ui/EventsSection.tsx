@@ -318,7 +318,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
 
                 {/* Show category rows when "All" is selected */}
                 {activeCategory === 'All' ? (
-                    <div className="space-y-8 h-full">
+                    <div className="md:space-y-4 space-y-0 h-full">
                         {getMainCategories().map((category) => (
                             <CategoryEventsRow
                                 key={category}

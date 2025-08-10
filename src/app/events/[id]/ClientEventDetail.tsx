@@ -125,13 +125,13 @@ const renderStars = (rating: number, size: number = 14) => {
   return stars;
 };
 
-const ActionButton = ({ icon, label, color = "#1c1c1c", onClick }: { icon: React.ReactNode; label: string; color?: string; onClick?: () => void }) => (
+const ActionButton = ({ icon, label, color = "#1c1c1c", onClick, isSelected = false }: { icon: React.ReactNode; label: string; color?: string; onClick?: () => void; isSelected?: boolean }) => (
   <div
     className={`
       flex flex-col items-center justify-center 
-      bg-gray-100 rounded-xl p-2
+      ${isSelected ? "bg-white border border-[#0063BF]" : "bg-gray-100"} rounded-xl p-2
       w-[65.2px] h-[48px] 
-      md:w-[83.7px] md:h-[48px]
+      md:w-full md:h-[48px]
       cursor-pointer relative
     `}
     onClick={onClick}
@@ -342,36 +342,41 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                   </div>
                 </div>
 
-                <div className="mb-8">
-                  <h1 className="text-xs text-[#1c1c1c] font-semibold mb-3">About</h1>
-                  <p className="text-[#1c1c1c] text-xs leading-relaxed">
-                    Let&apos;s Explore have the best and event location to have fun. And the website is so easy to use...
-                  </p>
-                </div>
+                {/* Container with flex ordering for mobile vs desktop */}
+                <div className="flex flex-col">
+                  {/* About section - first on desktop (order-1), second on mobile (order-2) */}
+                  <div className="mb-8 order-2 md:order-1">
+                    <h1 className="text-xs text-[#1c1c1c] font-semibold mb-3">About</h1>
+                    <p className="text-[#1c1c1c] text-xs leading-relaxed">
+                      Let&apos;s Explore have the best and event location to have fun. And the website is so easy to use...
+                    </p>
+                  </div>
 
-                <div className="mb-10">
-                  <h2 className="text-xs text-[#1c1c1c] font-semibold mb-4">More Images</h2>
-                  <div className="relative">
-                    <div className="max-w-[802px] overflow-x-auto pb-2">
-                      <div className="flex gap-2">
-                        {[...Array(8)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="relative w-[160px] h-[184px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
-                          >
-                            <Image
-                              src="/default.svg"
-                              alt={`Gallery image ${i}`}
-                              fill
-                              className="object-cover hover:scale-110 transition-transform cursor-pointer"
-                              sizes="(max-width: 768px) 160px, 160px"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = "/default.svg";
-                              }}
-                            />
-                          </div>
-                        ))}
+                  {/* More Images section - first on mobile (order-1), second on desktop (order-2) */}
+                  <div className="mb-10 order-1 md:order-2">
+                    <h2 className="text-xs text-[#1c1c1c] font-semibold mb-4">More Images</h2>
+                    <div className="relative">
+                      <div className="max-w-[802px] overflow-x-auto pb-2">
+                        <div className="flex gap-2">
+                          {[...Array(8)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="relative w-[160px] h-[184px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
+                            >
+                              <Image
+                                src="/default.svg"
+                                alt={`Gallery image ${i}`}
+                                fill
+                                className="object-cover hover:scale-110 transition-transform cursor-pointer"
+                                sizes="(max-width: 768px) 160px, 160px"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = "/default.svg";
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -524,13 +529,14 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
             <div className="w-full md:w-96 flex-shrink-0 px-4 pt-4 md:px-0 md:pt-0">
               <div className="rounded-lg mb-6 sticky top-24">
                 {/* Action buttons for desktop - hidden on mobile */}
-                <div className="hidden md:flex md:justify-between md:space-x-2 mb-6">
+                <div className="hidden md:grid md:grid-cols-5 md:gap-2 mb-6">
                   <ActionButton icon={<DirectionIcon />} label="Direction" />
                   <div className="relative">
                     <ActionButton
                       icon={<LinksIcon />}
                       label="Links"
                       onClick={() => setIsLinksModalOpen(!isLinksModalOpen)}
+                      isSelected={true}
                     />
                     <LinksModal isOpen={isLinksModalOpen} onClose={() => setIsLinksModalOpen(false)} />
                   </div>

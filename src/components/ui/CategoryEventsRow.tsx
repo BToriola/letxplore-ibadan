@@ -68,8 +68,8 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
   if (events.length === 0) return null;
 
   return (
-    <div className="mb-0 md:mb-6 -mx-4 sm:-mx-6 lg:-mx-8">
-      <div className="flex justify-between items-center mb-2 pl-6 sm:pl-6 lg:pl-6">
+    <div className="px-3 mb-0 md:mb-6 md:px-6">
+      <div className="flex justify-between items-center mb-2">
         <h2 className="text-base md:text-2xl font-semibold text-[#1C1C1C] truncate ">{categoryName}</h2>
         {shouldShowSeeAll() && (
           <>
@@ -91,17 +91,19 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
       </div>
 
       <div className="relative">
-        <button
-          className={`flex absolute left-6 top-[150px] -translate-y-1/2 z-10  rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollLeft ? 'opacity-30 cursor-default' : 'opacity-100'}`}
-          onClick={scrollLeft}
-          disabled={!canScrollLeft}
-        >
-          <CarouselLeftArrowIcon />
-        </button>
+        {events.length > 1 && (
+          <button
+            className={`flex absolute left-0 top-[150px] -translate-y-1/2 z-10  rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollLeft ? 'opacity-30 cursor-default' : 'opacity-100'}`}
+            onClick={scrollLeft}
+            disabled={!canScrollLeft}
+          >
+            <CarouselLeftArrowIcon />
+          </button>
+        )}
 
         <div
           ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto pb-5 scrollbar-hide snap-x scroll-pl-6 scroll-pr-6"
+          className={`flex ${events.length === 1 ? 'justify-start' : 'gap-6'} ${events.length > 1 ? 'gap-6' : ''} overflow-x-auto pb-5 scrollbar-hide snap-x`}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           onScroll={checkScrollPosition}
         >
@@ -110,7 +112,6 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
               display: none;
             }
           `}</style>
-          <div className="pl-2"></div>
 
           {events.map((event) => (
             <div
@@ -120,17 +121,17 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
               <CategoryEventCard {...event} isEvent={categoryName.toLowerCase() === 'events'} navigationCategory={categoryName} />
             </div>
           ))}
-
-          <div className="pr-4"></div>
         </div>
 
-        <button
-          className={`flex absolute right-6 top-[150px] -translate-y-1/2 z-10  rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollRight ? 'opacity-30 cursor-default' : 'opacity-100'}`}
-          onClick={scrollRight}
-          disabled={!canScrollRight}
-        >
-          <CarouselRightArrowIcon />
-        </button>
+        {events.length > 1 && (
+          <button
+            className={`flex absolute right-0 top-[150px] -translate-y-1/2 z-10  rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollRight ? 'opacity-30 cursor-default' : 'opacity-100'}`}
+            onClick={scrollRight}
+            disabled={!canScrollRight}
+          >
+            <CarouselRightArrowIcon />
+          </button>
+        )}
       </div>
     </div>
   );
