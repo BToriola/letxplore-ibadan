@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Header from '../layout/Header';
 import CategoryNavigation from './CategoryNavigation';
+import { useLocation } from '../../contexts/LocationContext';
 import '../../styles/hero.css';
 
 interface HeroSectionProps {
@@ -15,6 +16,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   activeCategory: sharedCategory = "All",
   onCategoryChange: sharedCategoryChange = () => {},
 }) => {
+  const { selectedLocation } = useLocation();
   const [activeCategory, setActiveCategory] = useState(sharedCategory);
   const [heroHeight, setHeroHeight] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -115,7 +117,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             }`}
           >
             <h1 className="font-primera font-medium hero-title mb-4">
-              Hello Ibadan
+              Hello {selectedLocation}
             </h1>
             <p className="text-lg md:text-xl text-white/80 mb-6 max-w-2xl mx-auto">
               Search, discover, and connect with the best local
