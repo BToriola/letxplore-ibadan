@@ -137,7 +137,7 @@ const Header = () => {
               className={`transition-all duration-300 ease-in-out ${
                 isSearchExpanded
                   ? 'absolute left-6 right-6 z-10 w-auto'
-                  : 'flex-1 max-w-[110px] xs:max-w-xs sm:max-w-md ml-auto mr-2 md:-ml-10 md:mr-3 lg:max-w-[700px] relative md:flex  md:flex-1 md:max-w-md '
+                  : 'flex-1 max-w-[110px] xs:max-w-xs sm:max-w-md ml-auto mr-0.5 md:-ml-10 md:mr-3 lg:max-w-[700px] relative md:flex  md:flex-1 md:max-w-md '
               }`}
               ref={searchRef}
             >
@@ -209,7 +209,7 @@ const Header = () => {
                   className="bg-white rounded-full py-1 px-3 md:py-3 md:px-5 cursor-pointer hover:bg-opacity-90 transition-colors flex items-center gap-1 md:gap-2 shadow-sm"
                   onClick={() => setIsAuthModalOpen(true)}
                 >
-                  <span className="text-gray-900 font-medium text-xs md:text-base py-2">Sign up</span>
+                  <span className="text-gray-900 font-medium text-xs md:text-base md:py-0 py-2">Sign up</span>
                   <div className="flex items-center justify-center">
                     <Image
                       src="/images/person.png"

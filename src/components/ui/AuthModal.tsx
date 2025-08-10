@@ -85,11 +85,44 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
     onClose();
   };
 
+  // Prevent body scroll when modal is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-[99999] p-4 sm:p-6 pt-24 sm:pt-6">
-      <div className="bg-white rounded-lg w-full max-w-md max-h-[75vh] sm:max-h-[90vh] overflow-y-auto relative mx-auto">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-75 flex items-start sm:items-center justify-center z-[999999] p-4 sm:p-6 pt-24 sm:pt-6"
+      onClick={handleClose}
+      style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0,
+        zIndex: 999999 
+      }}
+    >
+      <div 
+        className="bg-white rounded-lg w-full max-w-md max-h-[75vh] sm:max-h-[90vh] overflow-y-auto relative mx-auto shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
