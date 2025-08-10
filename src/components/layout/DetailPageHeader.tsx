@@ -52,7 +52,7 @@ const DetailPageHeader = () => {
 
     return (
         <header className="py-8 top-0 z-50 lg:relative lg:bg-transparent absolute w-full">
-            <div className="lg:bg-transparent bg-black/40 lg:backdrop-blur-none backdrop-blur-sm rounded-full lg:rounded-full mx-2 lg:mx-0 px-1 py-2 lg:py-0">
+            <div className={`lg:bg-transparent ${isAuthModalOpen ? 'bg-transparent' : 'bg-black/40'} lg:backdrop-blur-none ${isAuthModalOpen ? 'backdrop-blur-none' : 'backdrop-blur-sm'} rounded-full lg:rounded-full mx-2 lg:mx-0 px-1 py-2 lg:py-0`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between lg:pr-0">
                 {/* Location and Search Bar grouped together */}
                 <div className="flex items-center space-x-2 lg:space-x-4 flex-1">
@@ -153,7 +153,7 @@ const DetailPageHeader = () => {
                 <div className="relative lg:mr-[-4rem]" ref={profileDropdownRef}>
                     {!isAuthenticated ? (
                         <button
-                            className="flex items-center space-x-2 py-2 px-3 lg:p-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] lg:hover:bg-[#0056a3] transition-colors"
+                            className="flex items-center space-x-2 py-3 px-3 lg:p-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] lg:hover:bg-[#0056a3] transition-colors"
                             onClick={() => setIsAuthModalOpen(true)}
                             aria-label="Sign up"
                         >

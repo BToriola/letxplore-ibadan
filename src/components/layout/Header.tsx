@@ -209,7 +209,7 @@ const Header = () => {
                   className="bg-white rounded-full py-1 px-3 md:py-3 md:px-5 cursor-pointer hover:bg-opacity-90 transition-colors flex items-center gap-1 md:gap-2 shadow-sm"
                   onClick={() => setIsAuthModalOpen(true)}
                 >
-                  <span className="text-gray-900 font-medium text-xs md:text-base">Sign up</span>
+                  <span className="text-gray-900 font-medium text-xs md:text-base py-2">Sign up</span>
                   <div className="flex items-center justify-center">
                     <Image
                       src="/images/person.png"

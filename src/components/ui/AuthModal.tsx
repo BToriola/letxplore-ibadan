@@ -88,7 +88,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-[9999] p-4 sm:p-6 pt-24 sm:pt-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-[99999] p-4 sm:p-6 pt-24 sm:pt-6">
       <div className="bg-white rounded-lg w-full max-w-md max-h-[75vh] sm:max-h-[90vh] overflow-y-auto relative mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b">
