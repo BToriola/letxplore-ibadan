@@ -99,7 +99,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = defaultReview
   };
 
   return (
-    <div className="bg-[#F4F4F4] px-6 pb-16">
+    <div className="bg-[#F4F4F4] px-4 md:px-6 pb-16">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6 pt-10">

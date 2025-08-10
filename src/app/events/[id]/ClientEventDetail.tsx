@@ -762,8 +762,8 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                   .slice(0, 6)
                   .map((similarEvent) => (
                     <Link key={similarEvent.id} href={`/events/${similarEvent.id}?category=${encodeURIComponent(similarEvent.category)}`}>
-                      <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-[250px] flex-shrink-0">
-                        <div className="relative rounded-lg overflow-hidden" style={{ height: "200px" }}>
+                      <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-full flex-shrink-0">
+                        <div className="relative rounded-lg overflow-hidden" style={{ height: "200px", width: "280px" }}>
                           <Image
                             src={similarEvent.image || "/default.svg"}
                             alt={similarEvent.title}

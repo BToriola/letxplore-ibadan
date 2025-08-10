@@ -68,8 +68,8 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
   if (events.length === 0) return null;
 
   return (
-    <div className="mb-0 md:mb-6 -mx-6 md:-mx-4">
-      <div className="flex justify-between items-center mb-2 px-6">
+    <div className="mb-0 md:mb-6 -mx-4 sm:-mx-6 lg:-mx-8">
+      <div className="flex justify-between items-center mb-2 pl-6 sm:pl-6 lg:pl-6">
         <h2 className="text-base md:text-2xl font-semibold text-[#1C1C1C] truncate ">{categoryName}</h2>
         {shouldShowSeeAll() && (
           <>
@@ -101,7 +101,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
 
         <div
           ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto pb-5 scrollbar-hide snap-x scroll-pl-6 scroll-pr-6 equal-height-cards-row"
+          className="flex gap-6 overflow-x-auto pb-5 scrollbar-hide snap-x scroll-pl-6 scroll-pr-6"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           onScroll={checkScrollPosition}
         >
@@ -115,7 +115,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
           {events.map((event) => (
             <div
               key={event.id}
-              className="flex-shrink-0 snap-start h-full"
+              className="flex-shrink-0 snap-start"
             >
               <CategoryEventCard {...event} isEvent={categoryName.toLowerCase() === 'events'} navigationCategory={categoryName} />
             </div>

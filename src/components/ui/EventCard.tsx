@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Location, Calendar, Local } from '@/components/icons/SvgIcons';
 
 export interface EventCardProps {
   id: string;
@@ -31,8 +32,8 @@ const EventCard: React.FC<EventCardComponentProps> = ({
   navigationCategory,
 }) => {
   return (
-    <Link href={`/events/${id}?category=${encodeURIComponent(navigationCategory || category)}`} className="group ">
-      <div className="bg-[#F4F4F4] rounded-2xl overflow-hidden transition-all duration-300 flex flex-row h-[126px] w-[394px] mx-auto transform hover:-translate-y-1 p-2">
+    <Link href={`/events/${id}?category=${encodeURIComponent(navigationCategory || category)}`} className="group block w-full">
+      <div className="bg-[#F4F4F4] rounded-2xl overflow-hidden transition-all duration-300 flex flex-row h-[126px] w-full transform hover:-translate-y-1 p-2">
         <div className="relative h-full w-[122px] flex-shrink-0 bg-[#F4F4F4] overflow-hidden rounded-lg">
           <Image
             src={'/default.svg'}
@@ -55,36 +56,18 @@ const EventCard: React.FC<EventCardComponentProps> = ({
           </h3>
           
           <div className="flex items-center text-xs text-gray-600">
-            <Image
-              src="/images/calendar_month.png"
-              alt="Calendar"
-              width={12}
-              height={12}
-              className="mr-1 text-[#1C1C1C] flex-shrink-0"
-            />
-            <span className="text-xs text-[#1C1C1C]">{date}, {time}</span>
+            <Calendar width={12} height={12} className="text-gray-500 flex-shrink-0" />
+            <span className="text-xs text-[#1C1C1C] ml-2">{date}, {time}</span>
           </div>
           
           <div className="flex items-center text-xs text-gray-600">
-            <Image
-              src="/images/location_on.png"
-              alt="Location"
-              width={12}
-              height={12}
-              className="mr-2 text-[#1C1C1C] flex-shrink-0"
-            />
-            <span className="text-xs text-[#1C1C1C]">{location}</span>
+            <Location width={12} height={12} className="text-gray-500 flex-shrink-0" />
+            <span className="text-xs text-[#1C1C1C] ml-2">{location}</span>
           </div>
           
           <div className="flex items-center">
-            <Image
-              src="/images/local_activity.png"
-              alt="Price"
-              width={12}
-              height={12}
-              className="mr-1 text-[#1C1C1C] flex-shrink-0"
-            />
-            <span className="text-xs text-[#1C1C1C]">
+            <Local width={12} height={12} className="text-gray-500 flex-shrink-0" />
+            <span className="text-xs text-[#1C1C1C] ml-2">
               {price === 'Free' ? 'Free' : price}
             </span>
           </div>

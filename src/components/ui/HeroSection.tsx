@@ -132,11 +132,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               activeCategory={activeCategory}
               onCategoryChange={handleCategoryChange}
               variant="hero"
+              enableNavigation={true}
             />
           </div>
         </div>
         
-        {/* Category Navigation for collapsed state - only visible when scrolled */}
         <div className={`absolute top-16 md:top-32 left-0 right-0 transition-all duration-500 z-20 ${
           isCollapsed ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-10 pointer-events-none'
         }`}>
@@ -146,6 +146,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               activeCategory={activeCategory}
               onCategoryChange={handleCategoryChange}
               variant="collapsed"
+              enableNavigation={true}
             />
           </div>
         </div>

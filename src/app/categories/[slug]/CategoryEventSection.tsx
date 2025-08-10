@@ -93,8 +93,8 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
     };
 
     return (
-        <section className="py-0 md:py-6 bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-6 md:py-6 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                 <div className="text-left mb-6 md:mb-5">
                     <div className="mt-0 md:mt-2 flex items-center justify-between px-2 sm:px-0">
                         <div className="flex items-center space-x-2 overflow-hidden">
@@ -257,11 +257,10 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
                             <div className="relative inline-block">
                                 <button
                                     onClick={() => setIsSortOpen(!isSortOpen)}
-                                    className={`flex items-center font-medium rounded-full transition-colors px-2 py-1.5 ${
-                                        isSortOpen 
-                                            ? 'bg-[#0063BF] text-white' 
+                                    className={`flex items-center font-medium rounded-full transition-colors px-2 py-1.5 ${isSortOpen
+                                            ? 'bg-[#0063BF] text-white'
                                             : 'bg-[#0063BF]/[0.1] hover:bg-[#0063BF]/[.3] text-[#1C1C1C]'
-                                    }`}
+                                        }`}
                                 >
                                     <span className="text-xs mr-2">Sort by:</span>
                                     <span className="text-xs mr-2">{sortOrder}</span>
@@ -272,13 +271,13 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
 
                                 {isSortOpen && (
                                     <>
-                                        <div 
-                                            className="fixed inset-0 z-10" 
+                                        <div
+                                            className="fixed inset-0 z-10"
                                             onClick={() => setIsSortOpen(false)}
                                         ></div>
-                                        
+
                                         <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg z-20 ">
-                                            <div 
+                                            <div
                                                 className={`px-4 py-3 cursor-pointer hover:bg-gray-50 flex items-center ${sortOrder === 'Top-rated' ? 'bg-[#0063BF1A]/[.1] rounded-lg' : ''}`}
                                                 onClick={() => {
                                                     setSortOrder('Top-rated');
@@ -287,7 +286,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
                                             >
                                                 <span className="text-[#1c1c1c] text-base ">Top-rated</span>
                                             </div>
-                                            <div 
+                                            <div
                                                 className={`px-4 py-3 cursor-pointer hover:bg-gray-50 flex items-center ${sortOrder === 'Most recent' ? 'bg-[#0063BF1A]/[.1] rounded-lg' : ''}`}
                                                 onClick={() => {
                                                     setSortOrder('Most recent');
@@ -296,7 +295,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
                                             >
                                                 <span className="text-[#1c1c1c] text-base ">Most recent</span>
                                             </div>
-                                            <div 
+                                            <div
                                                 className={`px-4 py-3 cursor-pointer hover:bg-gray-50 flex items-center ${sortOrder === 'Featured' ? 'bg-[#0063BF1A]/[.1] rounded-lg' : ''}`}
                                                 onClick={() => {
                                                     setSortOrder('Featured');
@@ -313,10 +312,10 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0">
                     {displayedEvents.length > 0 ? (
                         displayedEvents.map((event, index) => (
-                            <div key={event.id} className="flex justify-center animate-fadeIn h-full" style={{ animationDelay: `${index * 0.05}s` }}>
+                            <div key={event.id} className="w-full animate-fadeIn" style={{ animationDelay: `${index * 0.05}s` }}>
                                 <EventCard {...event} navigationCategory={categoryName} />
                             </div>
                         ))

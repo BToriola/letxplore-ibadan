@@ -5,7 +5,6 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Utility to slugify category names
 const slugify = (str: string) =>
   str
     .toLowerCase()
@@ -32,10 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CategoryPage({ params }: PageProps) {
   const resolvedParams = await params;
-  // Map from display categories (used in navigation) to the slug and back
   const displayCategories = ["All", "Events", "Eat & drink", "Stay", "See & do", "Shopping"];
-  
-  // Find the display category that matches this slug
   const matched = displayCategories.find(cat => slugify(cat) === resolvedParams.slug);
   const categoryName = matched ?? resolvedParams.slug.replace(/-/g, ' ');
 

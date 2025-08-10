@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, StarHalf, StarEmpty, Location, ReserveIconGray } from '../icons/SvgIcons';
+import { Star, StarHalf, StarEmpty, Location, ReserveIconGray, Local } from '../icons/SvgIcons';
 import { EventCardProps } from './EventCard';
 
 type CategoryEventCardProps = EventCardProps & {
@@ -49,8 +49,8 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
     return stars;
   };
   return (
-    <Link href={`/events/${id}?category=${encodeURIComponent(navigationCategory || category)}`} className="group h-full">
-      <div className="bg-[#F4F4F4] p-2 rounded-2xl overflow-hidden transition-all duration-300 w-[240px] h-[330px] lg:w-[320px] lg:h-[342px] equal-height-cards flex flex-col">
+    <Link href={`/events/${id}?category=${encodeURIComponent(navigationCategory || category)}`} className="group block">
+      <div className="bg-[#F4F4F4] p-2 rounded-2xl overflow-hidden transition-all duration-300 w-[280px] h-[342px] md:w-[320px] md:h-[342px] flex flex-col">
         <div className="relative rounded-lg h-[180px] w-full bg-gray-200 overflow-hidden flex-shrink-0">
           <Image
             src={'/default.svg'}
@@ -67,46 +67,42 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
           />
         </div>
 
-        <div className="py-4 pl-1 flex-grow flex flex-col">
-          <h3 className="text-base font-semibold text-[#1c1c1c]  transition-colors  truncate pb-2">
-            {title}
+        <div className="pt-6 pl-1 flex flex-col justify-between">
+          <h3 className="text-base font-semibold text-[#1c1c1c] transition-colors leading-tight pb-2 flex items-start">
+            <span className="line-clamp-2">{title}</span>
           </h3>
 
-          <div className="space-y-3 ">
-            {isEvent || category?.toLowerCase() === 'event' ? (
-              <div className="flex items-center text-xs text-gray-600 space-x-1">
-                <ReserveIconGray className="  flex-shrink-0" width={16} height={16} />
-                <span className="text-[#1c1c1c] text-xs font-medium">{eventDate}, {eventTime}</span>
-              </div>
-            ) : (
-              <div className="flex items-center text-xs text-gray-600">
-                <div className="flex items-center text-[#FFA300] space-x-1 mr-2">
-                  {renderStars(rating)}
-                </div>
-                <span className="text-gray-700 text-xs font-medium">{rating}</span>
-                <span className="text-gray-500 text-xs ml-1">({reviewCount} Reviews)</span>
-              </div>
-            )}
-
-            <div className="flex items-center space-x-1 text-xs text-gray-600">
-              <Location className="flex-shrink-0" width={16} height={16} />
-              <span className="truncate text-[#1c1c1c]">{location}</span>
-            </div>
-
-            <div className="flex items-center text-xs text-gray-600 ">
+          <div className="flex-1 flex flex-col justify-between space-y-2">
+            <div className="space-y-2">
               {isEvent || category?.toLowerCase() === 'event' ? (
-                <div className="flex items-center space-x-1">
-                  <Image
-                    src="/images/local_activity.png"
-                    alt="Price"
-                    width={16}
-                    height={16}
-                    className=" flex-shrink-0"
-                  />
-                  <span className="text-[#1c1c1c] font-medium">{price === 'Free' ? 'Free' : `${price}`}</span>
+                <div className="flex items-center text-xs text-gray-600 space-x-1">
+                  <ReserveIconGray className="flex-shrink-0" width={16} height={16} />
+                  <span className="text-[#1c1c1c] text-xs font-medium truncate">{eventDate}, {eventTime}</span>
                 </div>
               ) : (
-                <span className="text-gray-900 font-medium">{category}<span className="mx-2 text-gray-400">•</span><span className="text-green-600">Open</span><span className="mx-2 text-gray-400">•</span>{price === 'Free' ? 'Free' : `${price}`}</span>
+                <div className="flex items-center text-xs text-gray-600">
+                  <div className="flex items-center text-[#FFA300] space-x-1 mr-2">
+                    {renderStars(rating)}
+                  </div>
+                  <span className="text-gray-700 text-xs font-medium">{rating}</span>
+                  <span className="text-gray-500 text-xs ml-1 truncate">({reviewCount} Reviews)</span>
+                </div>
+              )}
+
+              <div className="flex items-center space-x-1 text-xs text-gray-600">
+                <Location className="flex-shrink-0" width={16} height={16} />
+                <span className="truncate text-[#1c1c1c]">{location}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center text-xs text-gray-600">
+              {isEvent || category?.toLowerCase() === 'event' ? (
+                <div className="flex items-center space-x-1">
+                  <Local className="flex-shrink-0" width={16} height={16} />
+                  <span className="text-[#1c1c1c] font-medium truncate">{price === 'Free' ? 'Free' : `${price}`}</span>
+                </div>
+              ) : (
+                <span className="text-gray-900 font-medium truncate">{category}<span className="mx-2 text-gray-400">•</span><span className="text-green-600">Open</span><span className="mx-2 text-gray-400">•</span>{price === 'Free' ? 'Free' : `${price}`}</span>
               )}
             </div>
           </div>
