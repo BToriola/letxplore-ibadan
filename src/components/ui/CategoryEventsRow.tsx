@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { EventCardProps } from './EventCard';
 import CategoryEventCard from './CategoryEventCard';
 import { SeeAllArrowIcon, CarouselLeftArrowIcon, CarouselRightArrowIcon } from '../icons/SvgIcons';
@@ -17,6 +18,15 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
+
+  const handleSeeAllClick = () => {
+    const slug = categoryName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    router.push(`/categories/${slug}`, { scroll: false });
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -74,7 +84,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
         {shouldShowSeeAll() && (
           <>
             {onSeeAll ? (
-              <button onClick={() => onSeeAll(categoryName)}
+              <button onClick={handleSeeAllClick}
                 className="text-base font-semibold text-[#0063BF] hover:text-[#0063BF]/[0.8] flex items-center flex-shrink-0">
                 See all
                 <SeeAllArrowIcon />
