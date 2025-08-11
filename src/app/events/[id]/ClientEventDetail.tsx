@@ -125,21 +125,21 @@ const renderStars = (rating: number, size: number = 14) => {
   return stars;
 };
 
-const ActionButton = ({ icon, label, color = "#1c1c1c", onClick, isSelected = false }: { icon: React.ReactNode; label: string; color?: string; onClick?: () => void; isSelected?: boolean }) => (
+  const ActionButton = ({ label, isActive, onClick, icon }: { label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode }) => (
   <div
     className={`
       flex flex-col items-center justify-center 
-      ${isSelected ? "bg-white border border-[#0063BF]" : "bg-gray-100"} rounded-xl p-2
+      ${isActive ? "bg-white border border-[#0063BF]" : "bg-[#f4f4f4]"} rounded-xl p-2
       w-[65.2px] h-[48px] 
       md:w-full md:h-[48px]
-      cursor-pointer relative
+      cursor-pointer relative transition-all duration-200 hover:shadow-sm
     `}
     onClick={onClick}
   >
-    <div className={`rounded-full ${color === "#0063BF" ? "bg-blue-100" : "bg-gray-100"} mb-1 flex items-center justify-center`}>
+    <div className={`rounded-full mb-1 flex items-center justify-center`}>
       {icon}
     </div>
-    <span className={`text-[8px] ${color === "#0063BF" ? "text-[#0063BF]" : "text-[#1c1c1c]"} text-center`}>{label}</span>
+    <span className={`text-[8px] ${isActive ? "text-[#0063BF]" : "text-[#1c1c1c]"} text-center`}>{label}</span>
   </div>
 );
 
@@ -157,6 +157,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
   const [isReviewsModalOpen, setIsReviewsModalOpen] = React.useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = React.useState(false);
   const [isLinksModalOpen, setIsLinksModalOpen] = React.useState(false);
+  const [activeActionButton, setActiveActionButton] = React.useState<string | null>(null);
   const desktopContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileContainerRef = React.useRef<HTMLDivElement>(null);
 
@@ -185,12 +186,21 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
       }
       if (!target.closest('.more-dropdown')) {
         setIsMoreDropdownOpen(false);
+        if (activeActionButton === 'more') {
+          setActiveActionButton(null);
+        }
       }
       if (!target.closest('.contact-modal')) {
         setIsContactModalOpen(false);
+        if (activeActionButton === 'contact') {
+          setActiveActionButton(null);
+        }
       }
       if (!target.closest('.links-modal')) {
         setIsLinksModalOpen(false);
+        if (activeActionButton === 'links') {
+          setActiveActionButton(null);
+        }
       }
       if (!target.closest('.reviews-modal')) {
         // Don't close modal on outside click for better UX
@@ -205,7 +215,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
       document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('resize', checkArrowVisibility);
     };
-  }, [eventId]);
+  }, [eventId, activeActionButton]);
 
   if (!eventItem) {
     return (
@@ -305,31 +315,62 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                     {/* Action buttons for mobile - shown only on mobile */}
                     <div className="md:hidden mt-6">
                       <div className="grid grid-cols-5 gap-1 mb-6">
-                        <ActionButton icon={<DirectionIcon width={16} height={16} />} label="Direction" />
+                        <ActionButton 
+                          icon={<DirectionIcon width={16} height={16} />} 
+                          label="Direction" 
+                          isActive={activeActionButton === 'direction'}
+                          onClick={() => setActiveActionButton(activeActionButton === 'direction' ? null : 'direction')}
+                        />
                         <div className="relative">
                           <ActionButton
                             icon={<LinksIcon width={16} height={16} />}
                             label="Links"
-                            onClick={() => setIsLinksModalOpen(!isLinksModalOpen)}
+                            isActive={activeActionButton === 'links'}
+                            onClick={() => {
+                              setActiveActionButton(activeActionButton === 'links' ? null : 'links');
+                              setIsLinksModalOpen(!isLinksModalOpen);
+                            }}
                           />
-                          <LinksModal isOpen={isLinksModalOpen} onClose={() => setIsLinksModalOpen(false)} />
+                          <LinksModal isOpen={isLinksModalOpen} onClose={() => {
+                            setIsLinksModalOpen(false);
+                            setActiveActionButton(null);
+                          }} />
                         </div>
                         <div className="relative">
                           <ActionButton
                             icon={<ContactIcon width={16} height={16} />}
                             label="Contact"
-                            onClick={() => setIsContactModalOpen(!isContactModalOpen)}
+                            isActive={activeActionButton === 'contact'}
+                            onClick={() => {
+                              setActiveActionButton(activeActionButton === 'contact' ? null : 'contact');
+                              setIsContactModalOpen(!isContactModalOpen);
+                            }}
                           />
-                          <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
+                          <ContactModal isOpen={isContactModalOpen} onClose={() => {
+                            setIsContactModalOpen(false);
+                            setActiveActionButton(null);
+                          }} />
                         </div>
-                        <ActionButton icon={<ReserveIcon width={16} height={16} />} label="Reserve" color="#0063BF" />
+                        <ActionButton 
+                          icon={<ReserveIcon width={16} height={16} />} 
+                          label="Reserve" 
+                          isActive={activeActionButton === 'reserve'}
+                          onClick={() => setActiveActionButton(activeActionButton === 'reserve' ? null : 'reserve')}
+                        />
                         <div className="relative">
                           <ActionButton
                             icon={<MoreIcon width={16} height={16} />}
                             label="More"
-                            onClick={() => setIsMoreDropdownOpen(!isMoreDropdownOpen)}
+                            isActive={activeActionButton === 'more'}
+                            onClick={() => {
+                              setActiveActionButton(activeActionButton === 'more' ? null : 'more');
+                              setIsMoreDropdownOpen(!isMoreDropdownOpen);
+                            }}
                           />
-                          <MoreDropdown isOpen={isMoreDropdownOpen} onClose={() => setIsMoreDropdownOpen(false)} />
+                          <MoreDropdown isOpen={isMoreDropdownOpen} onClose={() => {
+                            setIsMoreDropdownOpen(false);
+                            setActiveActionButton(null);
+                          }} />
                         </div>
                       </div>
                     </div>
@@ -530,32 +571,62 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
               <div className="rounded-lg mb-6 sticky top-24">
                 {/* Action buttons for desktop - hidden on mobile */}
                 <div className="hidden md:grid md:grid-cols-5 md:gap-2 mb-6">
-                  <ActionButton icon={<DirectionIcon />} label="Direction" />
+                  <ActionButton 
+                    icon={<DirectionIcon />} 
+                    label="Direction" 
+                    isActive={activeActionButton === 'direction'}
+                    onClick={() => setActiveActionButton(activeActionButton === 'direction' ? null : 'direction')}
+                  />
                   <div className="relative">
                     <ActionButton
                       icon={<LinksIcon />}
                       label="Links"
-                      onClick={() => setIsLinksModalOpen(!isLinksModalOpen)}
-                      isSelected={true}
+                      isActive={activeActionButton === 'links'}
+                      onClick={() => {
+                        setActiveActionButton(activeActionButton === 'links' ? null : 'links');
+                        setIsLinksModalOpen(!isLinksModalOpen);
+                      }}
                     />
-                    <LinksModal isOpen={isLinksModalOpen} onClose={() => setIsLinksModalOpen(false)} />
+                    <LinksModal isOpen={isLinksModalOpen} onClose={() => {
+                      setIsLinksModalOpen(false);
+                      setActiveActionButton(null);
+                    }} />
                   </div>
                   <div className="relative">
                     <ActionButton
                       icon={<ContactIcon />}
                       label="Contact"
-                      onClick={() => setIsContactModalOpen(!isContactModalOpen)}
+                      isActive={activeActionButton === 'contact'}
+                      onClick={() => {
+                        setActiveActionButton(activeActionButton === 'contact' ? null : 'contact');
+                        setIsContactModalOpen(!isContactModalOpen);
+                      }}
                     />
-                    <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
+                    <ContactModal isOpen={isContactModalOpen} onClose={() => {
+                      setIsContactModalOpen(false);
+                      setActiveActionButton(null);
+                    }} />
                   </div>
-                  <ActionButton icon={<ReserveIcon />} label="Reserve" color="#0063BF" />
+                  <ActionButton 
+                    icon={<ReserveIcon />} 
+                    label="Reserve" 
+                    isActive={activeActionButton === 'reserve'}
+                    onClick={() => setActiveActionButton(activeActionButton === 'reserve' ? null : 'reserve')}
+                  />
                   <div className="relative">
                     <ActionButton
                       icon={<MoreIcon />}
                       label="More"
-                      onClick={() => setIsMoreDropdownOpen(!isMoreDropdownOpen)}
+                      isActive={activeActionButton === 'more'}
+                      onClick={() => {
+                        setActiveActionButton(activeActionButton === 'more' ? null : 'more');
+                        setIsMoreDropdownOpen(!isMoreDropdownOpen);
+                      }}
                     />
-                    <MoreDropdown isOpen={isMoreDropdownOpen} onClose={() => setIsMoreDropdownOpen(false)} />
+                    <MoreDropdown isOpen={isMoreDropdownOpen} onClose={() => {
+                      setIsMoreDropdownOpen(false);
+                      setActiveActionButton(null);
+                    }} />
                   </div>
                 </div>
                 <h2 className="text-xs text-[#1C1C1C] mb-4">Details</h2>

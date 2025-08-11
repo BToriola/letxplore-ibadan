@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FiX, FiEye, FiEyeOff } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
+import Portal from './Portal';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -107,21 +108,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-75 flex items-start sm:items-center justify-center z-[999999] p-4 sm:p-6 pt-24 sm:pt-6"
-      onClick={handleClose}
-      style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        bottom: 0,
-        zIndex: 999999 
-      }}
-    >
+    <Portal>
       <div 
-        className="bg-white rounded-lg w-full max-w-md max-h-[75vh] sm:max-h-[90vh] overflow-y-auto relative mx-auto shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 bg-black bg-opacity-80 flex items-start sm:items-center justify-center p-4 sm:p-6 pt-20 sm:pt-6"
+        onClick={handleClose}
+        style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0,
+          zIndex: 999999,
+          pointerEvents: 'auto'
+        }}
+      >
+        <div 
+          className="bg-white rounded-lg w-full max-w-md max-h-[80vh] sm:max-h-[90vh] overflow-y-auto relative mx-auto shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b">
@@ -413,6 +416,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
         )}
       </div>
     </div>
+    </Portal>
   );
 };
 

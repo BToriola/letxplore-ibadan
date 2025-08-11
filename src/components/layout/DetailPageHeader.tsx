@@ -55,7 +55,7 @@ const DetailPageHeader = () => {
             <div className={`lg:bg-transparent ${isAuthModalOpen ? 'bg-transparent' : 'bg-black/40'} lg:backdrop-blur-none ${isAuthModalOpen ? 'backdrop-blur-none' : 'backdrop-blur-sm'} rounded-full lg:rounded-full mx-2 lg:mx-0 px-1 py-2 lg:py-0`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between lg:pr-0">
                 {/* Location and Search Bar grouped together */}
-                <div className="flex items-center space-x-2 lg:space-x-4 flex-1">
+                <div className="flex items-center space-x-6 lg:space-x-4 flex-1">
                 {/* Location Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <div className="flex items-center space-x-1 lg:space-x-2 py-2 px-2 rounded">
@@ -104,7 +104,7 @@ const DetailPageHeader = () => {
                 </div>
 
                 {/* Search Bar */}
-                <div className="flex-none w-32 ml-3 mr-1 lg:ml-0 lg:mr-0 lg:flex-none lg:w-[500px] max-w-none lg:max-w-lg relative" ref={searchRef}>
+                <div className="w-24 ml-1 mr-1 lg:ml-0 lg:mr-0 lg:flex-none lg:w-[500px] max-w-none lg:max-w-lg relative" ref={searchRef}>
                     <div className="relative">
                         <input
                             type="text"
@@ -150,18 +150,18 @@ const DetailPageHeader = () => {
                 </div>
 
                 {/* User Icon */}
-                <div className="relative lg:mr-[-4rem]" ref={profileDropdownRef}>
+                <div className="relative lg:mr-[-4rem] flex-shrink-0" ref={profileDropdownRef}>
                     {!isAuthenticated ? (
                         <button
-                            className="flex items-center space-x-2 py-3 px-3 lg:p-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] lg:hover:bg-[#0056a3] transition-colors"
+                            className="flex items-center space-x-1 py-2 px-2 lg:px-4 lg:py-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] lg:hover:bg-[#0056a3] transition-colors"
                             onClick={() => setIsAuthModalOpen(true)}
                             aria-label="Sign up"
                         >
-                            <span className="text-xs lg:text-sm font-medium text-white lg:text-white">Sign up</span>
+                            <span className="text-xs lg:text-sm font-medium text-white lg:text-white whitespace-nowrap">Sign up</span>
                             <WhiteIcon 
-                                width={16} 
-                                height={16} 
-                                className="text-white lg:text-white"
+                                width={12} 
+                                height={12}
+                                className="text-white lg:text-white flex-shrink-0 lg:w-[14px] lg:h-[14px]"
                             />
                         </button>
                     ) : (
