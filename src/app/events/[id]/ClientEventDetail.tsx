@@ -44,13 +44,19 @@ import {
   Time,
 } from "@/components/icons/SvgIcons";
 
-const MoreDropdown = ({ isOpen }: { isOpen: boolean; onClose: () => void }) => {
+const MoreDropdown = ({ isOpen, onClose, onWriteReview }: { isOpen: boolean; onClose: () => void; onWriteReview: () => void }) => {
   if (!isOpen) return null;
 
   return (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 more-dropdown">
       <div className="">
-        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+        <button 
+          className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3"
+          onClick={() => {
+            onWriteReview();
+            onClose();
+          }}
+        >
           <div className="w-6 h-6 rounded flex items-center justify-center">
             <Review width={16} height={16} />
           </div>
@@ -139,7 +145,7 @@ const renderStars = (rating: number, size: number = 14) => {
     <div className={`rounded-full mb-1 flex items-center justify-center`}>
       {icon}
     </div>
-    <span className={`text-[8px] ${isActive ? "text-[#0063BF]" : "text-[#1c1c1c]"} text-center`}>{label}</span>
+    <span className={`text-[8px] text-[#1c1c1c] text-center`}>{label}</span>
   </div>
 );
 
@@ -157,7 +163,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
   const [isReviewsModalOpen, setIsReviewsModalOpen] = React.useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = React.useState(false);
   const [isLinksModalOpen, setIsLinksModalOpen] = React.useState(false);
-  const [activeActionButton, setActiveActionButton] = React.useState<string | null>(null);
+  const [activeActionButton, setActiveActionButton] = React.useState<string | null>('direction');
   const desktopContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileContainerRef = React.useRef<HTMLDivElement>(null);
 
@@ -367,10 +373,14 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                               setIsMoreDropdownOpen(!isMoreDropdownOpen);
                             }}
                           />
-                          <MoreDropdown isOpen={isMoreDropdownOpen} onClose={() => {
-                            setIsMoreDropdownOpen(false);
-                            setActiveActionButton(null);
-                          }} />
+                          <MoreDropdown 
+                            isOpen={isMoreDropdownOpen} 
+                            onClose={() => {
+                              setIsMoreDropdownOpen(false);
+                              setActiveActionButton(null);
+                            }}
+                            onWriteReview={() => setIsReviewsModalOpen(true)}
+                          />
                         </div>
                       </div>
                     </div>
@@ -425,7 +435,10 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                 <div className="mb-10">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xs text-[#1c1c1c] font-semibold">Ratings and Reviews</h2>
-                    <button className="bg-[#0063BF1A]/[0.1] text-[#0063BF] px-4 py-2 rounded-2xl text-xs hover:bg-blue-50 transition-colors">
+                    <button 
+                      className="bg-[#0063BF1A]/[0.1] text-[#0063BF] px-4 py-2 rounded-2xl text-xs hover:bg-blue-50 transition-colors"
+                      onClick={() => setIsReviewsModalOpen(true)}
+                    >
                       Write a Review
                     </button>
                   </div>
@@ -623,10 +636,14 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                         setIsMoreDropdownOpen(!isMoreDropdownOpen);
                       }}
                     />
-                    <MoreDropdown isOpen={isMoreDropdownOpen} onClose={() => {
-                      setIsMoreDropdownOpen(false);
-                      setActiveActionButton(null);
-                    }} />
+                    <MoreDropdown 
+                      isOpen={isMoreDropdownOpen} 
+                      onClose={() => {
+                        setIsMoreDropdownOpen(false);
+                        setActiveActionButton(null);
+                      }}
+                      onWriteReview={() => setIsReviewsModalOpen(true)}
+                    />
                   </div>
                 </div>
                 <h2 className="text-xs text-[#1C1C1C] mb-4">Details</h2>

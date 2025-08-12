@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import { FiChevronDown, FiSearch } from "react-icons/fi";
-import { LogoMini, WhiteIcon } from "../icons/SvgIcons";
+import { FiChevronDown } from "react-icons/fi";
+import { LogoMini, WhiteIcon, SearchIcon } from "../icons/SvgIcons";
 import AuthModal from "../ui/AuthModal";
 import { useLocation } from "../../contexts/LocationContext";
 
@@ -13,9 +13,11 @@ const DetailPageHeader = () => {
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = React.useState(false);
+    const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
 
     const dropdownRef = React.useRef<HTMLDivElement>(null);
     const searchRef = React.useRef<HTMLDivElement>(null);
+    const searchInputRef = React.useRef<HTMLInputElement>(null);
     const profileDropdownRef = React.useRef<HTMLDivElement>(null);
 
     // Mock suggestions data
@@ -41,6 +43,10 @@ const DetailPageHeader = () => {
             }
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
                 setShowSuggestions(false);
+                // Only collapse search expansion on mobile when clicking truly outside
+                if (typeof window !== 'undefined' && window.innerWidth < 768 && isSearchExpanded) {
+                    setIsSearchExpanded(false);
+                }
             }
             if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
                 setIsProfileDropdownOpen(false);
@@ -48,16 +54,28 @@ const DetailPageHeader = () => {
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    }, [isSearchExpanded]);
+
+    // Auto-focus input when search is expanded
+    React.useEffect(() => {
+        if (isSearchExpanded && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [isSearchExpanded]);
 
     return (
         <header className="py-8 top-0 z-50 lg:relative lg:bg-transparent absolute w-full">
-            <div className={`lg:bg-transparent ${isAuthModalOpen ? 'bg-transparent' : 'bg-black/40'} lg:backdrop-blur-none ${isAuthModalOpen ? 'backdrop-blur-none' : 'backdrop-blur-sm'} rounded-full lg:rounded-full mx-2 lg:mx-0 px-1 py-2 lg:py-0`}>
+            <div className={`lg:bg-transparent ${isAuthModalOpen ? 'bg-transparent' : 'bg-black/40'} lg:backdrop-blur-none ${isAuthModalOpen ? 'backdrop-blur-none' : 'backdrop-blur-sm'} rounded-full lg:rounded-full mx-2 lg:mx-0 ${isSearchExpanded ? 'px-0' : 'pl-1 pr-4'} py-2 lg:py-0`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between lg:pr-0">
                 {/* Location and Search Bar grouped together */}
                 <div className="flex items-center space-x-6 lg:space-x-4 flex-1">
                 {/* Location Dropdown */}
-                <div className="relative" ref={dropdownRef}>
+                <div
+                    className={`relative transition-opacity duration-300 ${
+                        isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
+                    }`}
+                    ref={dropdownRef}
+                >
                     <div className="flex items-center space-x-1 lg:space-x-2 py-2 px-2 rounded">
                         <div onClick={() => window.location.href = "/"} className="cursor-pointer">
                             <LogoMini
@@ -104,30 +122,52 @@ const DetailPageHeader = () => {
                 </div>
 
                 {/* Search Bar */}
-                <div className="w-24 ml-1 mr-1 lg:ml-0 lg:mr-0 lg:flex-none lg:w-[500px] max-w-none lg:max-w-lg relative" ref={searchRef}>
-                    <div className="relative">
+                <div
+                    className={`transition-all duration-300 ease-in-out ${
+                        isSearchExpanded
+                            ? 'absolute left-0 right-5 z-10  flex items-center justify-start h-full'
+                            : 'w-24 ml-1 mr-3 lg:ml-0 lg:mr-0 lg:flex-none lg:w-[500px] max-w-none lg:max-w-lg relative'
+                    }`}
+                    ref={searchRef}
+                >
+                    <div className={`relative ${isSearchExpanded ? 'w-full' : 'w-full md:w-[480px]'}`}>
                         <input
+                            ref={searchInputRef}
                             type="text"
-                            placeholder="Search for where to explore"
+                            placeholder={typeof window !== 'undefined' && window.innerWidth > 768 ? "Search for where to explore" : "Search"}
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            onFocus={() => setShowSuggestions(true)}
-                            className="w-full py-2 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-xs text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] hidden lg:block"
+                            onFocus={() => {
+                                if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                                    setIsSearchExpanded(true);
+                                }
+                                setShowSuggestions(true);
+                            }}
+                            onBlur={() => {
+                                setTimeout(() => {
+                                    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                                        setIsSearchExpanded(false);
+                                    }
+                                }, 100);
+                            }}
+                            onClick={() => {
+                                if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                                    setIsSearchExpanded(true);
+                                }
+                            }}
+                            className={`w-full ${
+                                isSearchExpanded ? 'py-3' : 'py-2 lg:py-4'
+                            } pl-4 bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-xs text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 placeholder:text-xs lg:placeholder:text-sm focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF]`}
+                            style={{ 
+                                maxWidth: '100%',
+                                fontSize: '16px'
+                            }}
                             aria-label="Search"
                         />
-                        <input
-                            type="text"
-                            placeholder="Search"
-                            value={searchInput}
-                            onChange={(e) => setSearchInput(e.target.value)}
-                            onFocus={() => setShowSuggestions(true)}
-                            className="w-full py-2 lg:py-4 pl-4  bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-xs text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF] lg:hidden"
-                            aria-label="Search"
-                        />
-                        <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white lg:text-gray-400" />
+                        <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-white lg:hidden" />
                     </div>
                     {showSuggestions && searchInput && (
-                        <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md  z-50">
+                        <div className="absolute left-0 right-0 mt-1 bg-white rounded-md  z-50">
                             {mockSuggestions
                                 .filter((suggestion) =>
                                     suggestion.toLowerCase().includes(searchInput.toLowerCase())
@@ -139,6 +179,9 @@ const DetailPageHeader = () => {
                                         onClick={() => {
                                             setSearchInput(suggestion);
                                             setShowSuggestions(false);
+                                            if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                                                setIsSearchExpanded(false);
+                                            }
                                         }}
                                     >
                                         {suggestion}
@@ -150,10 +193,15 @@ const DetailPageHeader = () => {
                 </div>
 
                 {/* User Icon */}
-                <div className="relative lg:mr-[-4rem] flex-shrink-0" ref={profileDropdownRef}>
+                <div
+                    className={`relative lg:mr-[-4rem] flex-shrink-0 transition-opacity duration-300 ${
+                        isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
+                    }`}
+                    ref={profileDropdownRef}
+                >
                     {!isAuthenticated ? (
                         <button
-                            className="flex items-center space-x-1 py-2 px-2 lg:px-4 lg:py-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] lg:hover:bg-[#0056a3] transition-colors"
+                            className="flex items-center space-x-1 py-2 px-2 lg:px-4 lg:py-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] lg:hover:bg-[#0056a3] transition-colors ml-2"
                             onClick={() => setIsAuthModalOpen(true)}
                             aria-label="Sign up"
                         >
@@ -167,7 +215,7 @@ const DetailPageHeader = () => {
                     ) : (
                         <>
                             <button
-                                className="flex items-center space-x-1 lg:space-x-2 p-2 lg:p-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] transition-colors"
+                                className="flex items-center space-x-1 lg:space-x-2 p-2 lg:p-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] transition-colors ml-4"
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                 aria-label="User menu"
                             >
