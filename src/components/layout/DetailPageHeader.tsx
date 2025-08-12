@@ -156,7 +156,7 @@ const DetailPageHeader = () => {
                                 }
                             }}
                             className={`w-full ${
-                                isSearchExpanded ? 'py-3' : 'py-2 lg:py-4'
+                                isSearchExpanded ? 'py-3' : 'py-1.5 lg:py-4'
                             } pl-4 bg-transparent lg:bg-gray-50 border border-white lg:border-gray-200 rounded-full text-xs text-white lg:text-gray-700 placeholder-white lg:placeholder-gray-400 placeholder:text-xs lg:placeholder:text-sm focus:outline-none focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF]`}
                             style={{ 
                                 maxWidth: '100%',

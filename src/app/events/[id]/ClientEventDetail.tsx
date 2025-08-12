@@ -855,7 +855,15 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                   .filter((e) => e.id !== eventId)
                   .slice(0, 6)
                   .map((similarEvent) => (
-                    <Link key={similarEvent.id} href={`/events/${similarEvent.id}?category=${encodeURIComponent(similarEvent.category)}`}>
+                    <Link 
+                      key={similarEvent.id} 
+                      href={`/events/${similarEvent.id}?category=${encodeURIComponent(similarEvent.category)}`}
+                      onClick={() => {
+                        setTimeout(() => {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }, 100);
+                      }}
+                    >
                       <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-full flex-shrink-0">
                         <div className="relative rounded-lg overflow-hidden" style={{ height: "200px", width: "280px" }}>
                           <Image
