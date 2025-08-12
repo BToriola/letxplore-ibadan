@@ -167,7 +167,11 @@ const DetailPageHeader = () => {
                         <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-white lg:hidden" />
                     </div>
                     {showSuggestions && searchInput && (
-                        <div className="absolute left-0 right-0 mt-1 bg-white rounded-md  z-50">
+                        <div className={`absolute z-50 bg-white rounded-md shadow-lg  ${
+                            isSearchExpanded 
+                                ? 'left-4 right-4 top-full mt-2' 
+                                : 'left-0 right-0 top-full mt-1'
+                        }`}>
                             {mockSuggestions
                                 .filter((suggestion) =>
                                     suggestion.toLowerCase().includes(searchInput.toLowerCase())
