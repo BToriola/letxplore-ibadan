@@ -2,9 +2,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { FiSearch, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import AuthModal from '../ui/AuthModal';
 import { useLocation } from '../../contexts/LocationContext';
+import { SearchIcon } from '../icons/SvgIcons';
 
 // Mock suggestions data
 const mockSuggestions = [
@@ -145,7 +146,7 @@ const Header = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder={typeof window !== 'undefined' && window.innerWidth < 768 ? "Search" : "Search "}
+                  placeholder={typeof window !== 'undefined' && window.innerWidth < 768 ? "Search" : "Search for where to explore "}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onFocus={() => {
@@ -166,16 +167,15 @@ const Header = () => {
                     }
                   }}
                   className={`w-full ${
-                    isSearchExpanded ? 'py-3' : 'py-1 md:py-3'
-                  } px-3 lg:px-4 bg-transparent border border-white text-white placeholder-white/75 rounded-full focus:outline-none focus:ring-2 focus:ring-white/50 shadow-sm text-base`}
+                    isSearchExpanded ? 'py-3' : 'py-0.5 md:py-3'
+                  } px-3 lg:px-4 bg-transparent border border-white text-white placeholder-white/75 rounded-full focus:outline-none focus:ring-white/50 shadow-sm text-base placeholder:text-xs lg:placeholder:text-sm  focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF]`}
                   style={{ 
                     maxWidth: '100%',
                     fontSize: '16px'
                   }}
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <FiSearch className="h-4 w-4 md:h-5 md:w-5 text-white/75" />
-                </div>
+                            <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-white lg:hidden" />
+
                 {showSuggestions && suggestions.length > 0 && (
                   <div className="absolute left-0 right-0 mt-1 py-1 bg-[#1a365d]/95 backdrop-blur-sm rounded-lg shadow-lg z-50 max-h-60 overflow-auto">
                     {suggestions.map((suggestion, index) => (
@@ -209,7 +209,7 @@ const Header = () => {
                   className="bg-white rounded-full py-1 px-3 md:py-3 md:px-5 cursor-pointer hover:bg-opacity-90 transition-colors flex items-center gap-1 md:gap-2 shadow-sm"
                   onClick={() => setIsAuthModalOpen(true)}
                 >
-                  <span className="text-gray-900 font-medium text-xs md:text-base md:py-0 py-2">Sign up</span>
+                  <span className="text-gray-900 font-medium text-xs md:text-base md:py-0 py-1">Sign up</span>
                   <div className="flex items-center justify-center">
                     <Image
                       src="/images/person.png"

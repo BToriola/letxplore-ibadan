@@ -42,6 +42,8 @@ import {
   Save,
   Report,
   Time,
+  LocalBlue,
+  FastFood,
 } from "@/components/icons/SvgIcons";
 
 const MoreDropdown = ({ isOpen, onClose, onWriteReview }: { isOpen: boolean; onClose: () => void; onWriteReview: () => void }) => {
@@ -131,11 +133,11 @@ const renderStars = (rating: number, size: number = 14) => {
   return stars;
 };
 
-  const ActionButton = ({ label, isActive, onClick, icon }: { label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode }) => (
+  const ActionButton = ({ label, isActive, onClick, icon, isDynamicButton = false }: { label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode; isDynamicButton?: boolean }) => (
   <div
     className={`
       flex flex-col items-center justify-center 
-      ${isActive ? "bg-white border border-[#0063BF]" : "bg-[#f4f4f4]"} rounded-xl p-2
+      ${isActive ? "bg-white border border-[#0063BF]" : isDynamicButton ? "bg-[#007AFF]/[0.15]" : "bg-[#f4f4f4]"} rounded-xl p-2
       w-[65.2px] h-[48px] 
       md:w-full md:h-[48px]
       cursor-pointer relative transition-all duration-200 hover:shadow-sm
@@ -145,7 +147,7 @@ const renderStars = (rating: number, size: number = 14) => {
     <div className={`rounded-full mb-1 flex items-center justify-center`}>
       {icon}
     </div>
-    <span className={`text-[8px] text-[#1c1c1c] text-center`}>{label}</span>
+    <span className={`text-[8px] ${isDynamicButton ? "text-[#0063BF]" : "text-[#1c1c1c]"} text-center`}>{label}</span>
   </div>
 );
 
@@ -166,6 +168,118 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
   const [activeActionButton, setActiveActionButton] = React.useState<string | null>('direction');
   const desktopContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Dynamic button configuration based on category (mobile only)
+  const getMobileDynamicButtonConfig = (category: string | undefined) => {
+    const categoryLower = category?.toLowerCase();
+    
+    switch (categoryLower) {
+      case 'events':
+      case 'music':
+      case 'tech':
+      case 'business':
+      case 'art':
+      case 'culture':
+      case 'festival':
+        return {
+          label: 'Get Ticket',
+          icon: <Card width={16} height={16} />,
+          action: 'ticket'
+        };
+      case 'eat & drink':
+      case 'food':
+      case 'restaurant':
+      case 'cafe':
+      case 'bar':
+        return {
+          label: 'Order',
+          icon: <FastFood width={16} height={16} />,
+          action: 'order'
+        };
+      case 'stay':
+      case 'hotel':
+      case 'accommodation':
+      case 'resort':
+        return {
+          label: 'Reserve',
+          icon: <ReserveIcon width={16} height={16} />,
+          action: 'reserve'
+        };
+      case 'see & do':
+      case 'activities':
+      case 'tours':
+      case 'attractions':
+        return {
+          label: 'Ticket',
+          icon: <LocalBlue width={16} height={16} />,
+          action: 'ticket'
+        };
+      default:
+        return {
+          label: 'Reserve',
+          icon: <ReserveIcon width={16} height={16} />,
+          action: 'reserve'
+        };
+    }
+  };
+
+  const mobileDynamicButtonConfig = getMobileDynamicButtonConfig(currentCategory);
+
+  // Dynamic button configuration for desktop (can be the same as mobile)
+  const getDesktopDynamicButtonConfig = (category: string | undefined) => {
+    const categoryLower = category?.toLowerCase();
+    
+    switch (categoryLower) {
+      case 'events':
+      case 'music':
+      case 'tech':
+      case 'business':
+      case 'art':
+      case 'culture':
+      case 'festival':
+        return {
+          label: 'Get Ticket',
+          icon: <Card />,
+          action: 'ticket'
+        };
+      case 'eat & drink':
+      case 'food':
+      case 'restaurant':
+      case 'cafe':
+      case 'bar':
+        return {
+          label: 'Order',
+          icon: <FastFood />,
+          action: 'order'
+        };
+      case 'stay':
+      case 'hotel':
+      case 'accommodation':
+      case 'resort':
+        return {
+          label: 'Reserve',
+          icon: <ReserveIcon />,
+          action: 'reserve'
+        };
+      case 'see & do':
+      case 'activities':
+      case 'tours':
+      case 'attractions':
+        return {
+          label: 'Ticket',
+          icon: <LocalBlue />,
+          action: 'ticket'
+        };
+      default:
+        return {
+          label: 'Reserve',
+          icon: <ReserveIcon />,
+          action: 'reserve'
+        };
+    }
+  };
+
+  const desktopDynamicButtonConfig = getDesktopDynamicButtonConfig(currentCategory);
 
   // Check if arrows should be shown based on content width
   React.useEffect(() => {
@@ -358,10 +472,11 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                           }} />
                         </div>
                         <ActionButton 
-                          icon={<ReserveIcon width={16} height={16} />} 
-                          label="Reserve" 
-                          isActive={activeActionButton === 'reserve'}
-                          onClick={() => setActiveActionButton(activeActionButton === 'reserve' ? null : 'reserve')}
+                          icon={mobileDynamicButtonConfig.icon} 
+                          label={mobileDynamicButtonConfig.label} 
+                          isActive={activeActionButton === mobileDynamicButtonConfig.action}
+                          onClick={() => setActiveActionButton(activeActionButton === mobileDynamicButtonConfig.action ? null : mobileDynamicButtonConfig.action)}
+                          isDynamicButton={true}
                         />
                         <div className="relative">
                           <ActionButton
@@ -452,7 +567,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                 </div>
 
                 <div className="mb-10">
-                  <h2 className="text-xs text-[#1c1c1c] mb-4">Amenities</h2>
+                  <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Amenities</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
                     {amenities.map(({ icon, label }, i) => (
                       <div key={i} className="flex items-center">
@@ -464,7 +579,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                 </div>
 
                 <div className="mb-10">
-                  <h2 className="text-xs text-[#1c1c1c] mb-4">Highlights</h2>
+                  <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Highlights</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
                     {highlights.map(({ icon, label }, i) => (
                       <div key={i} className="flex items-center">
@@ -476,7 +591,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                 </div>
 
                 <div className="mb-10">
-                  <h2 className="text-xs text-[#1c1c1c] mb-4">Perfect for</h2>
+                  <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Perfect for</h2>
                   <ul className="list-disc pl-5 text-xs text-[#1c1c1c] space-y-1">
                     {["Proposal", "Small hangout", "Corporate events", "Dinners"].map((item, i) => (
                       <li key={i}>{item}</li>
@@ -621,10 +736,11 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                     }} />
                   </div>
                   <ActionButton 
-                    icon={<ReserveIcon />} 
-                    label="Reserve" 
-                    isActive={activeActionButton === 'reserve'}
-                    onClick={() => setActiveActionButton(activeActionButton === 'reserve' ? null : 'reserve')}
+                    icon={desktopDynamicButtonConfig.icon} 
+                    label={desktopDynamicButtonConfig.label} 
+                    isActive={activeActionButton === desktopDynamicButtonConfig.action}
+                    onClick={() => setActiveActionButton(activeActionButton === desktopDynamicButtonConfig.action ? null : desktopDynamicButtonConfig.action)}
+                    isDynamicButton={true}
                   />
                   <div className="relative">
                     <ActionButton
