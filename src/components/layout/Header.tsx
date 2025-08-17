@@ -146,7 +146,7 @@ const Header = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder={typeof window !== 'undefined' && window.innerWidth < 768 ? "Search" : "Search for where to explore "}
+                  placeholder={typeof window !== 'undefined' && window.innerWidth < 768 ? "Search" : "Search"}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onFocus={() => {
