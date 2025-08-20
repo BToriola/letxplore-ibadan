@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import AuthModal from '../ui/AuthModal';
 import { useLocation } from '../../contexts/LocationContext';
+import { useSearch } from '../../hooks/useApi';
 import { SearchIcon } from '../icons/SvgIcons';
 
 // Mock suggestions data
@@ -21,6 +22,7 @@ const mockSuggestions = [
 
 const Header = () => {
   const { selectedLocation, setSelectedLocation } = useLocation();
+  const { search } = useSearch();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -35,19 +37,27 @@ const Header = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Filter suggestions based on search input
+  // Filter suggestions based on search input and trigger API search with debouncing
   useEffect(() => {
     if (searchInput.trim() === '') {
       setSuggestions([]);
       setShowSuggestions(false);
-    } else {
-      const filtered = mockSuggestions.filter(suggestion =>
-        suggestion.toLowerCase().includes(searchInput.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(true);
+      return;
     }
-  }, [searchInput]);
+
+    const filtered = mockSuggestions.filter(suggestion =>
+      suggestion.toLowerCase().includes(searchInput.toLowerCase())
+    );
+    setSuggestions(filtered);
+    setShowSuggestions(true);
+    
+    // Debounce API search to prevent excessive calls
+    const timeoutId = setTimeout(() => {
+      search(searchInput);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [searchInput]); // Removed 'search' from dependencies to prevent infinite loop
 
   // Handle clicks outside dropdowns and search
   useEffect(() => {
