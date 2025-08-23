@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import EventCard, { EventCardProps } from './EventCard';
 import CategoryEventsRow from './CategoryEventsRow';
+import { Post } from '../../services/api';
 import {
     getUniqueCategories,
     getCategoryCount,
@@ -13,12 +14,45 @@ import {
 interface EventsSectionProps {
     activeCategory?: string;
     onCategoryChange?: (category: string) => void;
+    groupedPosts?: Record<string, Post[]>; // Add grouped posts from API
 }
 
 const EventsSection: React.FC<EventsSectionProps> = ({
     activeCategory: sharedCategory = 'All',
     onCategoryChange: sharedCategoryChange = () => { },
+    groupedPosts = {}, // Default to empty object
 }) => {
+
+    // Transform API Post data to EventCardProps format
+    const transformPostToEventCard = (post: Post): EventCardProps => {
+        return {
+            id: post.id,
+            title: post.name,
+            date: new Date(post.createdAt).toLocaleDateString(),
+            time: 'TBA', // Post interface doesn't have time field
+            location: `${post.neighborhood || ''}, ${post.city}`.replace(/^, /, ''),
+            price: post.priceRange || 'Free',
+            image: post.images?.[0] || '/images/default/event-placeholder.jpg',
+            category: post.category,
+            description: post.description || ''
+        };
+    };
+
+    // Get categories from API data or fallback to dummy data
+    const getApiCategories = (): string[] => {
+        const apiCategories = Object.keys(groupedPosts);
+        return apiCategories.length > 0 ? apiCategories : getUniqueCategories();
+    };
+
+    // Get events for a category from API data or fallback to dummy data
+    const getApiCategoryEvents = (category: string): EventCardProps[] => {
+        const apiEvents = groupedPosts[category];
+        if (apiEvents && apiEvents.length > 0) {
+            return apiEvents.map(transformPostToEventCard);
+        }
+        // Fallback to dummy data if no API data - use filterEvents directly to avoid circular reference
+        return filterEvents(category, 'All dates', 'All', 'All');
+    };
     const [loading, setLoading] = useState(false);
     const [displayedEvents, setDisplayedEvents] = useState<EventCardProps[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -112,13 +146,15 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     };
 
     const getCategoryEvents = (categoryName: string) => {
-        const filtered = filterEvents(categoryName, dateFilter);
-        return sortEvents(filtered, sortOrder).slice(0, 8);
+        // Use API data if available, otherwise fallback to dummy data
+        return getApiCategoryEvents(categoryName);
     };
 
     // Get list of main categories (excluding "All")
     const getMainCategories = () => {
-        return categories.filter(cat => cat !== 'All');
+        // Use API categories if available, otherwise fallback to dummy data
+        const apiCategories = getApiCategories();
+        return apiCategories.filter(cat => cat !== 'All');
     };
 
     // Handler when user clicks "See all" on a category row

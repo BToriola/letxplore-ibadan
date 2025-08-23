@@ -1,6 +1,6 @@
 // Create a client component wrapper for state sharing
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 // Import UI components
 import HeroSection from "@/components/ui/HeroSection";
@@ -18,21 +18,26 @@ export default function Home() {
   // Get current location from context
   const { selectedLocation } = useLocation();
 
-  // Test API endpoints - only for console logging
-  const { loading: postsLoading, error: postsError } = usePosts({
+  // Memoize the filters to prevent unnecessary re-renders
+  const postsFilters = useMemo(() => ({
     category: sharedCategory !== 'All' ? sharedCategory : undefined,
-    city: selectedLocation, // Always include the city parameter
+    city: selectedLocation,
     limit: 10
-  });
+  }), [sharedCategory, selectedLocation]);
+
+  const groupedPostsFilters = useMemo(() => ({
+    city: selectedLocation,
+  }), [selectedLocation]);
+
+  // Test API endpoints - only for console logging
+  const { loading: postsLoading, error: postsError } = usePosts(postsFilters);
 
   // New hook for grouped posts by categories (3 posts per category like in screenshot)
   const { 
     loading: groupedPostsLoading, 
     error: groupedPostsError, 
     groupedPosts 
-  } = usePostsByCategories({
-    city: selectedLocation, // Always include the city parameter
-  }, 3); // Limit to 3 posts per category as shown in screenshot
+  } = usePostsByCategories(groupedPostsFilters, 3); // Limit to 3 posts per category as shown in screenshot
 
   // Log API status to console
   useEffect(() => {
@@ -78,7 +83,8 @@ export default function Home() {
           />
           <EventsSection 
             activeCategory={sharedCategory} 
-            onCategoryChange={handleCategoryChange} 
+            onCategoryChange={handleCategoryChange}
+            groupedPosts={groupedPosts}
           />
           <ReviewsSection />
         </main>
