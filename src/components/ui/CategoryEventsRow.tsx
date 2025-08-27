@@ -20,6 +20,9 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
 
+  console.log('CategoryEventsRow mounted with category:', categoryName);
+  console.log('Events for this category:', events);
+
   const handleSeeAllClick = () => {
     const slug = categoryName
       .toLowerCase()

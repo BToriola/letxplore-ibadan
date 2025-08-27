@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { events } from "@/data/events";
 import { EventCardProps } from "@/components/ui/EventCard";
+import { usePostDetail, usePosts } from "@/hooks/useApi";
 import DetailPageHeader from "@/components/layout/DetailPageHeader";
 import ReviewsModal from "@/components/ui/ReviewsModal";
 import ContactModal from "@/components/ui/ContactModal";
@@ -154,10 +154,23 @@ const renderStars = (rating: number, size: number = 14) => {
 export default function ClientEventDetail({ eventData }: { eventData?: EventCardProps }) {
   const params = useParams();
   const searchParams = useSearchParams();
-  const eventId = eventData?.id || params.id;
-  const eventItem = eventData || events.find((e) => e.id === eventId);
-  const categoryFromUrl = searchParams.get('category');
-  const currentCategory = categoryFromUrl || eventItem?.category;
+  
+  const eventId = params.id as string;
+  const category = params.category as string;
+  const slug = params.slug as string;
+
+  // Use the usePostDetail hook to fetch event data
+  const { loading, error, post: event } = usePostDetail(eventId);
+  
+  // Use usePosts hook to fetch similar events (posts in the same category)
+  const { loading: similarLoading, error: similarError } = usePosts({ 
+    category: category,
+    limit: 6 
+  });
+  
+  // For now, we'll use empty array for similar events until we get the data structure
+  const similarEvents: any[] = [];
+
   const [showDesktopArrows, setShowDesktopArrows] = React.useState(false);
   const [showMobileArrows, setShowMobileArrows] = React.useState(false);
   const [isOpenHourExpanded, setIsOpenHourExpanded] = React.useState(false);
@@ -223,7 +236,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
     }
   };
 
-  const mobileDynamicButtonConfig = getMobileDynamicButtonConfig(currentCategory);
+  const mobileDynamicButtonConfig = getMobileDynamicButtonConfig(category);
 
   // Dynamic button configuration for desktop (can be the same as mobile)
   const getDesktopDynamicButtonConfig = (category: string | undefined) => {
@@ -279,7 +292,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
     }
   };
 
-  const desktopDynamicButtonConfig = getDesktopDynamicButtonConfig(currentCategory);
+  const desktopDynamicButtonConfig = getDesktopDynamicButtonConfig(category);
 
   // Check if arrows should be shown based on content width
   React.useEffect(() => {
@@ -337,12 +350,25 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
     };
   }, [eventId, activeActionButton]);
 
-  if (!eventItem) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <DetailPageHeader />
+        <div className="mt-24 text-center p-8">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading event details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !event) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <DetailPageHeader />
         <div className="mt-24 text-center p-8">
           <h1 className="text-2xl font-bold mb-4">Event not found</h1>
+          <p className="text-gray-600 mb-4">{error || 'The event you are looking for does not exist.'}</p>
           <Link href="/" className="text-blue-500 hover:underline">
             Return to home
           </Link>
@@ -380,8 +406,8 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
             <div className="flex-1 md:mr-8">
               <div className="relative md:rounded-lg overflow-hidden mb-6" style={{ height: "400px" }}>
                 <Image
-                  src="/images/frame-details.png"
-                  alt={eventItem.title}
+                  src={event.featuredImageUrl || event.images?.[0] || "/images/frame-details.png"}
+                  alt={event.name}
                   fill
                   priority
                   className="object-cover"
@@ -396,7 +422,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
               <div className="px-4 md:px-0">
                 <div className="flex justify-between items-start mb-2">
                   <div className="mb-4 sm:mb-0">
-                    <h1 className="text-base font-semibold text-gray-900">{eventItem.title}</h1>
+                    <h1 className="text-base font-semibold text-gray-900">{event.name}</h1>
                   </div>
                   <div className="flex items-center space-x-4">
                     <button className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
@@ -412,11 +438,11 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <span className="text-gray-900 font-medium text-xs">
-                        {eventItem.category}<span className="mx-2 text-gray-400">•</span><span className="text-[#169200]">Open</span><span className="mx-2 text-gray-400">•</span>{eventItem.price === "Free" ? "Free" : eventItem.price}
+                        {event.category}<span className="mx-2 text-gray-400">•</span><span className="text-[#169200]">Open</span><span className="mx-2 text-gray-400">•</span>{event.price || "Free"}
                       </span>
                       <div className="mx-2 flex items-center text-[#1C1C1C] text-xs">
                         <Location className="mr-2 text-gray-500 flex-shrink-0" width={14} height={14} />
-                        <span className="truncate">{eventItem.location}</span>
+                        <span className="truncate">{event.address}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 text-xs">
@@ -500,9 +526,9 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       </div>
                     </div>
 
-                    {eventItem.description && (
+                    {event.about && (
                       <div className="mt-4 text-sm text-[#1c1c1c]">
-                        <p>{eventItem.description}</p>
+                        <p>{event.about}</p>
                       </div>
                     )}
                   </div>
@@ -514,7 +540,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                   <div className="mb-8 order-2 md:order-1">
                     <h1 className="text-xs text-[#1c1c1c] font-semibold mb-3">About</h1>
                     <p className="text-[#1c1c1c] text-xs leading-relaxed">
-                      Let&apos;s Explore have the best and event location to have fun. And the website is so easy to use...
+                      {event.about || "Let's Explore have the best and event location to have fun. And the website is so easy to use..."}
                     </p>
                   </div>
 
@@ -643,16 +669,15 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                         display: none;
                       }
                     `}</style>
-                      {events
-                        .filter((e) => e.id !== eventId)
+                      {similarEvents
                         .slice(0, 6)
                         .map((similarEvent) => (
-                          <Link key={similarEvent.id} href={`/events/${similarEvent.id}?category=${encodeURIComponent(similarEvent.category)}`}>
+                          <Link key={similarEvent.id} href={`/${category}/${similarEvent.id}/${similarEvent.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}`}>
                             <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-[280px] flex-shrink-0">
                               <div className="relative rounded-lg overflow-hidden" style={{ height: "200px" }}>
                                 <Image
-                                  src={similarEvent.image || "/default.svg"}
-                                  alt={similarEvent.title}
+                                  src={similarEvent.featuredImageUrl || similarEvent.images?.[0] || "/default.svg"}
+                                  alt={similarEvent.name}
                                   fill
                                   className="object-cover"
                                   sizes="(max-width: 768px) 100vw, 33vw"
@@ -663,7 +688,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                                 />
                               </div>
                               <div className="py-4">
-                                <h3 className="text-base text-left font-semibold text-[#1C1C1C] mb-2">{similarEvent.title}</h3>
+                                <h3 className="text-base text-left font-semibold text-[#1C1C1C] mb-2">{similarEvent.name}</h3>
 
                                 <div className="flex items-center space-x-2 mb-2">
                                   <div className="flex text-[#FFA300] space-x-1">
@@ -675,7 +700,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
 
                                 <div className="flex items-center text-xs text-gray-600 mb-2">
                                   <Location className="mr-1 text-gray-500 flex-shrink-0" width={14} height={14} />
-                                  <span className="truncate">{similarEvent.location}</span>
+                                  <span className="truncate">{similarEvent.address}</span>
                                 </div>
 
                                 <div className="flex items-center text-xs">
@@ -683,7 +708,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                                   <span className="mx-2 text-gray-400">•</span>
                                   <span className="text-[#169200]">Open</span>
                                   <span className="mx-2 text-gray-400">•</span>
-                                  <span className="text-[#1C1C1C]">{similarEvent.price === "Free" ? "₦₦₦₦" : "₦₦₦₦"}</span>
+                                  <span className="text-[#1C1C1C]">{similarEvent.price || "₦₦₦₦"}</span>
                                 </div>
                               </div>
                             </div>
@@ -764,7 +789,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                 </div>
                 <h2 className="text-xs text-[#1C1C1C] mb-4">Details</h2>
                 <div className="space-y-4 ml-4">
-                  {currentCategory === 'Events' ? (
+                  {category === 'Events' ? (
                     <>
                       <div>
                         <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Date</h3>
@@ -776,7 +801,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                             height={16}
                             className="mr-2 text-gray-500 flex-shrink-0"
                           />
-                          <p className="text-xs text-[#1C1C1C]">{eventItem.date}</p>
+                          <p className="text-xs text-[#1C1C1C]">{event.date || "TBD"}</p>
                         </div>
                       </div>
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
@@ -784,7 +809,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                         <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Time</h3>
                         <div className="flex items-center">
                           <Time className="w-4 h-4 mr-4 text-gray-500" width={16} height={16} />
-                          <p className="pl-2 text-xs text-[#1C1C1C]">{eventItem.time}</p>
+                          <p className="pl-2 text-xs text-[#1C1C1C]">{event.time || "TBD"}</p>
                         </div>
                       </div>
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
@@ -792,13 +817,13 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                         <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Address</h3>
                         <div className="flex items-center">
                           <Location className="w-4 h-4 mr-2 text-gray-500" width={16} height={16} />
-                          <p className="pl-2 text-xs text-[#1C1C1C]">{eventItem.location}</p>
+                          <p className="pl-2 text-xs text-[#1C1C1C]">{event.address}</p>
                         </div>
                       </div>
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                       <div>
                         <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
-                        <p className="text-xs text-[#0063BF]">+234 900 455 9889</p>
+                        <p className="text-xs text-[#0063BF]">{event.phone || "+234 900 455 9889"}</p>
                       </div>
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                       <div>
@@ -821,8 +846,8 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                       <div>
                         <h3 className="text-xs font-medium text-[#1c1c1c] mb-1">Website</h3>
-                        <a href="https://www.letxplore.com" target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
-                          www.letxplore.com
+                        <a href={event.website || "https://www.letxplore.com"} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
+                          {event.website || "www.letxplore.com"}
                         </a>
                       </div>
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
@@ -832,13 +857,13 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       <div>
                         <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
                         <div className="flex items-center">
-                          <p className="text-xs text-[#0063BF]">+234 900 455 9889</p>
+                          <p className="text-xs text-[#0063BF]">{event.phone || "+234 900 455 9889"}</p>
                         </div>
                       </div>
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                       <div>
                         <h3 className="text-xs text-[#1c1c1c] mb-1">Address</h3>
-                        <p className="text-xs text-[#1C1C1C]">{eventItem.location}</p>
+                        <p className="text-xs text-[#1C1C1C]">{event.address}</p>
                       </div>
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                       <div>
@@ -898,8 +923,8 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                       <div>
                         <h3 className="text-xs font-medium text-[#1c1c1c] mb-1">Website</h3>
-                        <a href="https://www.letxplore.com" target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
-                          www.letxplore.com
+                        <a href={event.website || "https://www.letxplore.com"} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
+                          {event.website || "www.letxplore.com"}
                         </a>
                       </div>
                       <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
@@ -967,13 +992,12 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                 className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 max-w-lg"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                {events
-                  .filter((e) => e.id !== eventId)
+                {similarEvents
                   .slice(0, 6)
                   .map((similarEvent) => (
                     <Link 
                       key={similarEvent.id} 
-                      href={`/events/${similarEvent.id}?category=${encodeURIComponent(similarEvent.category)}`}
+                      href={`/${category}/${similarEvent.id}/${similarEvent.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}`}
                       onClick={() => {
                         setTimeout(() => {
                           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -983,8 +1007,8 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-full flex-shrink-0">
                         <div className="relative rounded-lg overflow-hidden" style={{ height: "200px", width: "280px" }}>
                           <Image
-                            src={similarEvent.image || "/default.svg"}
-                            alt={similarEvent.title}
+                            src={similarEvent.featuredImageUrl || similarEvent.images?.[0] || "/default.svg"}
+                            alt={similarEvent.name}
                             fill
                             className="object-cover"
                             sizes="100vw"
@@ -995,7 +1019,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                           />
                         </div>
                         <div className="p-4">
-                          <h3 className="text-base font-semibold text-[#1C1C1C] mb-2">{similarEvent.title}</h3>
+                          <h3 className="text-base font-semibold text-[#1C1C1C] mb-2">{similarEvent.name}</h3>
 
                           <div className="flex items-center space-x-2 mb-2">
                             <div className="flex text-[#FFA300] space-x-1">
@@ -1007,7 +1031,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
 
                           <div className="flex items-center text-xs text-gray-600 mb-2">
                             <Location className="mr-1 text-gray-500 flex-shrink-0" width={14} height={14} />
-                            <span className="truncate">{similarEvent.location}</span>
+                            <span className="truncate">{similarEvent.address}</span>
                           </div>
 
                           <div className="flex items-center text-xs">
@@ -1015,7 +1039,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                             <span className="mx-2 text-gray-400">•</span>
                             <span className="text-[#169200]">Open</span>
                             <span className="mx-2 text-gray-400">•</span>
-                            <span className="text-[#1C1C1C]">{similarEvent.price === "Free" ? "₦₦₦₦" : "₦₦₦₦"}</span>
+                            <span className="text-[#1C1C1C]">{similarEvent.price || "₦₦₦₦"}</span>
                           </div>
                         </div>
                       </div>

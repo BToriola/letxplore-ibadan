@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { apiService, Post, PostFilters, CreateCommentData } from '../services/api';
+import { apiService, Post, PostFilters, CreateCommentData, Comment } from '../services/api';
 
 // Hook for fetching posts with filtering - only console.logs for now
 export const usePosts = (filters?: PostFilters) => {
@@ -38,10 +38,11 @@ export const usePosts = (filters?: PostFilters) => {
   };
 };
 
-// Hook for single post details - only console.logs for now
+// Hook for single post details
 export const usePostDetail = (postId: string | null) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [post, setPost] = useState<Post | null>(null);
 
   useEffect(() => {
     if (!postId) {
@@ -57,8 +58,23 @@ export const usePostDetail = (postId: string | null) => {
         const response = await apiService.getPostById(postId);
         console.log('Post detail response received:', response);
         
-        if (!response.success) {
-          setError(response.message || 'Failed to fetch post');
+        // Handle different response formats
+        if (response && typeof response === 'object') {
+          // Check if it's a wrapped response with success/data properties
+          if ('success' in response) {
+            if (!response.success) {
+              setError(response.message || 'Failed to fetch post');
+            } else if (response.data) {
+              setPost(response.data);
+              console.log('Post data set from response.data:', response.data);
+            }
+          } else {
+            // Direct response - the response IS the post data
+            setPost(response as any);
+            console.log('Post data set directly from response:', response);
+          }
+        } else {
+          setError('Invalid response format received');
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
@@ -72,7 +88,7 @@ export const usePostDetail = (postId: string | null) => {
     fetchPost();
   }, [postId]);
 
-  return { loading, error };
+  return { loading, error, post };
 };
 
 // Hook for comments - only console.logs for now
@@ -281,5 +297,82 @@ export const usePostsByCategories = (filters?: Omit<PostFilters, 'category'>, po
     error, 
     groupedPosts,
     refetch: fetchPostsByCategories 
+  };
+};
+
+// Hook for fetching comments for multiple posts
+export const useMultiplePostsComments = (postIds: string[]) => {
+  console.log('=== useMultiplePostsComments HOOK CALLED ===');
+  console.log('Received postIds:', postIds);
+  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [commentsData, setCommentsData] = useState<Record<string, Comment[]>>({});
+
+  const fetchCommentsForPosts = useCallback(async () => {
+    console.log('=== fetchCommentsForPosts CALLED ===');
+    console.log('postIds in callback:', postIds);
+    
+    if (postIds.length === 0) {
+      console.log('No postIds provided, setting empty comments data');
+      setCommentsData({});
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Fetching comments for posts:', postIds);
+      
+      // Fetch comments for all posts in parallel
+      const commentPromises = postIds.map(async (postId) => {
+        try {
+          const response = await apiService.getComments(postId);
+          console.log(`Comments response for post ${postId}:`, response);
+          
+          if (response.success && response.data) {
+            return { postId, comments: response.data };
+          } else {
+            console.warn(`Failed to fetch comments for post ${postId}:`, response.message);
+            return { postId, comments: [] };
+          }
+        } catch (err) {
+          console.error(`Error fetching comments for post ${postId}:`, err);
+          return { postId, comments: [] };
+        }
+      });
+
+      const results = await Promise.all(commentPromises);
+      
+      // Convert results to a record
+      const commentsRecord: Record<string, Comment[]> = {};
+      results.forEach(({ postId, comments }) => {
+        commentsRecord[postId] = comments;
+      });
+
+      console.log('All comments fetched:', commentsRecord);
+      setCommentsData(commentsRecord);
+      
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      console.error('Error fetching comments for multiple posts:', errorMessage);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [postIds]);
+
+  useEffect(() => {
+    console.log('=== useMultiplePostsComments useEffect TRIGGERED ===');
+    console.log('Current postIds:', postIds);
+    console.log('About to call fetchCommentsForPosts');
+    fetchCommentsForPosts();
+  }, [fetchCommentsForPosts]);
+
+  return { 
+    loading, 
+    error, 
+    commentsData,
+    refetch: fetchCommentsForPosts 
   };
 };

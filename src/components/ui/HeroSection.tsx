@@ -5,16 +5,19 @@ import Image from 'next/image';
 import Header from '../layout/Header';
 import CategoryNavigation from './CategoryNavigation';
 import { useLocation } from '../../contexts/LocationContext';
+import { Post } from '../../services/api';
 import '../../styles/hero.css';
 
 interface HeroSectionProps {
   activeCategory?: string;
   onCategoryChange?: (category: string) => void;
+  groupedPosts?: Record<string, Post[]>;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({
   activeCategory: sharedCategory = "All",
   onCategoryChange: sharedCategoryChange = () => {},
+  groupedPosts = {},
 }) => {
   const { selectedLocation } = useLocation();
   const [activeCategory, setActiveCategory] = useState(sharedCategory);

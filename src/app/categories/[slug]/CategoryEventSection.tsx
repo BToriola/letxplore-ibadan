@@ -2,18 +2,17 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import EventCard, { EventCardProps } from '@/components/ui/EventCard';
-import {
-    getUniqueCategories,
-    getCategoryCount,
-    filterEvents,
-    sortEvents
-} from '../../../data/events';
+import { Post } from '../../../services/api';
 
 interface CategoryEventSectionProps {
     categoryName: string;
+    groupedPosts?: Record<string, Post[]>;
 }
 
-const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryName }) => {
+const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ 
+    categoryName, 
+    groupedPosts = {} 
+}) => {
     const [loading, setLoading] = useState(false);
     const [displayedEvents, setDisplayedEvents] = useState<EventCardProps[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -34,6 +33,125 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
     const eventsPerPage = 12;
     const filterRef = useRef<HTMLDivElement>(null);
 
+    // Transform API Post data to EventCardProps format
+    const transformPostToEventCard = (post: Post): EventCardProps => {
+        return {
+            id: post.id,
+            title: post.name || 'Untitled Event',
+            date: post.date ? new Date(post.date).toLocaleDateString() : 'TBA',
+            time: post.time || 'TBA',
+            location: `${post.neighborhood || ''}, ${post.city || 'Ibadan'}`.replace(/^, /, ''),
+            price: post.price || post.priceRange || 'Free',
+            image: post.featuredImageUrl || post.galleryImageUrls?.[0] || post.images?.[0] || '/images/default/event-placeholder.jpg',
+            category: post.category || 'Event',
+            description: post.about || ''
+        };
+    };
+
+    // Get categories from API data
+    const getApiCategories = (): string[] => {
+        const apiCategories = Object.keys(groupedPosts).filter(category => 
+            groupedPosts[category] && groupedPosts[category].length > 0
+        );
+        return ['All', ...apiCategories];
+    };
+
+    // Get category count for API data
+    const getCategoryCount = (category: string): number => {
+        if (category === 'All') {
+            return Object.values(groupedPosts).reduce((total, posts) => total + posts.length, 0);
+        }
+        return groupedPosts[category]?.length || 0;
+    };
+
+    // Get unique neighborhoods from API data
+    const getUniqueNeighborhoods = (): string[] => {
+        const neighborhoods = new Set<string>();
+        Object.values(groupedPosts).forEach(posts => {
+            posts.forEach(post => {
+                if (post.neighborhood) {
+                    neighborhoods.add(post.neighborhood);
+                }
+            });
+        });
+        return ['All', ...Array.from(neighborhoods).sort()];
+    };
+
+    // Get events for the current category
+    const getCategoryEvents = (): EventCardProps[] => {
+        if (categoryName === 'All') {
+            // Return all events from all categories
+            const allEvents: EventCardProps[] = [];
+            Object.values(groupedPosts).forEach(posts => {
+                posts.forEach(post => {
+                    allEvents.push(transformPostToEventCard(post));
+                });
+            });
+            return allEvents;
+        } else {
+            // Return events for specific category
+            const posts = groupedPosts[categoryName] || [];
+            return posts.map(transformPostToEventCard);
+        }
+    };
+
+    // Filter events based on criteria
+    const filterEvents = (events: EventCardProps[]): EventCardProps[] => {
+        let filtered = events;
+
+        // Filter by neighborhood
+        if (neighborhoodFilter !== 'All') {
+            filtered = filtered.filter(event => 
+                event.location.includes(neighborhoodFilter)
+            );
+        }
+
+        // Filter by price
+        if (priceFilter !== 'All') {
+            filtered = filtered.filter(event => {
+                if (priceFilter === 'Free') {
+                    return event.price === 'Free' || event.price === '0';
+                } else if (priceFilter === 'Low') {
+                    return event.price === 'Low';
+                } else if (priceFilter === 'Medium') {
+                    return event.price === 'Medium';
+                } else if (priceFilter === 'High') {
+                    return event.price === 'High';
+                }
+                return true;
+            });
+        }
+
+        return filtered;
+    };
+
+    // Sort events
+    const sortEvents = (events: EventCardProps[]): EventCardProps[] => {
+        const sorted = [...events];
+        
+        switch (sortOrder) {
+            case 'Most recent':
+                return sorted.reverse(); // Assuming newer items are at the end
+            case 'Oldest first':
+                return sorted;
+            case 'Price: Low to High':
+                return sorted.sort((a, b) => {
+                    const priceA = a.price === 'Free' ? 0 : (a.price === 'Low' ? 1 : a.price === 'Medium' ? 2 : 3);
+                    const priceB = b.price === 'Free' ? 0 : (b.price === 'Low' ? 1 : b.price === 'Medium' ? 2 : 3);
+                    return priceA - priceB;
+                });
+            case 'Price: High to Low':
+                return sorted.sort((a, b) => {
+                    const priceA = a.price === 'Free' ? 0 : (a.price === 'Low' ? 1 : a.price === 'Medium' ? 2 : 3);
+                    const priceB = b.price === 'Free' ? 0 : (b.price === 'Low' ? 1 : b.price === 'Medium' ? 2 : 3);
+                    return priceB - priceA;
+                });
+            case 'Featured':
+            default:
+                return sorted;
+        }
+    };
+
     // Prevent body scroll when modal is open
     useEffect(() => {
         if (isFilterOpen) {
@@ -47,7 +165,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
         };
     }, [isFilterOpen]);
 
-    const categories = getUniqueCategories();
+    const categories = getApiCategories();
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -66,10 +184,11 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
     }, [categoryName, neighborhoodFilter, priceFilter]);
 
     const getFilteredEvents = useCallback(() => {
-        const filtered = filterEvents(categoryName, dateFilter, neighborhoodFilter, priceFilter);
-        const sorted = sortEvents(filtered, sortOrder);
+        const categoryEvents = getCategoryEvents();
+        const filtered = filterEvents(categoryEvents);
+        const sorted = sortEvents(filtered);
         return sorted;
-    }, [categoryName, dateFilter, neighborhoodFilter, priceFilter, sortOrder]);
+    }, [categoryName, dateFilter, neighborhoodFilter, priceFilter, sortOrder, groupedPosts]);
 
     useEffect(() => {
         const filteredEvents = getFilteredEvents();
@@ -164,7 +283,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
                                                                 onChange={(e) => setTempCategory(e.target.value)}
                                                                 className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
                                                             >
-                                                                {categories.map((category) => (
+                                                                {categories.map((category: string) => (
                                                                     <option key={category} value={category}>
                                                                         {category} {category !== 'All' && `(${getCategoryCount(category)})`}
                                                                     </option>
@@ -186,13 +305,11 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({ categoryNam
                                                                 onChange={(e) => setTempNeighborhood(e.target.value)}
                                                                 className="block w-full rounded-xl border border-[#939393] py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none text-[#939393] placeholder-[#939393]"
                                                             >
-                                                                <option value="All">All</option>
-                                                                <option value="Downtown">Downtown</option>
-                                                                <option value="Bodija">Bodija</option>
-                                                                <option value="Mokola">Mokola</option>
-                                                                <option value="Ring Road">Ring Road</option>
-                                                                <option value="Dugbe">Dugbe</option>
-                                                                <option value="Iwo Road">Iwo Road</option>
+                                                                {getUniqueNeighborhoods().map((neighborhood: string) => (
+                                                                    <option key={neighborhood} value={neighborhood}>
+                                                                        {neighborhood}
+                                                                    </option>
+                                                                ))}
                                                             </select>
                                                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 sm:px-4 text-gray-700">
                                                                 <svg className="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

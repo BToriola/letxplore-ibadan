@@ -1,13 +1,11 @@
-// Create a client component wrapper for state sharing
 "use client";
+
 import React, { useState, useEffect, useMemo } from "react";
 
-// Import UI components
 import HeroSection from "@/components/ui/HeroSection";
 import EventsSection from "@/components/ui/EventsSection";
 import ReviewsSection from "@/components/ui/ReviewsSection";
 
-// Import API hooks for testing
 import { usePosts, usePostsByCategories } from "@/hooks/useApi";
 import { useLocation } from "@/contexts/LocationContext";
 
@@ -29,15 +27,15 @@ export default function Home() {
     city: selectedLocation,
   }), [selectedLocation]);
 
-  // Test API endpoints - only for console logging
   const { loading: postsLoading, error: postsError } = usePosts(postsFilters);
 
-  // New hook for grouped posts by categories (3 posts per category like in screenshot)
+  // New hook for grouped posts by categories (fetch all posts from API)
   const { 
     loading: groupedPostsLoading, 
     error: groupedPostsError, 
     groupedPosts 
-  } = usePostsByCategories(groupedPostsFilters, 3); // Limit to 3 posts per category as shown in screenshot
+  } = usePostsByCategories(groupedPostsFilters);
+
 
   // Log API status to console
   useEffect(() => {
@@ -61,7 +59,7 @@ export default function Home() {
     if (groupedPosts && Object.keys(groupedPosts).length > 0) {
       console.log('=== GROUPED POSTS BY CATEGORIES ===');
       Object.entries(groupedPosts).forEach(([category, posts]) => {
-        console.log(`Category: ${category} - ${posts.length} posts:`, posts);
+        console.log(`Category: ${category} - ${Array.isArray(posts) ? posts.length : 0} posts:`, posts);
       });
       console.log('=== END GROUPED POSTS ===');
     }
@@ -86,7 +84,7 @@ export default function Home() {
             onCategoryChange={handleCategoryChange}
             groupedPosts={groupedPosts}
           />
-          <ReviewsSection />
+          <ReviewsSection groupedPosts={groupedPosts} />
         </main>
       </div>
     </>

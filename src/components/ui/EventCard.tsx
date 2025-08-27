@@ -28,15 +28,19 @@ const EventCard: React.FC<EventCardComponentProps> = ({
   time,
   location,
   price,
+  image,
   category,
   navigationCategory,
 }) => {
+  // Create slug from title
+  const slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  
   return (
-    <Link href={`/events/${id}?category=${encodeURIComponent(navigationCategory || category)}`} className="group block w-full">
+    <Link href={`/${encodeURIComponent(navigationCategory || category)}/${id}/${slug}`} className="group block w-full">
       <div className="bg-[#F4F4F4] rounded-2xl overflow-hidden transition-all duration-300 flex flex-row h-[126px] w-full transform hover:-translate-y-1 p-2">
         <div className="relative h-full w-[122px] flex-shrink-0 bg-[#F4F4F4] overflow-hidden rounded-lg">
           <Image
-            src={'/default.svg'}
+            src={image || '/default.svg'}
             alt={title}
             fill
             sizes="122px"

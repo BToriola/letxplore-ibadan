@@ -3,6 +3,8 @@
 import React from 'react';
 import Image from 'next/image';
 import { Star } from '../icons/SvgIcons';
+import { Comment } from '@/services/api';
+import { Post } from '@/services/api';
 
 interface Review {
   id: string;
@@ -17,6 +19,7 @@ interface Review {
 
 interface ReviewsSectionProps {
   reviews?: Review[];
+  groupedPosts?: Record<string, Post[]>;
 }
 
 const defaultReviews: Review[] = [
@@ -82,7 +85,134 @@ const defaultReviews: Review[] = [
   }
 ];
 
-const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = defaultReviews }) => {
+const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts = {} }) => {
+  // State for API comments
+  const [apiComments, setApiComments] = React.useState<Comment[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [hasInitialized, setHasInitialized] = React.useState(false);
+
+  // Get post IDs dynamically from grouped posts or fallback to known IDs
+  const getPostIds = React.useCallback(() => {
+    console.log('=== DETERMINING POST IDS ===');
+    console.log('groupedPosts:', groupedPosts);
+    
+    // Extract all posts from grouped posts
+    const allPosts: Post[] = [];
+    Object.values(groupedPosts).forEach(categoryPosts => {
+      allPosts.push(...categoryPosts);
+    });
+    
+    if (allPosts.length > 0) {
+      // Use actual API posts (limit to first 6 for performance)
+      const dynamicIds = allPosts.slice(0, 6).map(post => post.id);
+      console.log('Using dynamic post IDs from API:', dynamicIds);
+      return dynamicIds;
+    } else {
+      // Fallback to known post IDs that have comments (for development/demo)
+      const fallbackIds = ['-OT8-GL2izod96I5gI8x', '-OUqHJR5qKONacoOlCwE'];
+      console.log('No API posts available, using fallback IDs:', fallbackIds);
+      return fallbackIds;
+    }
+  }, [groupedPosts]);
+
+  // Fetch comments immediately when component mounts (only once)
+  React.useEffect(() => {
+    if (hasInitialized) {
+      console.log('=== SKIPPING FETCH - ALREADY INITIALIZED ===');
+      return;
+    }
+    
+    console.log('=== REVIEWS SECTION MOUNTED ===');
+    
+    const fetchAllComments = async () => {
+      console.log('=== STARTING COMMENT FETCH ===');
+      
+      try {
+        const postIds = getPostIds();
+        const allComments: Comment[] = [];
+        
+        for (const postId of postIds) {
+          console.log(`=== FETCHING COMMENTS FOR ${postId} ===`);
+          
+          const response = await fetch(`https://stagging-letsxplore-b957bddd5479.herokuapp.com/posts/${postId}/comments`);
+          
+          if (response.ok) {
+            const commentsData = await response.json();
+            console.log(`Comments for ${postId}:`, commentsData);
+            
+            if (Array.isArray(commentsData)) {
+              const commentsWithPostTitle = commentsData.map(comment => ({
+                ...comment,
+                postTitle: 'Featured Location'
+              }));
+              allComments.push(...commentsWithPostTitle);
+            }
+          } else {
+            console.warn(`Failed to fetch comments for ${postId}:`, response.status);
+          }
+        }
+        
+        console.log('=== TOTAL COMMENTS FETCHED ===', allComments.length);
+        setApiComments(allComments);
+        setHasInitialized(true);
+      } catch (err) {
+        console.error('Error fetching comments:', err);
+        setError('Failed to load reviews');
+        setHasInitialized(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllComments();
+  }, [hasInitialized, getPostIds]); // Depend on hasInitialized and getPostIds
+
+  // Transform API comments to reviews format
+  const apiReviews = React.useMemo(() => {
+    console.log('=== TRANSFORMING API COMMENTS TO REVIEWS ===');
+    console.log('apiComments:', apiComments);
+    
+    return apiComments.map((comment): Review => {
+      const createdDate = new Date(comment.createdAt);
+      const now = new Date();
+      const diffInMinutes = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60));
+      
+      let timeAgo: string;
+      if (diffInMinutes < 60) {
+        timeAgo = `${diffInMinutes} minutes ago`;
+      } else if (diffInMinutes < 1440) {
+        timeAgo = `${Math.floor(diffInMinutes / 60)} hours ago`;
+      } else {
+        timeAgo = `${Math.floor(diffInMinutes / 1440)} days ago`;
+      }
+
+      return {
+        id: comment.id,
+        userName: comment.username,
+        timeAgo,
+        rating: comment.rating || 5,
+        title: (comment as any).postTitle || 'Featured Location',
+        description: comment.content,
+        image: '/default.svg',
+        userAvatar: comment.userAvatar || '/images/user.png'
+      };
+    }).slice(0, 6); // Limit to 6 reviews
+  }, [apiComments]);
+
+  // Only use API reviews - no fallback to dummy data
+  const displayReviews = apiReviews;
+
+  console.log('Reviews Section Debug:', {
+    hasInitialized,
+    groupedPostsKeys: Object.keys(groupedPosts),
+    hasGroupedPosts: Object.keys(groupedPosts).length > 0,
+    apiCommentsLength: apiComments.length,
+    apiReviewsLength: apiReviews.length,
+    displayReviewsLength: displayReviews.length,
+    loading,
+    error
+  });
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 0; i < 5; i++) {
@@ -99,17 +229,57 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = defaultReview
   };
 
   return (
-    <div className="bg-[#F4F4F4] -px-2 md:px-6 pb-16">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-gray-50 pt-0">
+      <div className="max-w-7xl mx-auto px-2 md:px-6 pb-16">
         {/* Header */}
         <div className="text-center mb-6 pt-10">
           <h2 className="text-2xl font-semibold text-[#1C1C1C] mb-2" style={{ fontFamily: 'PrimeraTrial-Medium, sans-serif' }}>Reviews</h2>
           <p className="text-[#1c1c1c] text-base">Hear from our community</p>
+          {loading && (
+            <p className="text-sm text-gray-500 mt-2">Loading latest reviews...</p>
+          )}
+          {error && (
+            <p className="text-sm text-red-500 mt-2">Unable to load latest reviews</p>
+          )}
         </div>
 
         {/* Reviews Grid - Desktop grid, Mobile horizontal scroll */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 px-6">
-          {reviews.map((review) => (
+        {loading && displayReviews.length === 0 ? (
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 px-6">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="bg-white rounded-2xl p-4 backdrop-blur-[20px] animate-pulse">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+                  <div>
+                    <div className="h-3 bg-gray-300 rounded w-24 mb-1"></div>
+                    <div className="h-3 bg-gray-300 rounded w-16"></div>
+                  </div>
+                </div>
+                <div className="w-full h-36 bg-gray-300 rounded-lg mb-4"></div>
+                <div className="flex items-center mb-2">
+                  <div className="flex space-x-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="w-3 h-3 bg-gray-300 rounded"></div>
+                    ))}
+                  </div>
+                </div>
+                <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-300 rounded w-full mb-1"></div>
+                <div className="h-3 bg-gray-300 rounded w-2/3 mb-3"></div>
+                <div className="h-3 bg-gray-300 rounded w-16"></div>
+              </div>
+            ))}
+          </div>
+        ) : displayReviews.length === 0 ? (
+          // No Reviews Available
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">💬</div>
+            <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">No Reviews Yet</h3>
+            <p className="text-[#1C1C1C] text-base">Be the first to share your experience!</p>
+          </div>
+        ) : (
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 px-6">
+            {displayReviews.map((review) => (
             <div key={review.id} className="bg-white rounded-2xl p-4 backdrop-blur-[20px]">
               <div className="flex items-center mb-4">
                 <div className="relative w-10 h-10 mr-3">
@@ -163,17 +333,26 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = defaultReview
             </div>
           ))}
         </div>
+        )}
 
         {/* Mobile Horizontal Scroll */}
         <div className="md:hidden">
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-pl-6 scroll-pr-6">
-            <style jsx>{`
-              ::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
-            <div className="pl-2"></div>
-            {reviews.map((review) => (
+          {displayReviews.length === 0 && !loading ? (
+            // No Reviews Available - Mobile
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">💬</div>
+              <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">No Reviews Yet</h3>
+              <p className="text-[#1C1C1C] text-base">Be the first to share your experience!</p>
+            </div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-pl-6 scroll-pr-6">
+              <style jsx>{`
+                ::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
+              <div className="pl-2"></div>
+              {displayReviews.map((review) => (
               <div key={review.id} className="bg-white rounded-2xl p-4 backdrop-blur-[20px] flex-shrink-0 w-[280px] snap-start">
                 <div className="flex items-center mb-4">
                   <div className="relative w-8 h-8 mr-3">
@@ -228,6 +407,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = defaultReview
             ))}
             <div className="pr-2"></div>
           </div>
+          )}
         </div>
       </div>
     </div>

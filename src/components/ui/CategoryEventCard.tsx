@@ -20,6 +20,7 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
   title,
   location,
   price,
+  image,
   category,
   rating = 3.5,
   reviewCount = 234,
@@ -49,11 +50,11 @@ const CategoryEventCard: React.FC<CategoryEventCardProps> = ({
     return stars;
   };
   return (
-    <Link href={`/events/${id}?category=${encodeURIComponent(navigationCategory || category)}`} className="group block">
+    <Link href={`/${encodeURIComponent(navigationCategory || category)}/${id}/${encodeURIComponent(title.toLowerCase().replace(/\s+/g, '-'))}`} className="group block">
       <div className="bg-[#F4F4F4] p-2 rounded-2xl overflow-hidden transition-all duration-300 w-[280px] h-[342px] md:w-[320px] md:h-[342px] flex flex-col">
         <div className="relative rounded-lg h-[180px] w-full bg-gray-200 overflow-hidden flex-shrink-0">
           <Image
-            src={'/default.svg'}
+            src={image || '/default.svg'}
             alt={title}
             fill
             sizes="(max-width: 768px) 100vw, 280px"

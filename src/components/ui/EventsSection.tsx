@@ -3,18 +3,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import EventCard, { EventCardProps } from './EventCard';
 import CategoryEventsRow from './CategoryEventsRow';
-import { Post } from '../../services/api';
-import {
-    getUniqueCategories,
-    getCategoryCount,
-    filterEvents,
-    sortEvents
-} from '../../data/events';
 
 interface EventsSectionProps {
     activeCategory?: string;
     onCategoryChange?: (category: string) => void;
-    groupedPosts?: Record<string, Post[]>; // Add grouped posts from API
+    groupedPosts?: Record<string, any[]>; // Updated to match actual API structure
 }
 
 const EventsSection: React.FC<EventsSectionProps> = ({
@@ -23,35 +16,43 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     groupedPosts = {}, // Default to empty object
 }) => {
 
-    // Transform API Post data to EventCardProps format
-    const transformPostToEventCard = (post: Post): EventCardProps => {
+    // Transform API Post data to EventCardProps format - updated for actual API structure
+    const transformPostToEventCard = (post: any): EventCardProps => {
         return {
             id: post.id,
-            title: post.name,
-            date: new Date(post.createdAt).toLocaleDateString(),
-            time: 'TBA', // Post interface doesn't have time field
-            location: `${post.neighborhood || ''}, ${post.city}`.replace(/^, /, ''),
-            price: post.priceRange || 'Free',
-            image: post.images?.[0] || '/images/default/event-placeholder.jpg',
-            category: post.category,
-            description: post.description || ''
+            title: post.name || 'Untitled Event',
+            date: post.date ? new Date(post.date).toLocaleDateString() : 'TBA',
+            time: post.time || 'TBA',
+            location: `${post.neighborhood || ''}, ${post.city || 'Ibadan'}`.replace(/^, /, ''),
+            price: post.price || 'Free',
+            image: post.featuredImageUrl || post.galleryImageUrls?.[0] || '/images/default/event-placeholder.jpg',
+            category: post.category || 'Event',
+            description: post.about || ''
         };
     };
 
-    // Get categories from API data or fallback to dummy data
+    // Get categories from API data only
     const getApiCategories = (): string[] => {
-        const apiCategories = Object.keys(groupedPosts);
-        return apiCategories.length > 0 ? apiCategories : getUniqueCategories();
+        const apiCategories = Object.keys(groupedPosts).filter(category => 
+            groupedPosts[category] && groupedPosts[category].length > 0
+        );
+        console.log('=== EVENTS SECTION API CATEGORIES ===');
+        console.log('Available API categories with data:', apiCategories);
+        return apiCategories;
     };
 
-    // Get events for a category from API data or fallback to dummy data
+    // Get events for a category from API data only
     const getApiCategoryEvents = (category: string): EventCardProps[] => {
         const apiEvents = groupedPosts[category];
         if (apiEvents && apiEvents.length > 0) {
-            return apiEvents.map(transformPostToEventCard);
+            console.log(`=== API EVENTS FOR CATEGORY: ${category} ===`);
+            console.log(`Found ${apiEvents.length} events for ${category}:`, apiEvents);
+            const transformedEvents = apiEvents.map(transformPostToEventCard);
+            console.log(`Transformed events for ${category}:`, transformedEvents);
+            return transformedEvents;
         }
-        // Fallback to dummy data if no API data - use filterEvents directly to avoid circular reference
-        return filterEvents(category, 'All dates', 'All', 'All');
+        console.log(`=== NO DATA FOR CATEGORY: ${category} ===`);
+        return [];
     };
     const [loading, setLoading] = useState(false);
     const [displayedEvents, setDisplayedEvents] = useState<EventCardProps[]>([]);
@@ -90,7 +91,8 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         };
     }, [isFilterOpen]);
 
-    const categories = getUniqueCategories();
+    // Use API categories only
+    const categories = ['All', ...getApiCategories()];
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -109,9 +111,20 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     }, [activeCategory, neighborhoodFilter, priceFilter]);
 
     const getFilteredEvents = useCallback(() => {
-        const filtered = filterEvents(activeCategory, dateFilter, neighborhoodFilter, priceFilter);
-        return sortEvents(filtered, sortOrder);
-    }, [activeCategory, dateFilter, neighborhoodFilter, priceFilter, sortOrder]);
+        // Only use API data for filtering
+        if (activeCategory === 'All') {
+            // When "All" is selected, return all events from all categories
+            const allEvents: EventCardProps[] = [];
+            Object.keys(groupedPosts).forEach(category => {
+                const categoryEvents = getApiCategoryEvents(category);
+                allEvents.push(...categoryEvents);
+            });
+            return allEvents;
+        } else {
+            // Return events for specific category
+            return getApiCategoryEvents(activeCategory);
+        }
+    }, [activeCategory, groupedPosts]);
 
     useEffect(() => {
         const filteredEvents = getFilteredEvents();
@@ -124,8 +137,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         sharedCategoryChange(category);
 
         if (filteredEvents) {
-            const sortedEvents = sortEvents(filteredEvents, sortOrder);
-            setDisplayedEvents(sortedEvents.slice(0, eventsPerPage));
+            setDisplayedEvents(filteredEvents.slice(0, eventsPerPage));
             setCurrentPage(1);
         }
     };
@@ -146,29 +158,33 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     };
 
     const getCategoryEvents = (categoryName: string) => {
-        // Use API data if available, otherwise fallback to dummy data
-        return getApiCategoryEvents(categoryName);
+        console.log(`=== GETTING EVENTS FOR CATEGORY: ${categoryName} ===`);
+        console.log('Current groupedPosts:', groupedPosts);
+        console.log('Available API categories:', Object.keys(groupedPosts));
+        // Use API data only
+        const events = getApiCategoryEvents(categoryName);
+        console.log(`Final events returned for ${categoryName}:`, events);
+        return events;
     };
 
-    // Get list of main categories (excluding "All")
+    // Get list of main categories (excluding "All") - only categories with data
     const getMainCategories = () => {
-        // Use API categories if available, otherwise fallback to dummy data
+        // Use API categories only
         const apiCategories = getApiCategories();
-        return apiCategories.filter(cat => cat !== 'All');
+        return apiCategories;
     };
 
     // Handler when user clicks "See all" on a category row
     const handleSeeAll = (categoryName: string) => {
-        const filtered = filterEvents(categoryName, dateFilter, neighborhoodFilter, priceFilter);
-        const sorted = sortEvents(filtered, sortOrder);
+        const events = getApiCategoryEvents(categoryName);
         setActiveCategory(categoryName);
         sharedCategoryChange(categoryName);
-        setDisplayedEvents(sorted);
+        setDisplayedEvents(events);
         setCurrentPage(1);
     };
 
     return (
-        <section className="pt-6 md:pt-12  bg-gray-50">
+        <section className="pt-6 md:pt-12 pb-0 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {activeCategory !== 'All' && (
                     <div className="text-left mb-10">
@@ -244,7 +260,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                                                                 >
                                                                     {categories.map((category) => (
                                                                         <option key={category} value={category}>
-                                                                            {category} {category !== 'All' && `(${getCategoryCount(category)})`}
+                                                                            {category} {category !== 'All' && groupedPosts[category] && `(${groupedPosts[category].length})`}
                                                                         </option>
                                                                     ))}
                                                                 </select>
@@ -352,17 +368,31 @@ const EventsSection: React.FC<EventsSectionProps> = ({
                     </div>
                 )}
 
-                {/* Show category rows when "All" is selected */}
+                {/* Show category rows when "All" is selected - only categories with data */}
                 {activeCategory === 'All' ? (
                     <div className="md:space-y-4 space-y-0 h-full">
-                        {getMainCategories().map((category) => (
-                            <CategoryEventsRow
-                                key={category}
-                                categoryName={category}
-                                events={getCategoryEvents(category)}
-                                onSeeAll={handleSeeAll}
-                            />
-                        ))}
+                        {getMainCategories().length > 0 ? (
+                            getMainCategories().map((category) => (
+                                <CategoryEventsRow
+                                    key={category}
+                                    categoryName={category}
+                                    events={getCategoryEvents(category)}
+                                    onSeeAll={handleSeeAll}
+                                />
+                            ))
+                        ) : (
+                            <div className="col-span-1 md:col-span-2 lg:col-span-3 py-20 text-center">
+                                <div className="inline-block p-4 rounded-full bg-blue-100 mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-medium text-[#1C1C1C]">No events available</h3>
+                                <p className="mt-2 text-[#939393]">
+                                    There are no events currently available from the API.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,9 +1,12 @@
 "use client";
 
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import HeroSection from '@/components/ui/HeroSection';
 import CategoryEventSection from './CategoryEventSection';
+import { usePostsByCategories } from '@/hooks/useApi';
+import { useLocation } from '@/contexts/LocationContext';
 
 interface ClientWrapperProps {
   categoryName: string;
@@ -11,8 +14,23 @@ interface ClientWrapperProps {
 
 export default function ClientWrapper({ categoryName }: ClientWrapperProps) {
   const router = useRouter();
+  const { selectedLocation } = useLocation();
+  const [sharedCategory, setSharedCategory] = useState(categoryName);
+
+  // Fetch grouped posts data
+  const groupedPostsFilters = useMemo(() => ({
+    city: selectedLocation,
+  }), [selectedLocation]);
+
+  const { 
+    loading: groupedPostsLoading, 
+    error: groupedPostsError, 
+    groupedPosts 
+  } = usePostsByCategories(groupedPostsFilters);
 
   const handleCategoryChange = (newCategory: string) => {
+    setSharedCategory(newCategory);
+    
     if (newCategory === "All") {
       router.push('/');
     } else {
@@ -26,10 +44,14 @@ export default function ClientWrapper({ categoryName }: ClientWrapperProps) {
       <Header />
       <main>
         <HeroSection 
-          activeCategory={categoryName}
+          activeCategory={sharedCategory}
           onCategoryChange={handleCategoryChange}
+          groupedPosts={groupedPosts}
         />
-        <CategoryEventSection categoryName={categoryName} />
+        <CategoryEventSection 
+          categoryName={categoryName} 
+          groupedPosts={groupedPosts}
+        />
       </main>
     </div>
   );

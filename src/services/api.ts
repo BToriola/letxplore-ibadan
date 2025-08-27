@@ -24,32 +24,45 @@ interface PostFilters {
 interface Post {
   id: string;
   name: string;
-  description: string;
+  about?: string; // Changed from description to about
   category: string;
   city: string;
   neighborhood: string;
   address: string;
+  date?: string; // Added date field
+  time?: string; // Added time field
+  price?: string; // Added price field
   latitude?: number;
   longitude?: number;
   phone?: string;
   email?: string;
   website?: string;
+  whatsapp?: string; // Added whatsapp field
+  googleMaps?: string; // Added googleMaps field
+  ctaLink?: string; // Added ctaLink field
+  ctaType?: string; // Added ctaType field
+  eventType?: string; // Added eventType field
   openingHours?: {
-    [key: string]: string;
+    [key: string]: any; // Changed to any to accommodate complex structure
   };
-  images: string[];
-  amenities: string[];
-  highlights: string[];
-  rating: number;
-  reviewCount: number;
+  featuredImageUrl?: string; // Added featuredImageUrl
+  galleryImageUrls?: string[]; // Added galleryImageUrls
+  images?: string[]; // Keep existing images field for compatibility
+  amenities?: string[];
+  highlights?: string[];
+  rating?: number; // Made optional
+  reviewCount?: number; // Made optional
   priceRange?: string;
   socialMedia?: {
     instagram?: string;
     facebook?: string;
     twitter?: string;
   };
-  createdAt: string;
-  updatedAt: string;
+  social_fb?: string; // Added social_fb field
+  social_ig?: string; // Added social_ig field
+  comments?: Record<string, any>; // Added comments field
+  createdAt?: number; // Added createdAt field
+  updatedAt?: number; // Added updatedAt field
 }
 
 interface Comment {
