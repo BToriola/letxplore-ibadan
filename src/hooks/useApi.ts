@@ -40,12 +40,14 @@ export const usePosts = (filters?: PostFilters) => {
 
 // Hook for single post details
 export const usePostDetail = (postId: string | null) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with true to show loading initially
   const [error, setError] = useState<string | null>(null);
   const [post, setPost] = useState<Post | null>(null);
 
   useEffect(() => {
     if (!postId) {
+      setLoading(false);
+      setError('No post ID provided');
       return;
     }
 
@@ -91,10 +93,11 @@ export const usePostDetail = (postId: string | null) => {
   return { loading, error, post };
 };
 
-// Hook for comments - only console.logs for now
+// Hook for comments
 export const useComments = (postId: string | null) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [addingComment, setAddingComment] = useState(false);
 
   const fetchComments = useCallback(async () => {
@@ -110,7 +113,9 @@ export const useComments = (postId: string | null) => {
       const response = await apiService.getComments(postId);
       console.log('Comments response received:', response);
       
-      if (!response.success) {
+      if (response.success && response.data) {
+        setComments(response.data);
+      } else {
         setError(response.message || 'Failed to fetch comments');
       }
     } catch (err) {
@@ -132,15 +137,19 @@ export const useComments = (postId: string | null) => {
     try {
       setAddingComment(true);
       console.log('Adding comment:', commentData);
+      console.log('Post ID:', postId);
       
       const response = await apiService.addComment(postId, commentData);
       console.log('Add comment response received:', response);
       
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to add comment');
+      if (response.success && response.data) {
+        // Refresh comments after adding a new one
+        await fetchComments();
+        return response.data;
+      } else {
+        console.error('API returned unsuccessful response:', response);
+        throw new Error(response.message || `Failed to add comment. Response: ${JSON.stringify(response)}`);
       }
-      
-      return response.data;
     } catch (err) {
       console.error('Error adding comment:', err);
       throw err;
@@ -152,6 +161,7 @@ export const useComments = (postId: string | null) => {
   return { 
     loading, 
     error, 
+    comments,
     addingComment,
     addComment, 
     refetch: fetchComments 

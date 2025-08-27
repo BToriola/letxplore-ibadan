@@ -109,20 +109,41 @@ class ApiService {
 
     try {
       console.log(`Making API request to: ${url}`);
+      console.log('Request options:', { ...options, headers: defaultHeaders });
       
       const response = await fetch(url, {
         ...options,
         headers: defaultHeaders,
       });
 
+      console.log(`Response status: ${response.status}`);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.text();
+          console.log('Error response body:', errorData);
+          errorMessage += ` - ${errorData}`;
+        } catch (e) {
+          console.log('Could not read error response body');
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       console.log(`API Response from ${endpoint}:`, data);
       
-      return data;
+      // Check if response is already in ApiResponse format
+      if (data && typeof data === 'object' && 'success' in data) {
+        return data;
+      }
+      
+      // If not, wrap the data in ApiResponse format
+      return {
+        success: true,
+        data: data,
+        message: 'Success'
+      };
     } catch (error) {
       console.error(`API request failed for ${endpoint}:`, error);
       throw error;

@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { EventCardProps } from "@/components/ui/EventCard";
-import { usePostDetail, usePosts } from "@/hooks/useApi";
+import { usePostDetail, usePosts, useComments } from "@/hooks/useApi";
 import DetailPageHeader from "@/components/layout/DetailPageHeader";
 import ReviewsModal from "@/components/ui/ReviewsModal";
 import ContactModal from "@/components/ui/ContactModal";
@@ -87,27 +87,41 @@ const MoreDropdown = ({ isOpen, onClose, onWriteReview }: { isOpen: boolean; onC
   );
 };
 
-const ReviewCard = () => (
+const ReviewCard = ({ comment }: { comment: any }) => (
   <div className="bg-[#f4f4f4] rounded-2xl p-4">
     <div className="flex items-center mb-2">
       <Image
         src="/default.svg"
-        alt="Ayobami Israel"
+        alt={comment.username}
         width={40}
         height={40}
         className="rounded-full object-cover mr-3"
       />
       <div>
-        <h3 className="text-xs font-medium text-[#1c1c1c]">Ayobami Israel</h3>
-        <p className="text-xs text-[#1c1c1c]">16 minute ago</p>
+        <h3 className="text-xs font-medium text-[#1c1c1c]">{comment.username}</h3>
+        <p className="text-xs text-[#1c1c1c]">
+          {new Date(comment.createdAt).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </p>
       </div>
     </div>
-    <div className="flex text-[#FFA300] mb-2 space-x-1">
-      {Array.from({ length: 4 }).map((_, i) => <Star key={i} width={16} height={16} />)}
-      <StarEmpty width={16} height={16} />
-    </div>
+    {comment.rating && (
+      <div className="flex text-[#FFA300] mb-2 space-x-1">
+        {Array.from({ length: Math.floor(comment.rating) }).map((_, i) => (
+          <Star key={i} width={16} height={16} />
+        ))}
+        {comment.rating % 1 !== 0 && <StarHalf width={16} height={16} />}
+        {Array.from({ length: 5 - Math.ceil(comment.rating) }).map((_, i) => (
+          <StarEmpty key={i} width={16} height={16} />
+        ))}
+      </div>
+    )}
     <p className="text-xs text-[#1c1c1c]">
-      Let&apos;sExplore have the best and surest location to have fun. And the website is so easy to use. Let&apos;sExplore...
+      {comment.content}
     </p>
   </div>
 );
@@ -162,11 +176,24 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
   // Use the usePostDetail hook to fetch event data
   const { loading, error, post: event } = usePostDetail(eventId);
   
-  // Use usePosts hook to fetch similar events (posts in the same category)
-  const { loading: similarLoading, error: similarError } = usePosts({ 
+  // Use useComments hook to fetch and manage comments
+  const { 
+    loading: commentsLoading, 
+    error: commentsError, 
+    comments, 
+    addingComment, 
+    addComment,
+    refetch: refetchComments
+  } = useComments(eventId);
+  
+  // Memoize the filters object to prevent unnecessary API calls
+  const similarEventsFilters = useMemo(() => ({
     category: category,
     limit: 6 
-  });
+  }), [category]);
+  
+  // Use usePosts hook to fetch similar events (posts in the same category)
+  const { loading: similarLoading, error: similarError } = usePosts(similarEventsFilters);
   
   // For now, we'll use empty array for similar events until we get the data structure
   const similarEvents: any[] = [];
@@ -352,11 +379,14 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-white">
         <DetailPageHeader />
-        <div className="mt-24 text-center p-8">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading event details...</p>
+        <div className="pt-20 flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#0063BF]"></div>
+            <div className="animate-ping absolute inset-0 rounded-full h-16 w-16 border-4 border-[#0063BF] opacity-25"></div>
+          </div>
+          <p className="mt-6 text-gray-600 text-sm font-medium">Loading event details...</p>
         </div>
       </div>
     );
@@ -454,7 +484,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                         className="text-xs text-[#0063BF] underline cursor-pointer"
                         onClick={() => setIsReviewsModalOpen(true)}
                       >
-                        234 Reviews
+                        {comments.length} Review{comments.length !== 1 ? 's' : ''}
                       </span>
                     </div>
 
@@ -583,16 +613,31 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       Write a Review
                     </button>
                   </div>
-                  <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:pb-0">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="w-72 flex-shrink-0 md:w-auto md:flex-shrink">
-                        <ReviewCard />
-                      </div>
-                    ))}
-                  </div>
+                  {commentsLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : comments.length > 0 ? (
+                    <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:pb-0">
+                      {comments.slice(0, 3).map((comment) => (
+                        <div key={comment.id} className="w-72 flex-shrink-0 md:w-auto md:flex-shrink">
+                          <ReviewCard comment={comment} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500 text-sm">
+                      No reviews yet. Be the first to write a review!
+                    </div>
+                  )}
+                  {commentsError && (
+                    <div className="text-red-500 text-sm mt-2">
+                      Error loading reviews: {commentsError}
+                    </div>
+                  )}
                 </div>
 
-                <div className="mb-10">
+                {/* <div className="mb-10">
                   <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Amenities</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
                     {amenities.map(({ icon, label }, i) => (
@@ -623,7 +668,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
                       <li key={i}>{item}</li>
                     ))}
                   </ul>
-                </div>
+                </div> */}
 
                 {/* Similar places section for desktop - hidden on mobile */}
                 <div className="mb-10 hidden md:block">
@@ -1055,6 +1100,7 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
       <ReviewsModal
         isOpen={isReviewsModalOpen}
         onClose={() => setIsReviewsModalOpen(false)}
+        eventId={eventId}
       />
     </div>
   );

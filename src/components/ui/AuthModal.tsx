@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { FiX, FiEye, FiEyeOff } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import Portal from './Portal';
+import { auth, db } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -19,6 +22,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
   const [authStep, setAuthStep] = useState<AuthStep>('auth');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   
   // Form states
   const [formData, setFormData] = useState({
@@ -36,28 +41,98 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleGoogleAuth = () => {
-    // Simulate Google auth
-    if (activeTab === 'signup') {
-      // For Google signup, move to completion step
-      setAuthStep('google-complete');
-      setFormData(prev => ({ ...prev, email: 'user@gmail.com' })); // Simulate Google email
-    } else {
-      // For Google signin, directly authenticate
+  const handleGoogleAuth = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      if (activeTab === 'signup') {
+        // Check if user already exists in Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        
+        if (!userDoc.exists()) {
+          // For Google signup, move to completion step to get additional info
+          setAuthStep('google-complete');
+          setFormData(prev => ({ 
+            ...prev, 
+            email: user.email || '',
+            fullName: user.displayName || ''
+          }));
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // For signin or existing user, directly authenticate
       onAuthenticated();
       onClose();
+    } catch (error: any) {
+      setError(error.message || 'Google authentication failed');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onAuthenticated();
-    onClose();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (activeTab === 'signup') {
+        // Signup functionality
+        const { fullName, email, phoneNumber, password, confirmPassword, city } = formData;
+
+        // Validate passwords match
+        if (password !== confirmPassword) {
+          setError('Passwords do not match');
+          setLoading(false);
+          return;
+        }
+
+        // 1. Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 2. Update profile with full name
+        await updateProfile(user, { displayName: fullName });
+
+        // 3. Store additional info in Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          fullname: fullName,
+          email,
+          phone: phoneNumber,
+          city,
+          uid: user.uid,
+          createdAt: new Date(),
+        });
+
+        onAuthenticated();
+        onClose();
+      } else {
+        // Signin functionality
+        const { email, password } = formData;
+        await signInWithEmailAndPassword(auth, email, password);
+        
+        onAuthenticated();
+        onClose();
+      }
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during authentication');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleTabSwitch = (tab: AuthTab) => {
     setActiveTab(tab);
     setAuthStep('auth');
+    setError('');
+    setLoading(false);
     setFormData({
       fullName: '',
       email: '',
@@ -71,6 +146,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
   const resetModal = () => {
     setActiveTab('signin');
     setAuthStep('auth');
+    setError('');
+    setLoading(false);
     setFormData({
       fullName: '',
       email: '',
@@ -170,11 +247,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
               {/* Google Auth Button */}
               <button
                 onClick={handleGoogleAuth}
-                className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors mb-4"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FcGoogle className="w-5 h-5" />
                 <span className="font-medium text-gray-700">
-                  Continue with Google
+                  {loading ? 'Processing...' : 'Continue with Google'}
                 </span>
               </button>
 
@@ -183,6 +261,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
                 <span className="bg-white px-3 text-sm text-gray-500">or</span>
                 <div className="border-t border-gray-300 w-full"></div>
               </div>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {activeTab === 'signup' && (
@@ -302,9 +386,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
 
                 <button
                   type="submit"
-                  className="w-full bg-[#0063BF] text-white py-3 px-4 rounded-lg hover:bg-[#0056a3] transition-colors font-medium"
+                  disabled={loading}
+                  className="w-full bg-[#0063BF] text-white py-3 px-4 rounded-lg hover:bg-[#0056a3] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {activeTab === 'signin' ? 'Sign In' : 'Create Account'}
+                  {loading 
+                    ? (activeTab === 'signin' ? 'Signing In...' : 'Creating Account...') 
+                    : (activeTab === 'signin' ? 'Sign In' : 'Create Account')
+                  }
                 </button>
               </form>
 
@@ -345,7 +433,39 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setLoading(true);
+              setError('');
+
+              try {
+                const user = auth.currentUser;
+                if (user) {
+                  // Store additional info in Firestore
+                  await setDoc(doc(db, "users", user.uid), {
+                    fullname: formData.fullName,
+                    email: formData.email,
+                    phone: formData.phoneNumber,
+                    city: formData.city,
+                    uid: user.uid,
+                    createdAt: new Date(),
+                  });
+
+                  onAuthenticated();
+                  onClose();
+                }
+              } catch (error: any) {
+                setError(error.message || 'Failed to complete registration');
+              } finally {
+                setLoading(false);
+              }
+            }} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name
@@ -407,9 +527,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
 
               <button
                 type="submit"
-                className="w-full bg-[#0063BF] text-white py-3 px-4 rounded-lg hover:bg-[#0056a3] transition-colors font-medium"
+                disabled={loading}
+                className="w-full bg-[#0063BF] text-white py-3 px-4 rounded-lg hover:bg-[#0056a3] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Complete Registration
+                {loading ? 'Completing Registration...' : 'Complete Registration'}
               </button>
             </form>
           </div>
