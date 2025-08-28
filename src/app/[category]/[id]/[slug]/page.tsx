@@ -1,8 +1,10 @@
 import ClientEventDetail from './ClientEventDetail';
 import { Metadata } from 'next';
+import { apiService } from '@/services/api';
 
-// Since we're using API data, we don't pre-generate static params
-// Generate metadata for SEO
+export const dynamic = 'force-dynamic';
+
+
 export async function generateMetadata({ 
   params 
 }: { 
@@ -10,19 +12,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id: eventId } = await params;
   
-  // Try to fetch event data for metadata
   try {
-    const response = await fetch(`https://letxplore-api-git-main-btoriolas-projects.vercel.app/api/v1/events/${eventId}`);
-    if (response.ok) {
-      const result = await response.json();
-      const eventData = result.data;
+    const res = await apiService.getPostById(eventId);
+    if (res && res.success && res.data) {
+      const eventData = res.data;
       return {
-        title: eventData.title || 'Event Details',
-        description: `${eventData.description || 'Join us at ' + eventData.title} - ${eventData.location}`,
+        title: eventData.name || 'Event Details',
+        description: `${eventData.about || 'Join us at ' + (eventData.name || 'this event')} - ${eventData.address || ''}`,
         openGraph: {
-          title: eventData.title || 'Event Details',
-          description: `${eventData.description || 'Join us at ' + eventData.title} - ${eventData.location}`,
-          images: [eventData.image || '/default.svg'],
+          title: eventData.name || 'Event Details',
+          description: `${eventData.about || 'Join us at ' + (eventData.name || 'this event')} - ${eventData.address || ''}`,
+          images: [eventData.featuredImageUrl || (eventData.images && eventData.images[0]) || '/default.svg'],
         },
       };
     }
@@ -37,16 +37,18 @@ export async function generateMetadata({
 }
 
 // Server component that renders the event detail page
-export default async function EventDetailPage({ 
-}): Promise<React.ReactElement> {
+export default async function EventDetailPage(): Promise<React.ReactElement> {
   // The client component will get the data from URL parameters
+  // No need to pass params if ClientEventDetail uses useParams() hook
   return <ClientEventDetail />;
 }
 
 // Required when building with `output: export` so Next.js can know which
 // dynamic routes to statically generate. Returning an empty array means no
-// pre-rendered pages will be generated for export (the page will still work
-// as a client-rendered route), and satisfies the static export requirement.
-export async function generateStaticParams() {
-  return [] as Array<{ category: string; id: string; slug: string }>;
-} 
+// pre-rendered pages will be generated for export, but the route structure
+// is still valid for client-side routing.
+export async function generateStaticParams(): Promise<Array<{ category: string; id: string; slug: string }>> {
+  // Return empty array to satisfy static export requirement
+  // but allow dynamic rendering at runtime
+  return [];
+}

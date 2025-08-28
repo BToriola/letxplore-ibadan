@@ -22,6 +22,13 @@ interface ReviewsSectionProps {
   groupedPosts?: Record<string, Post[]>;
 }
 
+// Extended comment shape when we attach post metadata during fetch
+type ApiComment = Comment & {
+  postId?: string;
+  postTitle?: string;
+  postImage?: string;
+};
+
 const defaultReviews: Review[] = [
   {
     id: '1',
@@ -87,7 +94,7 @@ const defaultReviews: Review[] = [
 
 const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts = {} }) => {
   // State for API comments
-  const [apiComments, setApiComments] = React.useState<Comment[]>([]);
+  const [apiComments, setApiComments] = React.useState<ApiComment[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [hasInitialized, setHasInitialized] = React.useState(false);
@@ -131,6 +138,13 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
       try {
         const postIds = getPostIds();
         const allComments: Comment[] = [];
+
+        // Build a quick lookup of posts by id from groupedPosts so we can attach
+        // the referenced post's image and title to each comment fetched.
+        const postsById: Record<string, Post> = {};
+        Object.values(groupedPosts).forEach(categoryPosts => {
+          categoryPosts.forEach(p => { postsById[p.id] = p; });
+        });
         
         for (const postId of postIds) {
           console.log(`=== FETCHING COMMENTS FOR ${postId} ===`);
@@ -140,14 +154,20 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
           if (response.ok) {
             const commentsData = await response.json();
             console.log(`Comments for ${postId}:`, commentsData);
-            
-            if (Array.isArray(commentsData)) {
-              const commentsWithPostTitle = commentsData.map(comment => ({
-                ...comment,
-                postTitle: 'Featured Location'
-              }));
-              allComments.push(...commentsWithPostTitle);
-            }
+
+                if (Array.isArray(commentsData)) {
+                  const post = postsById[postId];
+                  const postImage = post?.featuredImageUrl || (post?.images && post.images[0]) || '/default.svg';
+                  const postTitle = post?.name || 'Featured Location';
+
+                  const commentsWithPostInfo = commentsData.map((comment: unknown) => ({
+                    ...(comment as ApiComment),
+                    postId,
+                    postTitle,
+                    postImage,
+                  } as ApiComment));
+                  allComments.push(...commentsWithPostInfo);
+                }
           } else {
             console.warn(`Failed to fetch comments for ${postId}:`, response.status);
           }
@@ -166,14 +186,14 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
     };
 
     fetchAllComments();
-  }, [hasInitialized, getPostIds]); // Depend on hasInitialized and getPostIds
+  }, [hasInitialized, getPostIds, groupedPosts]); // Depend on hasInitialized, getPostIds and groupedPosts
 
   // Transform API comments to reviews format
   const apiReviews = React.useMemo(() => {
     console.log('=== TRANSFORMING API COMMENTS TO REVIEWS ===');
     console.log('apiComments:', apiComments);
     
-    return apiComments.map((comment): Review => {
+  return apiComments.map((comment): Review => {
       const createdDate = new Date(comment.createdAt);
       const now = new Date();
       const diffInMinutes = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60));
@@ -196,7 +216,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
         rating: comment.rating || 5,
         title: postTitle || 'Featured Location',
         description: comment.content,
-        image: '/default.svg',
+  image: (comment as ApiComment).postImage || '/default.svg',
         userAvatar: comment.userAvatar || '/images/user.png'
       };
     }).slice(0, 6); // Limit to 6 reviews
@@ -205,16 +225,6 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
   // Prefer `reviews` prop when provided, otherwise use API reviews, otherwise fall back to defaultReviews
   const displayReviews = (reviews && reviews.length > 0) ? reviews : (apiReviews.length > 0 ? apiReviews : defaultReviews);
 
-  console.log('Reviews Section Debug:', {
-    hasInitialized,
-    groupedPostsKeys: Object.keys(groupedPosts),
-    hasGroupedPosts: Object.keys(groupedPosts).length > 0,
-    apiCommentsLength: apiComments.length,
-    apiReviewsLength: apiReviews.length,
-    displayReviewsLength: displayReviews.length,
-    loading,
-    error
-  });
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 0; i < 5; i++) {
@@ -305,7 +315,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
               {/* Review Image */}
               <div className="relative w-full h-36 mb-4 rounded-lg overflow-hidden">
                 <Image
-                  src={'/default.svg'}
+                  src={review.image || '/default.svg'}
                   alt={review.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 280px"
@@ -378,7 +388,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
                 {/* Review Image */}
                 <div className="relative w-full h-32 mb-3 rounded-lg overflow-hidden">
                   <Image
-                    src={'/default.svg'}
+                    src={review.image || '/default.svg'}
                     alt={review.title}
                     fill
                     sizes="280px"
