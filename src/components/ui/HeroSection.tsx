@@ -93,7 +93,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         
         {/* Background Image */}
         <div className={`transition-all duration-500 ${isCollapsed ? 'mt-0' : 'mt-8 md:mt-16'}`}>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/50 z-10"></div>
+          {/* Transparent overlay to avoid a dark strip showing between sections */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-transparent z-10"></div>
           <Image
             src="/images/cityscape.png"
             alt="Ibadan cityscape background"

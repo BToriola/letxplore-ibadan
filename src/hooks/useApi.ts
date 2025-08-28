@@ -383,7 +383,7 @@ export const useMultiplePostsComments = (postIds: string[]) => {
     console.log('Current postIds:', postIds);
     console.log('About to call fetchCommentsForPosts');
     fetchCommentsForPosts();
-  }, [fetchCommentsForPosts]);
+  }, [fetchCommentsForPosts, postIds]);
 
   return { 
     loading, 

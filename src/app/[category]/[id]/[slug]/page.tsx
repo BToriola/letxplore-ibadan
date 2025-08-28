@@ -42,3 +42,11 @@ export default async function EventDetailPage({
   // The client component will get the data from URL parameters
   return <ClientEventDetail />;
 }
+
+// Required when building with `output: export` so Next.js can know which
+// dynamic routes to statically generate. Returning an empty array means no
+// pre-rendered pages will be generated for export (the page will still work
+// as a client-rendered route), and satisfies the static export requirement.
+export async function generateStaticParams() {
+  return [] as Array<{ category: string; id: string; slug: string }>;
+}
