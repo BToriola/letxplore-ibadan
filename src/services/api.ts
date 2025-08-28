@@ -43,7 +43,7 @@ interface Post {
   ctaType?: string; // Added ctaType field
   eventType?: string; // Added eventType field
   openingHours?: {
-    [key: string]: any; // Changed to any to accommodate complex structure
+    [key: string]: unknown; // Use unknown to avoid explicit any
   };
   featuredImageUrl?: string; // Added featuredImageUrl
   galleryImageUrls?: string[]; // Added galleryImageUrls
@@ -60,7 +60,7 @@ interface Post {
   };
   social_fb?: string; // Added social_fb field
   social_ig?: string; // Added social_ig field
-  comments?: Record<string, any>; // Added comments field
+  comments?: Record<string, unknown>; // Added comments field
   createdAt?: number; // Added createdAt field
   updatedAt?: number; // Added updatedAt field
 }
@@ -124,7 +124,7 @@ class ApiService {
           const errorData = await response.text();
           console.log('Error response body:', errorData);
           errorMessage += ` - ${errorData}`;
-        } catch (e) {
+        } catch {
           console.log('Could not read error response body');
         }
         throw new Error(errorMessage);

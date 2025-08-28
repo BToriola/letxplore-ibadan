@@ -70,8 +70,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
       // For signin or existing user, directly authenticate
       onAuthenticated();
       onClose();
-    } catch (error: any) {
-      setError(error.message || 'Google authentication failed');
+    } catch (error: unknown) {
+      const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: unknown }).message : undefined;
+      setError(typeof message === 'string' ? message : 'Google authentication failed');
     } finally {
       setLoading(false);
     }
@@ -121,8 +122,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
         onAuthenticated();
         onClose();
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred during authentication');
+    } catch (error: unknown) {
+      const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: unknown }).message : undefined;
+      setError(typeof message === 'string' ? message : 'An error occurred during authentication');
     } finally {
       setLoading(false);
     }
@@ -460,8 +462,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
                   onAuthenticated();
                   onClose();
                 }
-              } catch (error: any) {
-                setError(error.message || 'Failed to complete registration');
+              } catch (error: unknown) {
+                const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: unknown }).message : undefined;
+                setError(typeof message === 'string' ? message : 'Failed to complete registration');
               } finally {
                 setLoading(false);
               }

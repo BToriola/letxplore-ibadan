@@ -72,8 +72,14 @@ export const usePostDetail = (postId: string | null) => {
             }
           } else {
             // Direct response - the response IS the post data
-            setPost(response as any);
-            console.log('Post data set directly from response:', response);
+            // Attempt to treat response as Post if it matches basic shape
+            const maybePost = response as unknown;
+            if (maybePost && typeof maybePost === 'object' && 'id' in (maybePost as object) && 'name' in (maybePost as object)) {
+              setPost(maybePost as Post);
+              console.log('Post data set directly from response:', maybePost);
+            } else {
+              setError('Invalid post data format received');
+            }
           }
         } else {
           setError('Invalid response format received');
@@ -236,45 +242,45 @@ export const usePostsByCategories = (filters?: Omit<PostFilters, 'category'>, po
       let groupedData: Record<string, Post[]> = {};
       
       if (response && typeof response === 'object') {
-        // Check if this is a direct grouped response (categories as top-level keys)
-        const responseAsAny = response as any;
-        const possibleCategories = Object.keys(responseAsAny);
-        const isDirectGroupedResponse = possibleCategories.some(key => 
-          Array.isArray(responseAsAny[key]) && 
-          responseAsAny[key].length > 0 && 
-          responseAsAny[key][0].category
-        );
-        
-        if (isDirectGroupedResponse) {
-          console.log('Response is already grouped by categories');
-          // Response is already grouped - use it directly
-          Object.entries(responseAsAny).forEach(([category, posts]) => {
-            if (Array.isArray(posts)) {
-              groupedData[category] = posts.slice(0, postsPerCategory); // Limit per category
-            }
+        // Narrow response into known shapes without using `any`
+        const resp = response as unknown;
+
+        // If top-level keys map to arrays of posts, treat as grouped response
+        if (resp && typeof resp === 'object') {
+          const possibleCategories = Object.keys(resp as Record<string, unknown>);
+          const isDirectGroupedResponse = possibleCategories.some(key => {
+            const val = (resp as Record<string, unknown>)[key];
+            return Array.isArray(val) && (val as unknown[]).length > 0 && typeof (val as unknown[])[0] === 'object' && 'category' in ((val as unknown[])[0] as object);
           });
-        } else if (responseAsAny.success && responseAsAny.data) {
-          console.log('Response is in standard API format');
-          // Standard API response format
-          if (Array.isArray(responseAsAny.data)) {
-            // Group posts by category on the client side
-            groupedData = responseAsAny.data.reduce((acc: Record<string, Post[]>, post: Post) => {
-              const category = post.category || 'Uncategorized';
-              if (!acc[category]) {
-                acc[category] = [];
-              }
-              if (acc[category].length < postsPerCategory) {
-                acc[category].push(post);
-              }
-              return acc;
-            }, {});
-          } else if (typeof responseAsAny.data === 'object') {
-            // Already grouped in response.data
-            Object.entries(responseAsAny.data).forEach(([category, posts]) => {
+
+          if (isDirectGroupedResponse) {
+            console.log('Response is already grouped by categories');
+            Object.entries(resp as Record<string, unknown>).forEach(([category, posts]) => {
               if (Array.isArray(posts)) {
-                groupedData[category] = posts.slice(0, postsPerCategory);
+                groupedData[category] = (posts as Post[]).slice(0, postsPerCategory);
               }
             });
+          } else {
+            // Possibly standard API format with { success, data }
+            const maybeApi = resp as { success?: boolean; data?: unknown };
+            if (maybeApi.success && Array.isArray(maybeApi.data)) {
+              // Group posts by category on the client side
+              groupedData = (maybeApi.data as Post[]).reduce((acc: Record<string, Post[]>, post: Post) => {
+                const category = post.category || 'Uncategorized';
+                if (!acc[category]) acc[category] = [];
+                if (acc[category].length < postsPerCategory) acc[category].push(post);
+                return acc;
+              }, {});
+            } else if (maybeApi.data && typeof maybeApi.data === 'object') {
+              Object.entries(maybeApi.data as Record<string, unknown>).forEach(([category, posts]) => {
+                if (Array.isArray(posts)) {
+                  groupedData[category] = (posts as Post[]).slice(0, postsPerCategory);
+                }
+              });
+            } else {
+              setError('Invalid response format');
+              return;
+            }
           }
         } else {
           setError('Invalid response format');

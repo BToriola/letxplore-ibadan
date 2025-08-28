@@ -78,7 +78,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
     };
 
     // Get events for the current category
-    const getCategoryEvents = (): EventCardProps[] => {
+    const getCategoryEvents = useCallback((): EventCardProps[] => {
         if (categoryName === 'All') {
             // Return all events from all categories
             const allEvents: EventCardProps[] = [];
@@ -93,10 +93,10 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
             const posts = groupedPosts[categoryName] || [];
             return posts.map(transformPostToEventCard);
         }
-    };
+    }, [categoryName, groupedPosts]);
 
     // Filter events based on criteria
-    const filterEvents = (events: EventCardProps[]): EventCardProps[] => {
+    const filterEvents = useCallback((events: EventCardProps[]): EventCardProps[] => {
         let filtered = events;
 
         // Filter by neighborhood
@@ -123,10 +123,10 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
         }
 
         return filtered;
-    };
+    }, [neighborhoodFilter, priceFilter]);
 
     // Sort events
-    const sortEvents = (events: EventCardProps[]): EventCardProps[] => {
+    const sortEvents = useCallback((events: EventCardProps[]): EventCardProps[] => {
         const sorted = [...events];
         
         switch (sortOrder) {
@@ -150,7 +150,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
             default:
                 return sorted;
         }
-    };
+    }, [sortOrder]);
 
     // Prevent body scroll when modal is open
     useEffect(() => {
@@ -188,7 +188,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
         const filtered = filterEvents(categoryEvents);
         const sorted = sortEvents(filtered);
         return sorted;
-    }, [categoryName, dateFilter, neighborhoodFilter, priceFilter, sortOrder, groupedPosts]);
+    }, [filterEvents, getCategoryEvents, sortEvents]);
 
     useEffect(() => {
         const filteredEvents = getFilteredEvents();

@@ -57,7 +57,7 @@ const Header = () => {
     }, 500); // Wait 500ms after user stops typing
 
     return () => clearTimeout(timeoutId);
-  }, [searchInput]); // Removed 'search' from dependencies to prevent infinite loop
+  }, [searchInput, search]); // include 'search' to satisfy hook dependency rules
 
   // Handle clicks outside dropdowns and search
   useEffect(() => {

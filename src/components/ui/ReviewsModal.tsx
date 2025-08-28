@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Star, StarEmpty } from "@/components/icons/SvgIcons";
 import { useComments } from "@/hooks/useApi";
@@ -18,7 +18,7 @@ const ReviewsModal = ({ isOpen, onClose, eventId }: ReviewsModalProps) => {
     
     console.log('ReviewsModal eventId:', eventId);
     
-    const { comments, loading, error, addComment, refetch } = useComments(eventId);
+    const { comments, loading, error, addComment } = useComments(eventId);
 
     const handleSubmit = async () => {
         if (!selectedRating || !reviewText.trim()) {

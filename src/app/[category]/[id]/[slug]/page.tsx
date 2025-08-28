@@ -38,12 +38,7 @@ export async function generateMetadata({
 
 // Server component that renders the event detail page
 export default async function EventDetailPage({ 
-  params 
-}: { 
-  params: Promise<{ category: string; id: string; slug: string }> 
-}) {
-  const { id: eventId } = await params;
-  
+}): Promise<React.ReactElement> {
   // The client component will get the data from URL parameters
   return <ClientEventDetail />;
 }

@@ -187,12 +187,14 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
         timeAgo = `${Math.floor(diffInMinutes / 1440)} days ago`;
       }
 
+      // Safely access optional postTitle without using `any`
+      const postTitle = (typeof comment === 'object' && comment !== null && 'postTitle' in comment) ? (comment as { postTitle?: string }).postTitle : undefined;
       return {
         id: comment.id,
         userName: comment.username,
         timeAgo,
         rating: comment.rating || 5,
-        title: (comment as any).postTitle || 'Featured Location',
+        title: postTitle || 'Featured Location',
         description: comment.content,
         image: '/default.svg',
         userAvatar: comment.userAvatar || '/images/user.png'
@@ -200,8 +202,8 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
     }).slice(0, 6); // Limit to 6 reviews
   }, [apiComments]);
 
-  // Only use API reviews - no fallback to dummy data
-  const displayReviews = apiReviews;
+  // Prefer `reviews` prop when provided, otherwise use API reviews, otherwise fall back to defaultReviews
+  const displayReviews = (reviews && reviews.length > 0) ? reviews : (apiReviews.length > 0 ? apiReviews : defaultReviews);
 
   console.log('Reviews Section Debug:', {
     hasInitialized,

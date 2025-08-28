@@ -1,31 +1,30 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
-import { EventCardProps } from "@/components/ui/EventCard";
-import { usePostDetail, usePosts, useComments } from "@/hooks/useApi";
+import { useParams } from "next/navigation";
+import { usePostDetail, useComments } from "@/hooks/useApi";
 import DetailPageHeader from "@/components/layout/DetailPageHeader";
 import ReviewsModal from "@/components/ui/ReviewsModal";
 import ContactModal from "@/components/ui/ContactModal";
 import LinksModal from "@/components/ui/LinksModal";
 import {
   InstagramIcon, FacebookIcon, TwitterIcon,
-  Delivery,
-  Dine,
-  Outdoor,
+  // Delivery,
+  // Dine,
+  // Outdoor,
   Card,
-  Ac,
-  Wifi,
-  Park,
-  Cocktails,
-  Cofee,
-  Karaoke,
-  Ambience,
-  Salsa,
-  Spend,
-  NoPicture,
+  // Ac,
+  // Wifi,
+  // Park,
+  // Cocktails,
+  // Cofee,
+  // Karaoke,
+  // Ambience,
+  // Salsa,
+  // Spend,
+  // NoPicture,
   DirectionIcon,
   LinksIcon,
   ContactIcon,
@@ -46,48 +45,15 @@ import {
   FastFood,
 } from "@/components/icons/SvgIcons";
 
-const MoreDropdown = ({ isOpen, onClose, onWriteReview }: { isOpen: boolean; onClose: () => void; onWriteReview: () => void }) => {
-  if (!isOpen) return null;
+interface ReviewComment {
+  id: string;
+  username: string;
+  createdAt: string;
+  rating?: number;
+  content: string;
+}
 
-  return (
-    <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 more-dropdown">
-      <div className="">
-        <button 
-          className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3"
-          onClick={() => {
-            onWriteReview();
-            onClose();
-          }}
-        >
-          <div className="w-6 h-6 rounded flex items-center justify-center">
-            <Review width={16} height={16} />
-          </div>
-          <span className="text-xs text-[#1c1c1c]">Write review</span>
-        </button>
-        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
-          <div className="w-6 h-6 rounded flex items-center justify-center">
-            <Menu width={16} height={16} />
-          </div>
-          <span className="text-xs text-[#1c1c1c]">Menu</span>
-        </button>
-        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
-          <div className="w-6 h-6 rounded flex items-center justify-center">
-            <Save width={16} height={16} />
-          </div>
-          <span className="text-xs text-[#1c1c1c]">Save</span>
-        </button>
-        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
-          <div className="w-6 h-6 rounded flex items-center justify-center">
-            <Report width={16} height={16} />
-          </div>
-          <span className="text-xs text-[#1c1c1c]">Report issue</span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const ReviewCard = ({ comment }: { comment: any }) => (
+const ReviewCard = ({ comment }: { comment: ReviewComment }) => (
   <div className="bg-[#f4f4f4] rounded-2xl p-4">
     <div className="flex items-center mb-2">
       <Image
@@ -165,13 +131,57 @@ const renderStars = (rating: number, size: number = 14) => {
   </div>
 );
 
-export default function ClientEventDetail({ eventData }: { eventData?: EventCardProps }) {
+interface MoreDropdownProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onWriteReview: () => void;
+}
+
+const MoreDropdown = ({ isOpen, onClose, onWriteReview }: MoreDropdownProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 more-dropdown">
+      <div className="">
+        <button 
+          className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3"
+          onClick={() => {
+            onWriteReview();
+            onClose();
+          }}
+        >
+          <div className="w-6 h-6 rounded flex items-center justify-center">
+            <Review width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Write review</span>
+        </button>
+        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center">
+            <Menu width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Menu</span>
+        </button>
+        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center">
+            <Save width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Save</span>
+        </button>
+        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+          <div className="w-6 h-6 rounded flex items-center justify-center">
+            <Report width={16} height={16} />
+          </div>
+          <span className="text-xs text-[#1c1c1c]">Report issue</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default function ClientEventDetail() {
   const params = useParams();
-  const searchParams = useSearchParams();
-  
   const eventId = params.id as string;
   const category = params.category as string;
-  const slug = params.slug as string;
 
   // Use the usePostDetail hook to fetch event data
   const { loading, error, post: event } = usePostDetail(eventId);
@@ -180,23 +190,28 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
   const { 
     loading: commentsLoading, 
     error: commentsError, 
-    comments, 
-    addingComment, 
-    addComment,
-    refetch: refetchComments
+    comments
   } = useComments(eventId);
   
   // Memoize the filters object to prevent unnecessary API calls
-  const similarEventsFilters = useMemo(() => ({
-    category: category,
-    limit: 6 
-  }), [category]);
+  // const similarEventsFilters = useMemo(() => ({
+  //   category: category,
+  //   limit: 6 
+  // }), [category]);
   
   // Use usePosts hook to fetch similar events (posts in the same category)
-  const { loading: similarLoading, error: similarError } = usePosts(similarEventsFilters);
+  // const amenities = [
+  //   { icon: <Delivery className="text-gray-500 pr-4" />, label: "Delivery" },
+  //   { icon: <Dine className="text-gray-500 pr-4" />, label: "Dine" },
+  //   { icon: <Outdoor className="text-gray-500 mr-2" />, label: "Outdoor seating" },
+  //   { icon: <Card className="text-gray-500 mr-2" />, label: "Card payment" },
+  //   { icon: <Park className="text-gray-500 mr-2" />, label: "Parking" },
+  //   { icon: <Ac className="text-gray-500 mr-2" />, label: "Air conditioner" },
+  //   { icon: <Wifi className="text-gray-500 mr-2" />, label: "Free Wi-Fi" },
+  // ];
   
   // For now, we'll use empty array for similar events until we get the data structure
-  const similarEvents: any[] = [];
+  const similarEvents: Array<{ id: string; name: string; featuredImageUrl?: string; images?: string[]; address?: string; category?: string; price?: string }> = [];
 
   const [showDesktopArrows, setShowDesktopArrows] = React.useState(false);
   const [showMobileArrows, setShowMobileArrows] = React.useState(false);
@@ -407,25 +422,15 @@ export default function ClientEventDetail({ eventData }: { eventData?: EventCard
     );
   }
 
-  const amenities = [
-    { icon: <Delivery className="text-gray-500 pr-4" />, label: "Delivery" },
-    { icon: <Dine className="text-gray-500 pr-4" />, label: "Dine" },
-    { icon: <Outdoor className="text-gray-500 mr-2" />, label: "Outdoor seating" },
-    { icon: <Card className="text-gray-500 mr-2" />, label: "Card payment" },
-    { icon: <Park className="text-gray-500 mr-2" />, label: "Parking" },
-    { icon: <Ac className="text-gray-500 mr-2" />, label: "Air conditioner" },
-    { icon: <Wifi className="text-gray-500 mr-2" />, label: "Free Wi-Fi" },
-  ];
-
-  const highlights = [
-    { icon: <Cofee className="text-gray-500 mr-2" />, label: "Coffee" },
-    { icon: <Cocktails className="text-gray-500 mr-2" />, label: "Cocktails" },
-    { icon: <Ambience className="text-gray-500 mr-2" />, label: "Great ambience" },
-    { icon: <Karaoke className="text-gray-500 mr-2" />, label: "Karaoke" },
-    { icon: <Salsa className="text-gray-500 mr-2" />, label: "Salsa" },
-    { icon: <Spend className="text-gray-500 mr-2" />, label: "Minimum spend of ₦50,000" },
-    { icon: <NoPicture className="text-gray-500 mr-2" />, label: "No picture policy" },
-  ];
+  // const highlights = [
+  //   { icon: <Cofee className="text-gray-500 mr-2" />, label: "Coffee" },
+  //   { icon: <Cocktails className="text-gray-500 mr-2" />, label: "Cocktails" },
+  //   { icon: <Ambience className="text-gray-500 mr-2" />, label: "Great ambience" },
+  //   { icon: <Karaoke className="text-gray-500 mr-2" />, label: "Karaoke" },
+  //   { icon: <Salsa className="text-gray-500 mr-2" />, label: "Salsa" },
+  //   { icon: <Spend className="text-gray-500 mr-2" />, label: "Minimum spend of ₦50,000" },
+  //   { icon: <NoPicture className="text-gray-500 mr-2" />, label: "No picture policy" },
+  // ];
 
   return (
     <div className="min-h-screen bg-gray-50 md:pr-44">

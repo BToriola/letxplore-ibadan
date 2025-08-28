@@ -23,8 +23,6 @@ export default function ClientWrapper({ categoryName }: ClientWrapperProps) {
   }), [selectedLocation]);
 
   const { 
-    loading: groupedPostsLoading, 
-    error: groupedPostsError, 
     groupedPosts 
   } = usePostsByCategories(groupedPostsFilters);
 
@@ -46,7 +44,6 @@ export default function ClientWrapper({ categoryName }: ClientWrapperProps) {
         <HeroSection 
           activeCategory={sharedCategory}
           onCategoryChange={handleCategoryChange}
-          groupedPosts={groupedPosts}
         />
         <CategoryEventSection 
           categoryName={categoryName} 

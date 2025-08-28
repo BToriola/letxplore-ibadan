@@ -3,11 +3,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import EventCard, { EventCardProps } from './EventCard';
 import CategoryEventsRow from './CategoryEventsRow';
+import { Post } from '@/services/api';
 
 interface EventsSectionProps {
     activeCategory?: string;
     onCategoryChange?: (category: string) => void;
-    groupedPosts?: Record<string, any[]>; // Updated to match actual API structure
+    groupedPosts?: Record<string, Post[]>; // Updated to match actual API structure
 }
 
 const EventsSection: React.FC<EventsSectionProps> = ({
@@ -17,7 +18,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
 }) => {
 
     // Transform API Post data to EventCardProps format - updated for actual API structure
-    const transformPostToEventCard = (post: any): EventCardProps => {
+    const transformPostToEventCard = useCallback((post: Post): EventCardProps => {
         return {
             id: post.id,
             title: post.name || 'Untitled Event',
@@ -29,7 +30,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
             category: post.category || 'Event',
             description: post.about || ''
         };
-    };
+    }, []);
 
     // Get categories from API data only
     const getApiCategories = (): string[] => {
@@ -42,7 +43,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     };
 
     // Get events for a category from API data only
-    const getApiCategoryEvents = (category: string): EventCardProps[] => {
+    const getApiCategoryEvents = useCallback((category: string): EventCardProps[] => {
         const apiEvents = groupedPosts[category];
         if (apiEvents && apiEvents.length > 0) {
             console.log(`=== API EVENTS FOR CATEGORY: ${category} ===`);
@@ -53,7 +54,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         }
         console.log(`=== NO DATA FOR CATEGORY: ${category} ===`);
         return [];
-    };
+    }, [groupedPosts, transformPostToEventCard]);
     const [loading, setLoading] = useState(false);
     const [displayedEvents, setDisplayedEvents] = useState<EventCardProps[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -124,7 +125,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
             // Return events for specific category
             return getApiCategoryEvents(activeCategory);
         }
-    }, [activeCategory, groupedPosts]);
+    }, [activeCategory, getApiCategoryEvents, groupedPosts]);
 
     useEffect(() => {
         const filteredEvents = getFilteredEvents();
