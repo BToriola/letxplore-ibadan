@@ -44,7 +44,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
   const handleGoogleAuth = async () => {
     setLoading(true);
     setError('');
-    
+    // Guard: auth may be null if Firebase wasn't initialized (e.g. during prerender or missing env)
+    if (!auth) {
+      setError('Authentication service is unavailable.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -52,9 +58,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
 
       if (activeTab === 'signup') {
         // Check if user already exists in Firestore
-        const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (!db) {
+            // If Firestore isn't initialized, proceed to completion step so user can finish profile locally.
+            setAuthStep('google-complete');
+            setFormData(prev => ({ 
+              ...prev, 
+              email: user.email || '',
+              fullName: user.displayName || ''
+            }));
+            setLoading(false);
+            return;
+          }
+
+          const userDoc = await getDoc(doc(db, "users", user.uid));
         
-        if (!userDoc.exists()) {
+          if (!userDoc.exists()) {
           // For Google signup, move to completion step to get additional info
           setAuthStep('google-complete');
           setFormData(prev => ({ 
@@ -83,6 +101,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
     setLoading(true);
     setError('');
 
+    // Guard: ensure auth and db are available before calling Firebase APIs
+    if (!auth || !db) {
+      setError('Authentication service is unavailable.');
+      setLoading(false);
+      return;
+    }
+
     try {
       if (activeTab === 'signup') {
         // Signup functionality
@@ -95,15 +120,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
           return;
         }
 
-        // 1. Create user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  // 1. Create user in Firebase Auth
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         // 2. Update profile with full name
         await updateProfile(user, { displayName: fullName });
 
-        // 3. Store additional info in Firestore
-        await setDoc(doc(db, "users", user.uid), {
+  // 3. Store additional info in Firestore
+  if (!db) throw new Error('Firestore not initialized');
+  await setDoc(doc(db, "users", user.uid), {
           fullname: fullName,
           email,
           phone: phoneNumber,
@@ -115,9 +141,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
         onAuthenticated();
         onClose();
       } else {
-        // Signin functionality
-        const { email, password } = formData;
-        await signInWithEmailAndPassword(auth, email, password);
+  // Signin functionality
+  const { email, password } = formData;
+  await signInWithEmailAndPassword(auth, email, password);
         
         onAuthenticated();
         onClose();
@@ -447,10 +473,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
               setError('');
 
               try {
+                // Guard: ensure auth and db are still available
+                if (!auth || !db) {
+                  setError('Authentication service is unavailable.');
+                  setLoading(false);
+                  return;
+                }
+
                 const user = auth.currentUser;
-                if (user) {
-                  // Store additional info in Firestore
-                  await setDoc(doc(db, "users", user.uid), {
+                    if (user) {
+                      // Store additional info in Firestore
+                      if (!db) throw new Error('Firestore not initialized');
+                      await setDoc(doc(db, "users", user.uid), {
                     fullname: formData.fullName,
                     email: formData.email,
                     phone: formData.phoneNumber,
