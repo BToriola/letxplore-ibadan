@@ -49,4 +49,4 @@ export default async function EventDetailPage({
 // as a client-rendered route), and satisfies the static export requirement.
 export async function generateStaticParams() {
   return [] as Array<{ category: string; id: string; slug: string }>;
-}
+} 
