@@ -2,9 +2,6 @@ import ClientEventDetail from './ClientEventDetail';
 import { Metadata } from 'next';
 import { apiService } from '@/services/api';
 
-export const dynamic = 'force-dynamic';
-
-
 export async function generateMetadata({ 
   params 
 }: { 
