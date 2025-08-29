@@ -44,8 +44,9 @@ export default async function EventDetailPage(): Promise<React.ReactElement> {
 // dynamic routes to statically generate. Returning an empty array means no
 // pre-rendered pages will be generated for export, but the route structure
 // is still valid for client-side routing.
-export async function generateStaticParams(): Promise<Array<{ category: string; id: string; slug: string }>> {
-  // Return empty array to satisfy static export requirement
-  // but allow dynamic rendering at runtime
-  return [];
+// For `output: export` we must export `generateStaticParams` for dynamic routes.
+// Returning an empty array keeps the route available for client-side navigation
+// while not pre-rendering any specific pages at build time.
+export function generateStaticParams() {
+  return [] as Array<{ category: string; id: string; slug: string }>;
 }
