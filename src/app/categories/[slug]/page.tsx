@@ -14,11 +14,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
+  const { slug } = await params;
   const displayCategories = ["Events", "Eat & drink", "Stay", "See & do", "Shopping"];
-  const matched = displayCategories.find((cat) => slugify(cat) === params.slug);
-  const categoryName = matched ?? params.slug.replace(/-/g, " ");
+  const matched = displayCategories.find((cat) => slugify(cat) === slug);
+  const categoryName = matched ?? slug.replace(/-/g, " ");
   return {
     title: `${categoryName} | Let's Explore`,
     description: `Find events in the category: ${categoryName}`,
@@ -28,11 +29,12 @@ export async function generateMetadata({
 export default async function CategoryPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
   const displayCategories = ["All", "Events", "Eat & drink", "Stay", "See & do", "Shopping"];
-  const matched = displayCategories.find((cat) => slugify(cat) === params.slug);
-  const categoryName = matched ?? params.slug.replace(/-/g, " ");
+  const matched = displayCategories.find((cat) => slugify(cat) === slug);
+  const categoryName = matched ?? slug.replace(/-/g, " ");
 
   return <ClientWrapper categoryName={categoryName} />;
 }

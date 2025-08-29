@@ -6,9 +6,9 @@ import { apiService, type Post } from "@/services/api"
 export async function generateMetadata({
   params,
 }: {
-  params: { category: string; id: string; slug: string }
+  params: Promise<{ category: string; id: string; slug: string }>
 }): Promise<Metadata> {
-  const { id: eventId } = params
+  const { id: eventId } = await params
 
   try {
     const res = await apiService.getPostById(eventId)
@@ -35,8 +35,10 @@ export async function generateMetadata({
 }
 
 // Server component that renders the event detail page
-export default async function EventDetailPage(): Promise<React.ReactElement> {
-  return <ClientEventDetail />
+export default async function EventDetailPage({ params }: { params: Promise<{ category: string; id: string; slug: string }> }): Promise<React.ReactElement> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { category, id, slug } = await params;
+  return <ClientEventDetail />;
 }
 
 export async function generateStaticParams(): Promise<Array<{ category: string; id: string; slug: string }>> {
@@ -55,5 +57,7 @@ export async function generateStaticParams(): Promise<Array<{ category: string; 
     console.error("Error generating static params:", error)
   }
 
+  // Return empty array as fallback - this will still cause build issues with output: export
+  // Consider removing output: export from next.config.js if you need dynamic routes
   return []
 }
