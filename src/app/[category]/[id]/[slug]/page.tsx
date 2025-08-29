@@ -1,15 +1,14 @@
 import type React from "react"
 import ClientEventDetail from "./ClientEventDetail"
 import type { Metadata } from "next"
-import { apiService } from "@/services/api"
-import type { Post } from '@/services/api'
+import { apiService, type Post } from "@/services/api"
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ category: string; id: string; slug: string }>
+  params: { category: string; id: string; slug: string }
 }): Promise<Metadata> {
-  const { id: eventId } = await params
+  const { id: eventId } = params
 
   try {
     const res = await apiService.getPostById(eventId)
@@ -42,21 +41,19 @@ export default async function EventDetailPage(): Promise<React.ReactElement> {
 
 export async function generateStaticParams(): Promise<Array<{ category: string; id: string; slug: string }>> {
   try {
-    // Fetch posts using the canonical posts endpoint. Use a high limit to attempt to get all posts.
-    const res = await apiService.getPosts({ limit: 1000 })
+    // Fetch all events/posts from your API
+    const res = await apiService.getPosts()
 
     if (res && res.success && res.data && Array.isArray(res.data)) {
-      return res.data.map((event: Post) => ({
+      return res.data.map((event: Post & { slug?: string }) => ({
         category: event.category || "events",
         id: event.id.toString(),
-        slug: (event.name || event.id).toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        slug: event.slug || event.name?.toLowerCase().replace(/\s+/g, "-") || "event",
       }))
     }
   } catch (error) {
     console.error("Error generating static params:", error)
   }
 
-  // Return empty array as fallback - this will still cause build issues with output: export
-  // Consider removing output: export from next.config.js if you need dynamic routes
   return []
 }
