@@ -225,6 +225,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
   // Prefer `reviews` prop when provided, otherwise use API reviews, otherwise fall back to defaultReviews
   const displayReviews = (reviews && reviews.length > 0) ? reviews : (apiReviews.length > 0 ? apiReviews : defaultReviews);
 
+
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 0; i < 5; i++) {

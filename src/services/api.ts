@@ -131,14 +131,11 @@ class ApiService {
       }
 
       const data = await response.json();
-      console.log(`API Response from ${endpoint}:`, data);
       
-      // Check if response is already in ApiResponse format
       if (data && typeof data === 'object' && 'success' in data) {
         return data;
       }
       
-      // If not, wrap the data in ApiResponse format
       return {
         success: true,
         data: data,
