@@ -81,7 +81,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
   if (events.length === 0) return null;
 
   return (
-    <div className="px-3 mb-0 md:mb-6 md:px-6">
+    <div className="px-3 mb-0 md:px-6">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-base md:text-2xl font-semibold text-[#1C1C1C] truncate ">{categoryName}</h2>
         {shouldShowSeeAll() && (
