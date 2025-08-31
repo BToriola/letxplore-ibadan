@@ -4,13 +4,18 @@ import { FiChevronDown } from "react-icons/fi";
 import { LogoMini, WhiteIcon, SearchIcon, BlueUserIcon } from "../icons/SvgIcons";
 import AuthModal from "../ui/AuthModal";
 import { useLocation } from "../../contexts/LocationContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { auth } from "@/lib/firebase";
+import { useRouter } from 'next/navigation';
 
 const DetailPageHeader = () => {
     const { selectedLocation, setSelectedLocation } = useLocation();
+    const router = useRouter();
     const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
     const [searchInput, setSearchInput] = React.useState("");
     const [showSuggestions, setShowSuggestions] = React.useState(false);
-    const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+    const { currentUser } = useAuth();
+    const isAuthenticated = !!currentUser;
     const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = React.useState(false);
     const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
@@ -236,7 +241,11 @@ const DetailPageHeader = () => {
                                                 onClick={() => {
                                                     setIsProfileDropdownOpen(false);
                                                     if (option === 'Logout') {
-                                                        setIsAuthenticated(false);
+                                                        if (auth) {
+                                                            auth.signOut();
+                                                        }
+                                                    } else if (option === 'Saved') {
+                                                      router.push('/saved');
                                                     }
                                                 }}
                                             >
@@ -253,7 +262,7 @@ const DetailPageHeader = () => {
                     <AuthModal
                         isOpen={isAuthModalOpen}
                         onClose={() => setIsAuthModalOpen(false)}
-                        onAuthenticated={() => setIsAuthenticated(true)}
+                        onAuthenticated={() => setIsAuthModalOpen(false)}
                     />
                 </div>
             </div>

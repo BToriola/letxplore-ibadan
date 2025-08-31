@@ -481,6 +481,18 @@ export const WhiteIcon = ({ className = '', width = 24, height = 24 }: IconProps
   </svg>
 
 );
+export const BlueDownCaretIcon = ({ className = '', width = 24, height = 24 }: IconProps) => (
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask0_1349_3028" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+<rect width="24" height="24" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_1349_3028)">
+<path d="M12 15.4L6 9.4L7.4 8L12 12.6L16.6 8L18 9.4L12 15.4Z" fill="#0063BF"/>
+</g>
+</svg>
+
+
+);
 export const BlueUserIcon = ({ className = '', width = 24, height = 24 }: IconProps) => (
  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <mask id="mask0_1318_14092" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">

@@ -44,6 +44,8 @@ import {
   LocalBlue,
   FastFood,
 } from "@/components/icons/SvgIcons";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiService } from "@/services/api";
 
 interface ReviewComment {
   id: string;
@@ -182,6 +184,7 @@ export default function ClientEventDetail() {
   const params = useParams();
   const eventId = params.id as string;
   const category = params.category as string;
+  const { currentUser } = useAuth();
 
   // Use the usePostDetail hook to fetch event data
   const { loading, error, post: event } = usePostDetail(eventId);
@@ -223,6 +226,20 @@ export default function ClientEventDetail() {
   const [activeActionButton, setActiveActionButton] = React.useState<string | null>('direction');
   const desktopContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const handleSavePost = async () => {
+    if (!currentUser) {
+      alert("Please log in to save posts.");
+      return;
+    }
+    try {
+      await apiService.savePost(currentUser.uid, eventId);
+      alert("Post saved!");
+    } catch (error) {
+      console.error("Error saving post:", error);
+      alert("Failed to save post.");
+    }
+  };
 
   // Dynamic button configuration based on category (mobile only)
   const getMobileDynamicButtonConfig = (category: string | undefined) => {
@@ -463,7 +480,7 @@ export default function ClientEventDetail() {
                     <button className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
                       <Share className="h-5 w-5 mr-1" />
                     </button>
-                    <button className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
+                    <button onClick={handleSavePost} className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
                       <Bookmark className="h-5 w-5 mr-1" />
                     </button>
                   </div>

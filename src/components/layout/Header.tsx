@@ -7,6 +7,9 @@ import AuthModal from '../ui/AuthModal';
 import { useLocation } from '../../contexts/LocationContext';
 import { useSearch } from '../../hooks/useApi';
 import { SearchIcon } from '../icons/SvgIcons';
+import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 
 // Mock suggestions data
 const mockSuggestions = [
@@ -23,11 +26,13 @@ const mockSuggestions = [
 const Header = () => {
   const { selectedLocation, setSelectedLocation } = useLocation();
   const { search } = useSearch();
+  const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { currentUser } = useAuth();
+  const isAuthenticated = !!currentUser;
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -238,7 +243,7 @@ const Header = () => {
                   >
                     <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center overflow-hidden">
                       <Image
-                        src="/images/person.png"
+                        src={currentUser.photoURL || "/images/person.png"}
                         alt="User Profile"
                         width={24}
                         height={24}
@@ -260,7 +265,11 @@ const Header = () => {
                           onClick={() => {
                             setIsProfileDropdownOpen(false);
                             if (option === 'Logout') {
-                              setIsAuthenticated(false);
+                              if (auth) {
+                                auth.signOut();
+                              }
+                            } else if (option === 'Saved') {
+                              router.push('/saved');
                             }
                           }}
                         >
@@ -280,7 +289,7 @@ const Header = () => {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onAuthenticated={() => setIsAuthenticated(true)}
+        onAuthenticated={() => setIsAuthModalOpen(false)}
       />
     </header>
   );

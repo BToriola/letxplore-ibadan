@@ -20,6 +20,7 @@ interface Review {
 interface ReviewsSectionProps {
   reviews?: Review[];
   groupedPosts?: Record<string, Post[]>;
+  postId?: string;
 }
 
 // Extended comment shape when we attach post metadata during fetch
@@ -92,7 +93,7 @@ const defaultReviews: Review[] = [
   }
 ];
 
-const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts = {} }) => {
+const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts = {}, postId }) => {
   // State for API comments
   const [apiComments, setApiComments] = React.useState<ApiComment[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -101,6 +102,10 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
 
   // Get post IDs dynamically from grouped posts or fallback to known IDs
   const getPostIds = React.useCallback(() => {
+    if (postId) {
+      return [postId];
+    }
+
     console.log('=== DETERMINING POST IDS ===');
     console.log('groupedPosts:', groupedPosts);
     
@@ -121,7 +126,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
       console.log('No API posts available, using fallback IDs:', fallbackIds);
       return fallbackIds;
     }
-  }, [groupedPosts]);
+  }, [groupedPosts, postId]);
 
   // Fetch comments immediately when component mounts (only once)
   React.useEffect(() => {
@@ -216,7 +221,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
         rating: comment.rating || 5,
         title: postTitle || 'Featured Location',
         description: comment.content,
-  image: (comment as ApiComment).postImage || '/default.svg',
+        image: (comment as ApiComment).postImage || '/default.svg',
         userAvatar: comment.userAvatar || '/images/user.png'
       };
     }).slice(0, 6); // Limit to 6 reviews
@@ -224,7 +229,6 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
 
   // Prefer `reviews` prop when provided, otherwise use API reviews, otherwise fall back to defaultReviews
   const displayReviews = (reviews && reviews.length > 0) ? reviews : (apiReviews.length > 0 ? apiReviews : defaultReviews);
-
 
   const renderStars = (rating: number) => {
     const stars = [];
