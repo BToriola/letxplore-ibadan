@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import DetailPageHeader from '@/components/layout/DetailPageHeader';
 import EventCard, { EventCardProps } from '@/components/ui/EventCard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +20,7 @@ const transformPostToEventCard = (post: Post): EventCardProps => ({
 });
 
 export default function SavedPostsPage() {
+  const router = useRouter();
   const { currentUser } = useAuth();
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +55,7 @@ export default function SavedPostsPage() {
 
   if (!currentUser && !loading) {
     return (
-      <div>
+      <div className="min-h-screen bg-white">
         <DetailPageHeader />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
           <h1 className="text-2xl font-semibold text-gray-900 mb-6">Saved Posts</h1>
@@ -64,17 +66,29 @@ export default function SavedPostsPage() {
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-white">
       <DetailPageHeader />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Saved Posts</h1>
+        <div className="flex items-center gap-2 mb-8">
+          <button
+            aria-label="Back"
+            onClick={() => router.back()}
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            style={{ lineHeight: 0 }}
+          >
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-[#1C1C1C]">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h2 className="text-xl font-semibold text-[#1C1C1C]">Saved</h2>
+        </div>
         {loading ? (
           <div className="text-center">Loading...</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
             {savedPosts.length > 0 ? (
               savedPosts.map((post, index) => (
-                <div key={post.id} className="w-full animate-fadeIn" style={{ animationDelay: `${index * 0.05}s` }}>
+                <div key={post.id} className="w-full max-w-[340px] animate-fadeIn" style={{ animationDelay: `${index * 0.05}s` }}>
                   <EventCard {...transformPostToEventCard(post)} navigationCategory={post.category} />
                 </div>
               ))
