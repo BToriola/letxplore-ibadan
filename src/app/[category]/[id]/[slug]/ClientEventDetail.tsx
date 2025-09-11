@@ -241,117 +241,40 @@ export default function ClientEventDetail() {
     }
   };
 
-  // Dynamic button configuration based on category (mobile only)
-  const getMobileDynamicButtonConfig = (category: string | undefined) => {
-    const categoryLower = category?.toLowerCase();
-    
-    switch (categoryLower) {
-      case 'events':
-      case 'music':
-      case 'tech':
-      case 'business':
-      case 'art':
-      case 'culture':
-      case 'festival':
+
+  // Dynamic button configuration based on ctaType from API (mobile and desktop)
+  const getDynamicButtonConfig = (ctaType: string | undefined, isMobile: boolean = false) => {
+    switch (ctaType) {
+      case 'getTicket':
         return {
           label: 'Get Ticket',
-          icon: <Card width={16} height={16} />,
-          action: 'ticket'
+          icon: isMobile ? <Card width={16} height={16} /> : <Card />,
+          action: 'ticket',
         };
-      case 'eat & drink':
-      case 'food':
-      case 'restaurant':
-      case 'cafe':
-      case 'bar':
+      case 'getOrders':
         return {
           label: 'Order',
-          icon: <FastFood width={16} height={16} />,
-          action: 'order'
+          icon: isMobile ? <FastFood width={16} height={16} /> : <FastFood />,
+          action: 'order',
         };
-      case 'stay':
-      case 'hotel':
-      case 'accommodation':
-      case 'resort':
+      case 'getReserve':
         return {
           label: 'Reserve',
-          icon: <ReserveIcon width={16} height={16} />,
-          action: 'reserve'
-        };
-      case 'see & do':
-      case 'activities':
-      case 'tours':
-      case 'attractions':
-        return {
-          label: 'Ticket',
-          icon: <LocalBlue width={16} height={16} />,
-          action: 'ticket'
+          icon: isMobile ? <ReserveIcon width={16} height={16} /> : <ReserveIcon />,
+          action: 'reserve',
         };
       default:
         return {
-          label: 'Reserve',
-          icon: <ReserveIcon width={16} height={16} />,
-          action: 'reserve'
+          label: 'Get Ticket',
+          icon: isMobile ? <Card width={16} height={16} /> : <Card />,
+          action: 'ticket',
         };
     }
   };
 
-  const mobileDynamicButtonConfig = getMobileDynamicButtonConfig(category);
-
-  // Dynamic button configuration for desktop (can be the same as mobile)
-  const getDesktopDynamicButtonConfig = (category: string | undefined) => {
-    const categoryLower = category?.toLowerCase();
-    
-    switch (categoryLower) {
-      case 'events':
-      case 'music':
-      case 'tech':
-      case 'business':
-      case 'art':
-      case 'culture':
-      case 'festival':
-        return {
-          label: 'Get Ticket',
-          icon: <Card />,
-          action: 'ticket'
-        };
-      case 'eat & drink':
-      case 'food':
-      case 'restaurant':
-      case 'cafe':
-      case 'bar':
-        return {
-          label: 'Order',
-          icon: <FastFood />,
-          action: 'order'
-        };
-      case 'stay':
-      case 'hotel':
-      case 'accommodation':
-      case 'resort':
-        return {
-          label: 'Reserve',
-          icon: <ReserveIcon />,
-          action: 'reserve'
-        };
-      case 'see & do':
-      case 'activities':
-      case 'tours':
-      case 'attractions':
-        return {
-          label: 'Ticket',
-          icon: <LocalBlue />,
-          action: 'ticket'
-        };
-      default:
-        return {
-          label: 'Reserve',
-          icon: <ReserveIcon />,
-          action: 'reserve'
-        };
-    }
-  };
-
-  const desktopDynamicButtonConfig = getDesktopDynamicButtonConfig(category);
+  // Use event?.ctaType from API response for button config
+  const mobileDynamicButtonConfig = getDynamicButtonConfig(event?.ctaType, true);
+  const desktopDynamicButtonConfig = getDynamicButtonConfig(event?.ctaType, false);
 
   // Check if arrows should be shown based on content width
   React.useEffect(() => {
@@ -859,165 +782,122 @@ export default function ClientEventDetail() {
                 </div>
                 <h2 className="text-xs text-[#1C1C1C] mb-4">Details</h2>
                 <div className="space-y-4 ml-4">
-                  {category === 'Events' ? (
-                    <>
-                      <div>
-                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Date</h3>
-                        <div className="flex items-center">
-                          <Image
-                            src="/images/calendar_month.png"
-                            alt="Calendar"
-                            width={16}
-                            height={16}
-                            className="mr-2 text-gray-500 flex-shrink-0"
-                          />
-                          <p className="text-xs text-[#1C1C1C]">{event.date || "TBD"}</p>
-                        </div>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Time</h3>
-                        <div className="flex items-center">
-                          <Time className="w-4 h-4 mr-4 text-gray-500" width={16} height={16} />
-                          <p className="pl-2 text-xs text-[#1C1C1C]">{event.time || "TBD"}</p>
-                        </div>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Address</h3>
-                        <div className="flex items-center">
-                          <Location className="w-4 h-4 mr-2 text-gray-500" width={16} height={16} />
-                          <p className="pl-2 text-xs text-[#1C1C1C]">{event.address}</p>
-                        </div>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
-                        <p className="text-xs text-[#0063BF]">{event.phone || "+234 900 455 9889"}</p>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs text-[#1c1c1c] mb-1">Socials</h3>
-                        <div className="flex md:justify-between items-stretch gap-2">
-                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                            <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
-                          </a>
-                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                            <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
-                          </a>
-                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                            <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
-                          </a>
-                        </div>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs font-medium text-[#1c1c1c] mb-1">Website</h3>
-                        <a href={event.website || "https://www.letxplore.com"} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
-                          {event.website || "www.letxplore.com"}
-                        </a>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                    </>
-                  ) : (
-                    <>
-                      <div>
-                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
-                        <div className="flex items-center">
-                          <p className="text-xs text-[#0063BF]">{event.phone || "+234 900 455 9889"}</p>
-                        </div>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs text-[#1c1c1c] mb-1">Address</h3>
-                        <p className="text-xs text-[#1C1C1C]">{event.address}</p>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Open hour</h3>
-                        <div className="relative open-hour-dropdown">
-                          <button
-                            onClick={() => setIsOpenHourExpanded(!isOpenHourExpanded)}
-                            className="flex items-center justify-between w-full text-left"
-                          >
-                            <p className="text-xs text-[#1C1C1C]">8:00 am - 9:00 pm</p>
-                            <svg
-                              className={`w-4 h-4 text-[#0063BF] transition-transform ${isOpenHourExpanded ? 'rotate-180' : ''}`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </button>
-
-                          {isOpenHourExpanded && (
-                            <div className="mt-3">
-                              <div className="space-y-1">
-                                <div className="flex items-center">
-                                  <span className="text-xs text-[#1C1C1C] w-28">Monday</span>
-                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <span className="text-xs text-[#1C1C1C] w-28">Tuesday</span>
-                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <span className="text-xs text-[#1C1C1C] w-28">Wednesday</span>
-                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <span className="text-xs text-[#1C1C1C] w-28">Thursday</span>
-                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <span className="text-xs text-[#1C1C1C] w-28">Friday</span>
-                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <span className="text-xs text-[#1C1C1C] w-28">Saturday</span>
-                                  <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <span className="text-xs text-[#1C1C1C] w-28">Sunday</span>
-                                  <span className="text-xs text-[#1C1C1C]">Close</span>
-                                </div>
-                              </div>
+                  {/* Always show these details for all categories */}
+                  <div>
+                    <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Date</h3>
+                    <div className="flex items-center">
+                      <Image
+                        src="/images/calendar_month.png"
+                        alt="Calendar"
+                        width={16}
+                        height={16}
+                        className="mr-2 text-gray-500 flex-shrink-0"
+                      />
+                      <p className="text-xs text-[#1C1C1C]">{event.date || "TBD"}</p>
+                    </div>
+                  </div>
+                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                  <div>
+                    <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Time</h3>
+                    <div className="flex items-center">
+                      <Time className="w-4 h-4 mr-4 text-gray-500" width={16} height={16} />
+                      <p className="pl-2 text-xs text-[#1C1C1C]">{event.time || "TBD"}</p>
+                    </div>
+                  </div>
+                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                  <div>
+                    <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Address</h3>
+                    <div className="flex items-center">
+                      <Location className="w-4 h-4 mr-2 text-gray-500" width={16} height={16} />
+                      <p className="pl-2 text-xs text-[#1C1C1C]">{event.address}</p>
+                    </div>
+                  </div>
+                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                  <div>
+                    <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
+                    <p className="text-xs text-[#0063BF]">{event.phone || "+234 900 455 9889"}</p>
+                  </div>
+                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                  {/* Open hour always shown */}
+                  <div>
+                    <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Open hour</h3>
+                    <div className="relative open-hour-dropdown">
+                      <button
+                        onClick={() => setIsOpenHourExpanded(!isOpenHourExpanded)}
+                        className="flex items-center justify-between w-full text-left"
+                      >
+                        <p className="text-xs text-[#1C1C1C]">8:00 am - 9:00 pm</p>
+                        <svg
+                          className={`w-4 h-4 text-[#0063BF] transition-transform ${isOpenHourExpanded ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {isOpenHourExpanded && (
+                        <div className="mt-3">
+                          <div className="space-y-1">
+                            <div className="flex items-center">
+                              <span className="text-xs text-[#1C1C1C] w-28">Monday</span>
+                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
                             </div>
-                          )}
+                            <div className="flex items-center">
+                              <span className="text-xs text-[#1C1C1C] w-28">Tuesday</span>
+                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="text-xs text-[#1C1C1C] w-28">Wednesday</span>
+                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="text-xs text-[#1C1C1C] w-28">Thursday</span>
+                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="text-xs text-[#1C1C1C] w-28">Friday</span>
+                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="text-xs text-[#1C1C1C] w-28">Saturday</span>
+                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="text-xs text-[#1C1C1C] w-28">Sunday</span>
+                              <span className="text-xs text-[#1C1C1C]">Close</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs font-medium text-[#1c1c1c] mb-1">Website</h3>
-                        <a href={event.website || "https://www.letxplore.com"} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
-                          {event.website || "www.letxplore.com"}
-                        </a>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                      <div>
-                        <h3 className="text-xs text-[#1c1c1c] mb-1">Socials</h3>
-                        <div className="flex md:justify-between items-stretch gap-2">
-                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                            <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
-                          </a>
-                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                            <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
-                          </a>
-                          <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
-                            <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                            <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
-                          </a>
-                        </div>
-                      </div>
-                      <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                    </>
-                  )}
+                      )}
+                    </div>
+                  </div>
+                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                  <div>
+                    <h3 className="text-xs font-medium text-[#1c1c1c] mb-1">Website</h3>
+                    <a href={event.website || "https://www.letxplore.com"} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0063BF] hover:underline">
+                      {event.website || "www.letxplore.com"}
+                    </a>
+                  </div>
+                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
+                  <div>
+                    <h3 className="text-xs text-[#1c1c1c] mb-1">Socials</h3>
+                    <div className="flex md:justify-between items-stretch gap-2">
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                        <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
+                      </a>
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                        <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
+                      </a>
+                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                        <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
+                      </a>
+                    </div>
+                  </div>
+                  <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                 </div>
               </div>
             </div>
