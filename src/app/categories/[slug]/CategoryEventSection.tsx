@@ -42,7 +42,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
             time: post.time || 'TBA',
             location: `${post.neighborhood || ''}, ${post.city || 'Ibadan'}`.replace(/^, /, ''),
             price: post.price || post.priceRange || 'Free',
-            image: post.featuredImageUrl || post.galleryImageUrls?.[0] || post.images?.[0] || '/images/default/event-placeholder.jpg',
+            image: post.featuredImageUrl || post.galleryImageUrls?.[0] || post.images?.[0] || '/default.svg',
             category: post.category || 'Event',
             description: post.about || ''
         };

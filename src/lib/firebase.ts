@@ -1,6 +1,7 @@
 import { initializeApp, FirebaseOptions, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
+import { getDatabase, Database } from "firebase/database";
 
 // Read env vars safely (may be undefined during build in some environments)
 const firebaseConfig: Partial<FirebaseOptions> = {
@@ -10,6 +11,7 @@ const firebaseConfig: Partial<FirebaseOptions> = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
 };
 
 const hasFullConfig = [
@@ -25,12 +27,14 @@ const hasFullConfig = [
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
+let rtdb: Database | null = null;
 
 if (typeof window !== 'undefined' && hasFullConfig) {
   try {
     app = initializeApp(firebaseConfig as FirebaseOptions);
     auth = getAuth(app);
     db = getFirestore(app);
+    rtdb = getDatabase(app);
   } catch (err) {
     // Fail gracefully; don't crash prerender/build if something goes wrong here.
     // Client-side usage can still check for null and show fallback UI.
@@ -40,6 +44,7 @@ if (typeof window !== 'undefined' && hasFullConfig) {
     app = null;
     auth = null;
     db = null;
+    rtdb = null;
   }
 } else if (!hasFullConfig) {
   // If config is missing, log but do not throw — server-side prerender must not fail.
@@ -49,5 +54,5 @@ if (typeof window !== 'undefined' && hasFullConfig) {
   }
 }
 
-export { auth, db };
+export { auth, db, rtdb };
 export default app;

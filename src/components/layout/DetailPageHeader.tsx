@@ -197,7 +197,6 @@ const DetailPageHeader = () => {
                         </div>
                     </div>
 
-                    {/* User Icon */}
                     <div
                         className={`relative lg:mr-[-4rem] flex-shrink-0 transition-opacity duration-300 ${isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
                             }`}
@@ -219,7 +218,7 @@ const DetailPageHeader = () => {
                         ) : (
                             <>
                                 <button
-                                    className="flex items-center space-x-1 lg:space-x-2 p-2 lg:p-3 rounded-full bg-[#0063BF] hover:bg-[#0056a3] transition-colors ml-4"
+                                    className="flex items-center space-x-1 lg:space-x-2 p-2 lg:p-3 rounded-full  transition-colors ml-4"
                                     onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                     aria-label="User menu"
                                 >

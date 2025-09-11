@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import { FiX, FiEye, FiEyeOff } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import Portal from './Portal';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, rtdb } from '@/lib/firebase';
 import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { ref, set } from 'firebase/database';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -127,16 +128,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
         // 2. Update profile with full name
         await updateProfile(user, { displayName: fullName });
 
-  // 3. Store additional info in Firestore
+  // 3. Store additional info in Firestore and Realtime Database
   if (!db) throw new Error('Firestore not initialized');
-  await setDoc(doc(db, "users", user.uid), {
-          fullname: fullName,
-          email,
-          phone: phoneNumber,
-          city,
-          uid: user.uid,
-          createdAt: new Date(),
-        });
+  if (!rtdb) throw new Error('Realtime Database not initialized');
+
+  const userData = {
+    fullname: fullName,
+    email,
+    phone: phoneNumber,
+    city,
+    uid: user.uid,
+    createdAt: new Date().toISOString(),
+  };
+
+  // // Save to Firestore
+  // await setDoc(doc(db, "users", user.uid), userData);
+  
+  // Save to Realtime Database
+  await set(ref(rtdb, `users/${user.uid}`), userData);
 
         onAuthenticated();
         onClose();
@@ -483,17 +492,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
                 const user = auth.currentUser;
                     if (user) {
                       // Store additional info in Firestore
-                      if (!db) throw new Error('Firestore not initialized');
-                      await setDoc(doc(db, "users", user.uid), {
+                  if (!db) throw new Error('Firestore not initialized');
+                  if (!rtdb) throw new Error('Realtime Database not initialized');
+
+                  const userData = {
                     fullname: formData.fullName,
                     email: formData.email,
                     phone: formData.phoneNumber,
                     city: formData.city,
                     uid: user.uid,
-                    createdAt: new Date(),
-                  });
+                    createdAt: new Date().toISOString(),
+                    provider: 'google'
+                  };
 
-                  onAuthenticated();
+                  // Save to Firestore
+                  await setDoc(doc(db, "users", user.uid), userData);
+                  
+                  // Save to Realtime Database
+                  await set(ref(rtdb, `users/${user.uid}`), userData);                  onAuthenticated();
                   onClose();
                 }
               } catch (error: unknown) {

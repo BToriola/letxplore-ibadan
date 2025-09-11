@@ -602,13 +602,16 @@ export default function ClientEventDetail() {
                     <div className="relative">
                       <div className="max-w-[802px] overflow-x-auto pb-2">
                         <div className="flex gap-2">
-                          {[...Array(8)].map((_, i) => (
+                          {(event.galleryImageUrls && event.galleryImageUrls.length > 0
+                            ? event.galleryImageUrls
+                            : Array(8).fill("/default.svg")
+                          ).map((imgUrl: string, i: number) => (
                             <div
                               key={i}
                               className="relative w-[160px] h-[184px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
                             >
                               <Image
-                                src="/default.svg"
+                                src={imgUrl}
                                 alt={`Gallery image ${i}`}
                                 fill
                                 className="object-cover hover:scale-110 transition-transform cursor-pointer"

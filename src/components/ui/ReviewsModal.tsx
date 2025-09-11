@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Star, StarEmpty } from "@/components/icons/SvgIcons";
 import { useComments } from "@/hooks/useApi";
 
+import type { Comment } from '@/services/api';
+
 interface ReviewsModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -18,7 +20,7 @@ const ReviewsModal = ({ isOpen, onClose, eventId }: ReviewsModalProps) => {
     
     console.log('ReviewsModal eventId:', eventId);
     
-    const { comments, loading, error, addComment } = useComments(eventId);
+    const { comments = [], loading, error, addComment } = useComments(eventId);
 
     const handleSubmit = async () => {
         if (!selectedRating || !reviewText.trim()) {
@@ -138,7 +140,7 @@ const ReviewsModal = ({ isOpen, onClose, eventId }: ReviewsModalProps) => {
                             <div className="text-sm text-gray-500">No reviews yet. Be the first to review!</div>
                         </div>
                     ) : (
-                        comments.map((comment) => (
+                        (comments || []).map((comment: Comment) => (
                             <div key={comment.id} className="py-4 border-b border-gray-100 last:border-b-0 md:py-2 md:px-6 md:border-b-0">
                                 <div className="flex items-center mb-3">
                                     <Image
