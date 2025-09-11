@@ -818,58 +818,76 @@ export default function ClientEventDetail() {
                     <p className="text-xs text-[#0063BF]">{event.phone || "+234 900 455 9889"}</p>
                   </div>
                   <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
-                  {/* Open hour always shown */}
+                  {/* Open hour always shown, now using event.openingHours if available */}
                   <div>
                     <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Open hour</h3>
                     <div className="relative open-hour-dropdown">
-                      <button
-                        onClick={() => setIsOpenHourExpanded(!isOpenHourExpanded)}
-                        className="flex items-center justify-between w-full text-left"
-                      >
-                        <p className="text-xs text-[#1C1C1C]">8:00 am - 9:00 pm</p>
-                        <svg
-                          className={`w-4 h-4 text-[#0063BF] transition-transform ${isOpenHourExpanded ? 'rotate-180' : ''}`}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      {isOpenHourExpanded && (
-                        <div className="mt-3">
-                          <div className="space-y-1">
-                            <div className="flex items-center">
-                              <span className="text-xs text-[#1C1C1C] w-28">Monday</span>
-                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
+                      {(() => {
+                        const todayIdx = new Date().getDay();
+                        const daysOfWeek = [
+                          'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+                        ];
+                        let mainDay: string | null = null;
+                        let mainValue: any = null;
+                        const openingHours = event.openingHours ?? {};
+                        const entries = Object.entries(openingHours);
+                        if (entries.length > 0) {
+                          const openEntry = entries.find(([, v]) => (v as any).status === 'open');
+                          if (openEntry) {
+                            [mainDay, mainValue] = openEntry;
+                          } else {
+                            [mainDay, mainValue] = entries[todayIdx % entries.length] || [null, null];
+                          }
+                        }
+                        return (
+                          <>
+                            <div className="flex items-center justify-between w-full cursor-pointer" onClick={() => setIsOpenHourExpanded(!isOpenHourExpanded)}>
+                              <span className="text-base text-[#1C1C1C] font-normal">
+                                {entries.length > 0 && mainDay && mainValue
+                                  ? ((mainValue as any).status === 'open'
+                                    ? `${(mainValue as any).openingTime} - ${(mainValue as any).closingTime}`
+                                    : 'Closed')
+                                  : 'No opening hours info'}
+                              </span>
+                              <svg
+                                className={`w-4 h-4 text-[#0063BF] transition-transform ${isOpenHourExpanded ? 'rotate-180' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
                             </div>
-                            <div className="flex items-center">
-                              <span className="text-xs text-[#1C1C1C] w-28">Tuesday</span>
-                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="text-xs text-[#1C1C1C] w-28">Wednesday</span>
-                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="text-xs text-[#1C1C1C] w-28">Thursday</span>
-                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="text-xs text-[#1C1C1C] w-28">Friday</span>
-                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="text-xs text-[#1C1C1C] w-28">Saturday</span>
-                              <span className="text-xs text-[#1C1C1C]">8:00AM - 9:00PM</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="text-xs text-[#1C1C1C] w-28">Sunday</span>
-                              <span className="text-xs text-[#1C1C1C]">Close</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                            {isOpenHourExpanded && (
+                              <div className="mt-3">
+                                <div className="space-y-2">
+                                  {entries.length > 0
+                                    ? daysOfWeek.map((day, idx) => {
+                                        const v = openingHours[day] as { openingTime: string; closingTime: string; status: string } | undefined;
+                                        return (
+                                          <div className="flex items-center" key={day}>
+                                            <span className={`text-xs w-28 ${idx === todayIdx ? 'font-bold text-[#0063BF]' : 'text-[#1C1C1C]'}`}>{day}</span>
+                                            <span className={`text-xs ${idx === todayIdx ? 'font-bold text-[#0063BF]' : 'text-[#1C1C1C]'}`}>
+                                              {v
+                                                ? (v.status === 'open'
+                                                    ? `${v.openingTime} - ${v.closingTime}`
+                                                    : 'Closed')
+                                                : '—'}
+                                            </span>
+                                          </div>
+                                        );
+                                      })
+                                    : (
+                                      <div className="flex items-center">
+                                        <span className="text-xs text-[#1C1C1C]">No opening hours info</span>
+                                      </div>
+                                    )}
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                   <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
