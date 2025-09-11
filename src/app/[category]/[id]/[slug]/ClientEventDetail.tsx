@@ -901,15 +901,36 @@ export default function ClientEventDetail() {
                   <div>
                     <h3 className="text-xs text-[#1c1c1c] mb-1">Socials</h3>
                     <div className="flex md:justify-between items-stretch gap-2">
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                      <a
+                        href={
+                          (event as any).social_ig || (event as any).socials?.instagram || (event as any).instagram || '#'
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start"
+                      >
                         <InstagramIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Instagram</span>
                       </a>
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                      <a
+                        href={
+                          (event as any).social_fb || (event as any).socials?.facebook || (event as any).facebook || '#'
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start"
+                      >
                         <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
                       </a>
-                      <a href="#" className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start">
+                      <a
+                        href={
+                          (event as any).socials?.twitter || (event as any).socials?.x || (event as any).twitter || (event as any).x || '#'
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start"
+                      >
                         <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
                       </a>
