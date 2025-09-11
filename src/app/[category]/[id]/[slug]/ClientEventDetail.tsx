@@ -68,8 +68,8 @@ const ReviewCard = ({ comment }: { comment: ReviewComment }) => (
       <div>
         <h3 className="text-xs font-medium text-[#1c1c1c]">{comment.username}</h3>
         <p className="text-xs text-[#1c1c1c]">
-          {new Date(comment.createdAt).toLocaleDateString('en-US', { 
-            month: 'short', 
+          {new Date(comment.createdAt).toLocaleDateString('en-US', {
+            month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
@@ -115,7 +115,7 @@ const renderStars = (rating: number, size: number = 14) => {
   return stars;
 };
 
-  const ActionButton = ({ label, isActive, onClick, icon, isDynamicButton = false }: { label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode; isDynamicButton?: boolean }) => (
+const ActionButton = ({ label, isActive, onClick, icon, isDynamicButton = false }: { label: string; isActive: boolean; onClick: () => void; icon: React.ReactNode; isDynamicButton?: boolean }) => (
   <div
     className={`
       flex flex-col items-center justify-center 
@@ -140,6 +140,7 @@ interface MoreDropdownProps {
 }
 
 const MoreDropdown = ({ isOpen, onClose, onWriteReview }: MoreDropdownProps) => {
+  const [isSaved, setIsSaved] = React.useState(false);
   if (!isOpen) return null;
 
   return (
@@ -163,9 +164,12 @@ const MoreDropdown = ({ isOpen, onClose, onWriteReview }: MoreDropdownProps) => 
           </div>
           <span className="text-xs text-[#1c1c1c]">Menu</span>
         </button>
-        <button className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3">
+        <button 
+          className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3"
+          onClick={() => setIsSaved((prev) => !prev)}
+        >
           <div className="w-6 h-6 rounded flex items-center justify-center">
-            <Save width={16} height={16} />
+            <Save width={16} height={16} className={isSaved ? 'text-[#0063BF]' : 'text-[#1c1c1c]/[0.2]'} />
           </div>
           <span className="text-xs text-[#1c1c1c]">Save</span>
         </button>
@@ -188,20 +192,20 @@ export default function ClientEventDetail() {
 
   // Use the usePostDetail hook to fetch event data
   const { loading, error, post: event } = usePostDetail(eventId);
-  
+
   // Use useComments hook to fetch and manage comments
-  const { 
-    loading: commentsLoading, 
-    error: commentsError, 
+  const {
+    loading: commentsLoading,
+    error: commentsError,
     comments
   } = useComments(eventId);
-  
+
   // Memoize the filters object to prevent unnecessary API calls
   // const similarEventsFilters = useMemo(() => ({
   //   category: category,
   //   limit: 6 
   // }), [category]);
-  
+
   // Use usePosts hook to fetch similar events (posts in the same category)
   // const amenities = [
   //   { icon: <Delivery className="text-gray-500 pr-4" />, label: "Delivery" },
@@ -212,7 +216,7 @@ export default function ClientEventDetail() {
   //   { icon: <Ac className="text-gray-500 mr-2" />, label: "Air conditioner" },
   //   { icon: <Wifi className="text-gray-500 mr-2" />, label: "Free Wi-Fi" },
   // ];
-  
+
   // For now, we'll use empty array for similar events until we get the data structure
   const similarEvents: Array<{ id: string; name: string; featuredImageUrl?: string; images?: string[]; address?: string; category?: string; price?: string }> = [];
 
@@ -224,6 +228,8 @@ export default function ClientEventDetail() {
   const [isContactModalOpen, setIsContactModalOpen] = React.useState(false);
   const [isLinksModalOpen, setIsLinksModalOpen] = React.useState(false);
   const [activeActionButton, setActiveActionButton] = React.useState<string | null>('direction');
+  const [isBookmarked, setIsBookmarked] = React.useState(false);
+  const [isShared, setIsShared] = React.useState(false);
   const desktopContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileContainerRef = React.useRef<HTMLDivElement>(null);
 
@@ -248,7 +254,7 @@ export default function ClientEventDetail() {
       case 'getTicket':
         return {
           label: 'Get Ticket',
-          icon: isMobile ? <Card width={16} height={16} /> : <Card />,
+          icon: isMobile ? <LocalBlue width={16} height={16} /> : <LocalBlue />,
           action: 'ticket',
         };
       case 'getOrders':
@@ -400,11 +406,22 @@ export default function ClientEventDetail() {
                     <h1 className="text-base font-semibold text-gray-900">{event.name}</h1>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <button className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
-                      <Share className="h-5 w-5 mr-1" />
+                    <button
+                      className="text-sm flex items-center"
+                      onClick={() => setIsShared((prev) => !prev)}
+                      aria-label="Share"
+                    >
+                      <Share className={`h-5 w-5 mr-1 ${isShared ? 'text-[#0063BF]' : 'text-[#1c1c1c]/[0.2]'}`} />
                     </button>
-                    <button onClick={handleSavePost} className="text-sm text-[#1c1c1c]/[0.2] flex items-center">
-                      <Bookmark className="h-5 w-5 mr-1" />
+                    <button
+                      onClick={() => {
+                        setIsBookmarked((prev) => !prev);
+                        handleSavePost();
+                      }}
+                      className="text-sm flex items-center"
+                      aria-label="Bookmark"
+                    >
+                      <Bookmark className={`h-5 w-5 mr-1 ${isBookmarked ? 'text-[#0063BF]' : 'text-[#1c1c1c]/[0.2]'}`} />
                     </button>
                   </div>
                 </div>
@@ -436,9 +453,9 @@ export default function ClientEventDetail() {
                     {/* Action buttons for mobile - shown only on mobile */}
                     <div className="md:hidden mt-6">
                       <div className="grid grid-cols-5 gap-1 mb-6">
-                        <ActionButton 
-                          icon={<DirectionIcon width={16} height={16} />} 
-                          label="Direction" 
+                        <ActionButton
+                          icon={<DirectionIcon width={16} height={16} />}
+                          label="Direction"
                           isActive={activeActionButton === 'direction'}
                           onClick={() => setActiveActionButton(activeActionButton === 'direction' ? null : 'direction')}
                         />
@@ -452,10 +469,14 @@ export default function ClientEventDetail() {
                               setIsLinksModalOpen(!isLinksModalOpen);
                             }}
                           />
-                          <LinksModal isOpen={isLinksModalOpen} onClose={() => {
-                            setIsLinksModalOpen(false);
-                            setActiveActionButton(null);
-                          }} />
+                          <LinksModal
+                            isOpen={isLinksModalOpen}
+                            onClose={() => {
+                              setIsLinksModalOpen(false);
+                              setActiveActionButton(null);
+                            }}
+                            event={event}
+                          />
                         </div>
                         <div className="relative">
                           <ActionButton
@@ -467,14 +488,18 @@ export default function ClientEventDetail() {
                               setIsContactModalOpen(!isContactModalOpen);
                             }}
                           />
-                          <ContactModal isOpen={isContactModalOpen} onClose={() => {
-                            setIsContactModalOpen(false);
-                            setActiveActionButton(null);
-                          }} />
+                          <ContactModal
+                            isOpen={isContactModalOpen}
+                            onClose={() => {
+                              setIsContactModalOpen(false);
+                              setActiveActionButton(null);
+                            }}
+                            event={event}
+                          />
                         </div>
-                        <ActionButton 
-                          icon={mobileDynamicButtonConfig.icon} 
-                          label={mobileDynamicButtonConfig.label} 
+                        <ActionButton
+                          icon={mobileDynamicButtonConfig.icon}
+                          label={mobileDynamicButtonConfig.label}
                           isActive={activeActionButton === mobileDynamicButtonConfig.action}
                           onClick={() => setActiveActionButton(activeActionButton === mobileDynamicButtonConfig.action ? null : mobileDynamicButtonConfig.action)}
                           isDynamicButton={true}
@@ -489,8 +514,8 @@ export default function ClientEventDetail() {
                               setIsMoreDropdownOpen(!isMoreDropdownOpen);
                             }}
                           />
-                          <MoreDropdown 
-                            isOpen={isMoreDropdownOpen} 
+                          <MoreDropdown
+                            isOpen={isMoreDropdownOpen}
                             onClose={() => {
                               setIsMoreDropdownOpen(false);
                               setActiveActionButton(null);
@@ -554,7 +579,7 @@ export default function ClientEventDetail() {
                 <div className="mb-10">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xs text-[#1c1c1c] font-semibold">Ratings and Reviews</h2>
-                    <button 
+                    <button
                       className="bg-[#0063BF1A]/[0.1] text-[#0063BF] px-4 py-2 rounded-2xl text-xs hover:bg-blue-50 transition-colors"
                       onClick={() => setIsReviewsModalOpen(true)}
                     >
@@ -717,9 +742,9 @@ export default function ClientEventDetail() {
               <div className="rounded-lg mb-6 sticky top-24">
                 {/* Action buttons for desktop - hidden on mobile */}
                 <div className="hidden md:grid md:grid-cols-5 md:gap-2 mb-6">
-                  <ActionButton 
-                    icon={<DirectionIcon />} 
-                    label="Direction" 
+                  <ActionButton
+                    icon={<DirectionIcon />}
+                    label="Direction"
                     isActive={activeActionButton === 'direction'}
                     onClick={() => setActiveActionButton(activeActionButton === 'direction' ? null : 'direction')}
                   />
@@ -733,10 +758,14 @@ export default function ClientEventDetail() {
                         setIsLinksModalOpen(!isLinksModalOpen);
                       }}
                     />
-                    <LinksModal isOpen={isLinksModalOpen} onClose={() => {
-                      setIsLinksModalOpen(false);
-                      setActiveActionButton(null);
-                    }} />
+                    <LinksModal
+                      isOpen={isLinksModalOpen}
+                      onClose={() => {
+                        setIsLinksModalOpen(false);
+                        setActiveActionButton(null);
+                      }}
+                      event={event}
+                    />
                   </div>
                   <div className="relative">
                     <ActionButton
@@ -748,14 +777,18 @@ export default function ClientEventDetail() {
                         setIsContactModalOpen(!isContactModalOpen);
                       }}
                     />
-                    <ContactModal isOpen={isContactModalOpen} onClose={() => {
-                      setIsContactModalOpen(false);
-                      setActiveActionButton(null);
-                    }} />
+                    <ContactModal
+                      isOpen={isContactModalOpen}
+                      onClose={() => {
+                        setIsContactModalOpen(false);
+                        setActiveActionButton(null);
+                      }}
+                      event={event}
+                    />
                   </div>
-                  <ActionButton 
-                    icon={desktopDynamicButtonConfig.icon} 
-                    label={desktopDynamicButtonConfig.label} 
+                  <ActionButton
+                    icon={desktopDynamicButtonConfig.icon}
+                    label={desktopDynamicButtonConfig.label}
                     isActive={activeActionButton === desktopDynamicButtonConfig.action}
                     onClick={() => setActiveActionButton(activeActionButton === desktopDynamicButtonConfig.action ? null : desktopDynamicButtonConfig.action)}
                     isDynamicButton={true}
@@ -770,8 +803,8 @@ export default function ClientEventDetail() {
                         setIsMoreDropdownOpen(!isMoreDropdownOpen);
                       }}
                     />
-                    <MoreDropdown 
-                      isOpen={isMoreDropdownOpen} 
+                    <MoreDropdown
+                      isOpen={isMoreDropdownOpen}
                       onClose={() => {
                         setIsMoreDropdownOpen(false);
                         setActiveActionButton(null);
@@ -831,6 +864,16 @@ export default function ClientEventDetail() {
                         let mainValue: any = null;
                         const openingHours = event.openingHours ?? {};
                         const entries = Object.entries(openingHours);
+                        function formatTime(time: string) {
+                          if (!time) return '';
+                          const [h, m] = time.split(':');
+                          let hour = parseInt(h, 10);
+                          const minute = m || '00';
+                          const ampm = hour >= 12 ? 'PM' : 'AM';
+                          if (hour === 0) hour = 12;
+                          else if (hour > 12) hour = hour - 12;
+                          return `${hour}:${minute.padStart(2, '0')} ${ampm}`;
+                        }
                         if (entries.length > 0) {
                           const openEntry = entries.find(([, v]) => (v as any).status === 'open');
                           if (openEntry) {
@@ -842,10 +885,10 @@ export default function ClientEventDetail() {
                         return (
                           <>
                             <div className="flex items-center justify-between w-full cursor-pointer" onClick={() => setIsOpenHourExpanded(!isOpenHourExpanded)}>
-                              <span className="text-base text-[#1C1C1C] font-normal">
+                              <span className="text-xs text-[#1C1C1C] font-normal">
                                 {entries.length > 0 && mainDay && mainValue
                                   ? ((mainValue as any).status === 'open'
-                                    ? `${(mainValue as any).openingTime} - ${(mainValue as any).closingTime}`
+                                    ? `${formatTime((mainValue as any).openingTime)} - ${formatTime((mainValue as any).closingTime)}`
                                     : 'Closed')
                                   : 'No opening hours info'}
                               </span>
@@ -863,20 +906,20 @@ export default function ClientEventDetail() {
                                 <div className="space-y-2">
                                   {entries.length > 0
                                     ? daysOfWeek.map((day, idx) => {
-                                        const v = openingHours[day] as { openingTime: string; closingTime: string; status: string } | undefined;
-                                        return (
-                                          <div className="flex items-center" key={day}>
-                                            <span className={`text-xs w-28 ${idx === todayIdx ? 'font-bold text-[#0063BF]' : 'text-[#1C1C1C]'}`}>{day}</span>
-                                            <span className={`text-xs ${idx === todayIdx ? 'font-bold text-[#0063BF]' : 'text-[#1C1C1C]'}`}>
-                                              {v
-                                                ? (v.status === 'open'
-                                                    ? `${v.openingTime} - ${v.closingTime}`
-                                                    : 'Closed')
-                                                : '—'}
-                                            </span>
-                                          </div>
-                                        );
-                                      })
+                                      const v = openingHours[day] as { openingTime: string; closingTime: string; status: string } | undefined;
+                                      return (
+                                        <div className="flex items-center" key={day}>
+                                          <span className={`text-xs w-28 ${idx === todayIdx ? 'font-bold text-[#0063BF]' : 'text-[#1C1C1C]'}`}>{day}</span>
+                                          <span className={`text-xs ${idx === todayIdx ? 'font-bold text-[#0063BF]' : 'text-[#1C1C1C]'}`}>
+                                            {v
+                                              ? (v.status === 'open'
+                                                ? `${formatTime(v.openingTime)} - ${formatTime(v.closingTime)}`
+                                                : 'Closed')
+                                              : '—'}
+                                          </span>
+                                        </div>
+                                      );
+                                    })
                                     : (
                                       <div className="flex items-center">
                                         <span className="text-xs text-[#1C1C1C]">No opening hours info</span>
@@ -984,8 +1027,8 @@ export default function ClientEventDetail() {
                 {similarEvents
                   .slice(0, 6)
                   .map((similarEvent) => (
-                    <Link 
-                      key={similarEvent.id} 
+                    <Link
+                      key={similarEvent.id}
                       href={`/${category}/${similarEvent.id}/${similarEvent.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}`}
                       onClick={() => {
                         setTimeout(() => {

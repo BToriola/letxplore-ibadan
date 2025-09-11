@@ -50,7 +50,6 @@ const ReviewsModal = ({ isOpen, onClose, eventId }: ReviewsModalProps) => {
             setSelectedRating(0);
             setReviewText("");
             
-            // Show success message
             alert("Review submitted successfully!");
             
             // Optionally close modal after successful submission
@@ -58,7 +57,6 @@ const ReviewsModal = ({ isOpen, onClose, eventId }: ReviewsModalProps) => {
         } catch (error) {
             console.error("Failed to submit review:", error);
             
-            // Get more specific error message
             let errorMessage = "Failed to submit review. Please try again.";
             if (error instanceof Error) {
                 errorMessage = error.message;
@@ -140,7 +138,7 @@ const ReviewsModal = ({ isOpen, onClose, eventId }: ReviewsModalProps) => {
                             <div className="text-sm text-gray-500">No reviews yet. Be the first to review!</div>
                         </div>
                     ) : (
-                        (comments || []).map((comment: Comment) => (
+                        [...comments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((comment: Comment) => (
                             <div key={comment.id} className="py-4 border-b border-gray-100 last:border-b-0 md:py-2 md:px-6 md:border-b-0">
                                 <div className="flex items-center mb-3">
                                     <Image
