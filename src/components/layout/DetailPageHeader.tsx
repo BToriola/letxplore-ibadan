@@ -72,9 +72,7 @@ const DetailPageHeader = () => {
         <header className="py-8 top-0 z-50 lg:relative lg:bg-transparent absolute w-full">
             <div className={`lg:bg-transparent ${isAuthModalOpen ? 'bg-transparent' : 'bg-black/40'} lg:backdrop-blur-none ${isAuthModalOpen ? 'backdrop-blur-none' : 'backdrop-blur-sm'} rounded-full lg:rounded-full mx-2 lg:mx-0 ${isSearchExpanded ? 'px-0' : 'pl-1 pr-4'} py-2 lg:py-0`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between lg:pr-0">
-                    {/* Location and Search Bar grouped together */}
                     <div className="flex items-center space-x-6 lg:space-x-4 flex-1">
-                        {/* Location Dropdown */}
                         <div
                             className={`relative transition-opacity duration-300 ${isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
                                 }`}
@@ -229,7 +227,7 @@ const DetailPageHeader = () => {
                                             className="lg:w-5 lg:h-5 text-white"
                                         />
                                     </div>
-                                    <FiChevronDown className="w-3 h-3 lg:w-4 lg:h-4 text-white" />
+                                    <FiChevronDown className="w-3 h-3 lg:w-4 lg:h-4 text-[#0063BF]" />
                                 </button>
                                 {isProfileDropdownOpen && (
                                     <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-md z-50">

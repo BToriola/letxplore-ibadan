@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft } from '@/components/icons/SvgIcons';
 import DetailPageHeader from '@/components/layout/DetailPageHeader';
 import EventCard, { EventCardProps } from '@/components/ui/EventCard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,7 +22,7 @@ const transformPostToEventCard = (post: Post): EventCardProps => ({
 
 export default function SavedPostsPage() {
   const router = useRouter();
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +54,17 @@ export default function SavedPostsPage() {
     }
   }, [currentUser]);
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#0063BF]"></div>
+          <p className="mt-6 text-gray-600 text-sm font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!currentUser && !loading) {
     return (
       <div className="min-h-screen bg-white">
@@ -76,35 +88,23 @@ export default function SavedPostsPage() {
             className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             style={{ lineHeight: 0 }}
           >
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-[#1C1C1C]">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ArrowLeft width={24} height={24} />
           </button>
           <h2 className="text-xl font-semibold text-[#1C1C1C]">Saved</h2>
         </div>
         {loading ? (
           <div className="text-center">Loading...</div>
-        ) : (
+        ) : savedPosts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
-            {savedPosts.length > 0 ? (
-              savedPosts.map((post, index) => (
-                <div key={post.id} className="w-full max-w-[340px] animate-fadeIn" style={{ animationDelay: `${index * 0.05}s` }}>
-                  <EventCard {...transformPostToEventCard(post)} navigationCategory={post.category} />
-                </div>
-              ))
-            ) : (
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 py-20 text-center">
-                <div className="inline-block p-4 rounded-full bg-blue-100 mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-medium text-[#1C1C1C]">NO saved post</h3>
-                <p className="mt-2 text-[#939393]">
-                  You have not saved any posts yet.
-                </p>
+            {savedPosts.map((post, index) => (
+              <div key={post.id} className="w-full max-w-[340px] animate-fadeIn" style={{ animationDelay: `${index * 0.05}s` }}>
+                <EventCard {...transformPostToEventCard(post)} navigationCategory={post.category} />
               </div>
-            )}
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center min-h-[300px] text-gray-500">
+            <p className="text-lg font-medium">No saved posts</p>
           </div>
         )}
       </main>
