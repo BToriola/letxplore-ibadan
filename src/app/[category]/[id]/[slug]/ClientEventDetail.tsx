@@ -248,7 +248,6 @@ export default function ClientEventDetail() {
   };
 
 
-  // Dynamic button configuration based on ctaType from API (mobile and desktop)
   const getDynamicButtonConfig = (ctaType: string | undefined, isMobile: boolean = false) => {
     switch (ctaType) {
       case 'getTicket':
@@ -272,7 +271,7 @@ export default function ClientEventDetail() {
       default:
         return {
           label: 'Get Ticket',
-          icon: isMobile ? <Card width={16} height={16} /> : <Card />,
+          icon: isMobile ? <LocalBlue width={16} height={16} /> : <LocalBlue />,
           action: 'ticket',
         };
     }

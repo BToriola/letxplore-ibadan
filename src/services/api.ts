@@ -1,3 +1,13 @@
+// Interface for searchPostsByNameDesc response item
+export interface SearchPostResult {
+  id: string;
+  name: string;
+  description?: string;
+  city: string;
+  category: string;
+  createdAt: number;
+  updatedAt: number;
+}
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://stagging-letsxplore-b957bddd5479.herokuapp.com';
 
 interface ApiResponse<T> {
@@ -10,6 +20,11 @@ interface ApiResponse<T> {
     total: number;
     totalPages: number;
   };
+}
+
+// Interface for /api/cities response
+interface CityListResponse {
+  cities: string[];
 }
 
 interface PostFilters {
@@ -96,6 +111,16 @@ interface SavedPost {
 }
 
 class ApiService {
+  // Search posts by name and description
+  async searchPostsByNameDesc(params: { query: string; city?: string; limit?: number }): Promise<SearchPostResult[]> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('query', params.query);
+    if (params.city) queryParams.append('city', params.city);
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    const endpoint = `/searchPostsByNameDesc?${queryParams.toString()}`;
+    const res = await this.makeRequest<SearchPostResult[]>(endpoint);
+    return res.data;
+  }
   private async makeRequest<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -180,7 +205,9 @@ class ApiService {
     });
   }
 
-  // User saved posts endpoints
+  async getCities(): Promise<ApiResponse<CityListResponse>> {
+    return this.makeRequest<CityListResponse>(`/api/cities`);
+  }
   async savePost(userId: string, postId: string): Promise<ApiResponse<SavePostResponse>> {
     return this.makeRequest<SavePostResponse>(`/users/${userId}/save`, {
       method: 'POST',
@@ -204,4 +231,5 @@ export type {
   SavedPost,
   PostFilters,
   ApiResponse,
+  CityListResponse,
 };

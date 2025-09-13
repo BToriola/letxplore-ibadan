@@ -1,4 +1,5 @@
 import React from "react";
+import { apiService, CityListResponse } from '@/services/api';
 import Image from "next/image";
 import { FiChevronDown } from "react-icons/fi";
 import { LogoMini, WhiteIcon, SearchIcon, BlueUserIcon } from "../icons/SvgIcons";
@@ -32,6 +33,22 @@ const DetailPageHeader = () => {
         "Coffee shops in Bodija",
         "Weekend events",
     ];
+    const [cities, setCities] = React.useState<string[]>(["Ibadan"]);
+
+    // Fetch cities from API
+    React.useEffect(() => {
+        let mounted = true;
+        apiService.getCities()
+            .then((res) => {
+                if (res.success && res.data && Array.isArray(res.data.cities) && mounted) {
+                    setCities(res.data.cities);
+                }
+            })
+            .catch((err) => {
+                console.error('Failed to fetch cities:', err);
+            });
+        return () => { mounted = false; };
+    }, []);
 
     React.useEffect(() => {
         if (searchInput.trim() === "") {
@@ -106,7 +123,7 @@ const DetailPageHeader = () => {
                             </div>
                             {isDropdownOpen && (
                                 <div className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded-md  z-50">
-                                    {["Ibadan", "Lagos", "Abeokuta"].map((location) => (
+                                    {cities.map((location) => (
                                         <button
                                             key={location}
                                             className={`w-full font-medium text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#0063BF] ${location === selectedLocation ? "bg-blue-50 text-[#0063BF]" : ""

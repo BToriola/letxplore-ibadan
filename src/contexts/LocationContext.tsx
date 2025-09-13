@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface LocationContextType {
   selectedLocation: string;
@@ -22,10 +22,32 @@ interface LocationProviderProps {
 }
 
 export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) => {
-  const [selectedLocation, setSelectedLocation] = useState('Ibadan');
+  const [selectedLocation, setSelectedLocationState] = useState<string | undefined>(undefined);
+
+  // On mount, initialize from localStorage if available, else leave undefined
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('selectedLocation');
+      if (stored) {
+        setSelectedLocationState(stored);
+      }
+    }
+  }, []);
+
+  // Whenever selectedLocation changes, update localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && selectedLocation) {
+      localStorage.setItem('selectedLocation', selectedLocation);
+    }
+  }, [selectedLocation]);
+
+  // Wrap setter to update state
+  const setSelectedLocation = (location: string) => {
+    setSelectedLocationState(location);
+  };
 
   return (
-    <LocationContext.Provider value={{ selectedLocation, setSelectedLocation }}>
+    <LocationContext.Provider value={{ selectedLocation: selectedLocation ?? '', setSelectedLocation }}>
       {children}
     </LocationContext.Provider>
   );

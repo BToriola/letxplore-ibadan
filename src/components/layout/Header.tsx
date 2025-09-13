@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { apiService, CityListResponse } from '@/services/api';
 import Image from 'next/image';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import AuthModal from '../ui/AuthModal';
@@ -36,13 +37,31 @@ const Header = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+  // Fetch cities from API
+  useEffect(() => {
+    let mounted = true;
+    apiService.getCities()
+      .then((res) => {
+        if (res.success && res.data && Array.isArray(res.data.cities) && mounted) {
+          setCities(res.data.cities);
+          // Only set selectedLocation if it is falsy (undefined or empty string)
+          if (res.data.cities.length > 0 && (!selectedLocation || selectedLocation === '')) {
+            setSelectedLocation(res.data.cities[0]);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to fetch cities:', err);
+      });
+    return () => { mounted = false; };
+  }, [setSelectedLocation, selectedLocation]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Filter suggestions based on search input and trigger API search with debouncing
   useEffect(() => {
     if (searchInput.trim() === '') {
       setSuggestions([]);
@@ -50,19 +69,25 @@ const Header = () => {
       return;
     }
 
-    const filtered = mockSuggestions.filter(suggestion =>
-      suggestion.toLowerCase().includes(searchInput.toLowerCase())
-    );
-    setSuggestions(filtered);
-    setShowSuggestions(true);
-    
-    // Debounce API search to prevent excessive calls
     const timeoutId = setTimeout(() => {
-      search(searchInput);
-    }, 500); // Wait 500ms after user stops typing
+      apiService
+        .searchPostsByNameDesc({
+          query: searchInput,
+          city: selectedLocation,
+          limit: 10,
+        })
+        .then((results) => {
+          setSuggestions(results.map(post => post.name));
+          setShowSuggestions(results.length > 0);
+        })
+        .catch(() => {
+          setSuggestions([]);
+          setShowSuggestions(false);
+        });
+    }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchInput, search]); // include 'search' to satisfy hook dependency rules
+  }, [searchInput, selectedLocation]);
 
   // Handle clicks outside dropdowns and search
   useEffect(() => {
@@ -72,7 +97,6 @@ const Header = () => {
       }
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
-        // Only collapse search expansion on mobile when clicking truly outside
         if (typeof window !== 'undefined' && window.innerWidth < 768 && isSearchExpanded) {
           setIsSearchExpanded(false);
         }
@@ -88,7 +112,6 @@ const Header = () => {
     };
   }, [isSearchExpanded]);
 
-  // Auto-focus input when search is expanded
   useEffect(() => {
     if (isSearchExpanded && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -100,7 +123,6 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className={`bg-black/10 backdrop-blur-4xl rounded-full ${isSearchExpanded ? 'px-0' : 'px-4 md:px-2 lg:px-3'}`}>
           <div className="flex items-center h-16 lg:h-20 relative md:justify-between">
-            {/* Location Dropdown */}
             <div
               className={`relative transition-opacity duration-300 ${
                 isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
@@ -128,9 +150,9 @@ const Header = () => {
                   <FiChevronDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                 )}
               </div>
-              {isDropdownOpen && (
+              {cities.length > 0 && isDropdownOpen && (
                 <div className="absolute left-0 mt-1 w-[180px] py-1 bg-black/25 backdrop-blur-[20px] rounded-lg shadow-lg z-50">
-                  {['Ibadan', 'Lagos', 'Abeokuta'].map((location) => (
+                  {cities.map((location) => (
                     <div
                       key={location}
                       className={`px-4 py-3 text-white cursor-pointer hover:bg-blue-900/50 ${
