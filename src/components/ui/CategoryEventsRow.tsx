@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { EventCardProps } from './EventCard';
 import CategoryEventCard from './CategoryEventCard';
 import { SeeAllArrowIcon, CarouselLeftArrowIcon, CarouselRightArrowIcon } from '../icons/SvgIcons';
+import { useSearch } from '../../contexts/SearchContext';
 
 interface CategoryEventsRowProps {
   categoryName: string;
@@ -20,8 +21,13 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
 
+  const { searchResults, isSearching } = useSearch();
+
   console.log('CategoryEventsRow mounted with category:', categoryName);
   console.log('Events for this category:', events);
+
+  // If we're searching and this is the default category, show search results instead
+  const displayEvents = isSearching && categoryName === 'Events' ? searchResults : events;
 
   const handleSeeAllClick = () => {
     const slug = categoryName
@@ -42,8 +48,10 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
   }, []);
 
   const shouldShowSeeAll = () => {
+    // Don't show "See all" when displaying search results
+    if (isSearching && categoryName === 'Events') return false;
     const threshold = isMobile ? 2 : 4;
-    return events.length > threshold;
+    return displayEvents.length > threshold;
   };
 
   const checkScrollPosition = () => {
@@ -78,7 +86,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
     }
   };
 
-  if (events.length === 0) return null;
+  if (displayEvents.length === 0) return null;
 
   return (
     <div className="px-3 mb-0 md:px-6">
@@ -104,7 +112,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
       </div>
 
       <div className="relative">
-        {events.length > 1 && (
+        {displayEvents.length > 1 && (
           <button
             className={`flex absolute left-0 top-[150px] -translate-y-1/2 z-10  rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollLeft ? 'opacity-30 cursor-default' : 'opacity-100'}`}
             onClick={scrollLeft}
@@ -116,7 +124,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
 
         <div
           ref={scrollContainerRef}
-          className={`flex ${events.length === 1 ? 'justify-start' : 'gap-6'} ${events.length > 1 ? 'gap-6' : ''} overflow-x-auto pb-5 scrollbar-hide snap-x`}
+          className={`flex ${displayEvents.length === 1 ? 'justify-start' : 'gap-6'} ${displayEvents.length > 1 ? 'gap-6' : ''} overflow-x-auto pb-5 scrollbar-hide snap-x`}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           onScroll={checkScrollPosition}
         >
@@ -126,7 +134,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
             }
           `}</style>
 
-          {events.map((event) => (
+          {displayEvents.map((event) => (
             <div
               key={event.id}
               className="flex-shrink-0 snap-start"
@@ -136,7 +144,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
           ))}
         </div>
 
-        {events.length > 1 && (
+        {displayEvents.length > 1 && (
           <button
             className={`flex absolute right-0 top-[150px] -translate-y-1/2 z-10  rounded-full p-2 shadow-sm items-center justify-center transition-opacity ${!canScrollRight ? 'opacity-30 cursor-default' : 'opacity-100'}`}
             onClick={scrollRight}

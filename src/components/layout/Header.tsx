@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import AuthModal from '../ui/AuthModal';
 import { useLocation } from '../../contexts/LocationContext';
-import { useSearch } from '../../hooks/useApi';
+import { useSearch } from '../../contexts/SearchContext';
 import { SearchIcon } from '../icons/SvgIcons';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth } from '@/lib/firebase';
@@ -26,7 +26,7 @@ const mockSuggestions = [
 
 const Header = () => {
   const { selectedLocation, setSelectedLocation } = useLocation();
-  const { search } = useSearch();
+  const { setSearchResults, setIsSearching } = useSearch();
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
@@ -66,6 +66,8 @@ const Header = () => {
     if (searchInput.trim() === '') {
       setSuggestions([]);
       setShowSuggestions(false);
+      setSearchResults([]);
+      setIsSearching(false);
       return;
     }
 
@@ -77,12 +79,30 @@ const Header = () => {
           limit: 10,
         })
         .then((results) => {
-          setSuggestions(results.map(post => post.name));
-          setShowSuggestions(results.length > 0);
+          // Only update suggestions if the search input hasn't changed
+          if (searchInput.trim() !== '') {
+            setSuggestions(results.map(post => post.name));
+            setShowSuggestions(results.length > 0);
+            // Update search results in context
+            setSearchResults(results.map(post => ({
+              id: post.id,
+              title: post.name,
+              description: post.description,
+              image: '/default.svg', // Using default image for search results
+              date: new Date(post.createdAt).toLocaleDateString(),
+              time: new Date(post.createdAt).toLocaleTimeString(),
+              location: post.city,
+              category: post.category,
+              price: 'Free' // Default price for search results
+            })));
+            setIsSearching(true);
+          }
         })
         .catch(() => {
           setSuggestions([]);
           setShowSuggestions(false);
+          setSearchResults([]);
+          setIsSearching(false);
         });
     }, 500);
 
@@ -161,6 +181,10 @@ const Header = () => {
                       onClick={() => {
                         setSelectedLocation(location);
                         setIsDropdownOpen(false);
+                        // Reset search when location changes
+                        setSearchResults([]);
+                        setIsSearching(false);
+                        setSearchInput('');
                       }}
                     >
                       {location}
