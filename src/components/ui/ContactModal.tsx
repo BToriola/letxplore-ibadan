@@ -2,11 +2,12 @@
 
 import React from "react";
 import { Whatsapp, Call } from "@/components/icons/SvgIcons";
+import { Post } from "@/services/api";
 
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
-  event?: any;
+  event?: Post;
 }
 
 const ContactModal = ({ isOpen, onClose, event }: ContactModalProps) => {

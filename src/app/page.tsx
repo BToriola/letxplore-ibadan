@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 
 import HeroSection from "@/components/ui/HeroSection";
 import EventsSection from "@/components/ui/EventsSection";
@@ -27,47 +27,16 @@ export default function Home() {
     city: selectedLocation,
   }), [selectedLocation]);
 
-  const { loading: postsLoading, error: postsError } = usePosts(postsFilters);
+  usePosts(postsFilters);
 
   // New hook for grouped posts by categories (fetch all posts from API)
   const { 
-    loading: groupedPostsLoading, 
-    error: groupedPostsError, 
     groupedPosts 
   } = usePostsByCategories(groupedPostsFilters);
 
 
-  // Log API status to console
-  useEffect(() => {
-    console.log('API Loading States:', {
-      posts: postsLoading,
-      groupedPosts: groupedPostsLoading
-    });
-  }, [postsLoading, groupedPostsLoading]);
-
-  useEffect(() => {
-    if (postsError || groupedPostsError) {
-      console.log('API Errors:', {
-        posts: postsError,
-        groupedPosts: groupedPostsError
-      });
-    }
-  }, [postsError, groupedPostsError]);
-
-  // Log grouped posts data structure
-  useEffect(() => {
-    if (groupedPosts && Object.keys(groupedPosts).length > 0) {
-      console.log('=== GROUPED POSTS BY CATEGORIES ===');
-      Object.entries(groupedPosts).forEach(([category, posts]) => {
-        console.log(`Category: ${category} - ${Array.isArray(posts) ? posts.length : 0} posts:`, posts);
-      });
-      console.log('=== END GROUPED POSTS ===');
-    }
-  }, [groupedPosts]);
-
   // Handler function to update the category in both components
   const handleCategoryChange = (category: string) => {
-    console.log('Category changed to:', category);
     setSharedCategory(category);
   };
 

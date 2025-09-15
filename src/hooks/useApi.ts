@@ -120,7 +120,13 @@ export const useComments = (postId: string | null) => {
       console.log('Comments response received:', response);
       
       if (response.success && response.data) {
-        setComments(response.data);
+        if (Array.isArray(response.data)) {
+          setComments(response.data);
+        } else if (typeof response.data === 'object' && response.data !== null) {
+          setComments(Object.values(response.data));
+        } else {
+          setComments([]);
+        }
       } else {
         setError(response.message || 'Failed to fetch comments');
       }

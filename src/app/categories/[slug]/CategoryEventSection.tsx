@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import EventCard, { EventCardProps } from '@/components/ui/EventCard';
 import { Post } from '../../../services/api';
+import { useSearch } from '@/contexts/SearchContext';
 
 interface CategoryEventSectionProps {
     categoryName: string;
@@ -13,6 +14,7 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
     categoryName, 
     groupedPosts = {} 
 }) => {
+    const { searchResults, isSearching } = useSearch();
     const [loading, setLoading] = useState(false);
     const [displayedEvents, setDisplayedEvents] = useState<EventCardProps[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -211,13 +213,15 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
         }, 800);
     };
 
+    const eventsToDisplay = isSearching ? searchResults : displayedEvents;
+
     return (
         <section className="py-6 md:py-6 bg-gray-50">
             <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                 <div className="text-left mb-6 md:mb-5">
                     <div className="mt-0 md:mt-2 flex items-center justify-between px-2 sm:px-0">
                         <div className="flex items-center space-x-2 overflow-hidden">
-                            <h1 className="text-base  text-[#1C1C1C] truncate">{categoryName}</h1>
+                            <h1 className="text-base  text-[#1C1C1C] truncate">{isSearching ? 'Search Results' : categoryName}</h1>
                         </div>
                         <div className="flex items-center space-x-2 flex-shrink-0">
                             <div ref={filterRef} className="relative inline-block">
@@ -430,8 +434,8 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0">
-                    {displayedEvents.length > 0 ? (
-                        displayedEvents.map((event, index) => (
+                    {eventsToDisplay.length > 0 ? (
+                        eventsToDisplay.map((event, index) => (
                             <div key={event.id} className="w-full animate-fadeIn" style={{ animationDelay: `${index * 0.05}s` }}>
                                 <EventCard {...event} navigationCategory={categoryName} />
                             </div>
@@ -443,16 +447,21 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <h3 className="text-xl font-medium text-[#1C1C1C]">No events found</h3>
+                            <h3 className="text-xl font-medium text-[#1C1C1C]">
+                                {isSearching ? 'No search results found' : 'No events found'}
+                            </h3>
                             <p className="mt-2 text-[#939393]">
-                                There are no {categoryName} events currently available.
+                                {isSearching 
+                                    ? 'Try a different search term.' 
+                                    : `There are no ${categoryName} events currently available.`
+                                }
                             </p>
                         </div>
                     )}
                 </div>
 
                 <div className="mt-10 text-center">
-                    {displayedEvents.length < getFilteredEvents().length && (
+                    {!isSearching && displayedEvents.length < getFilteredEvents().length && (
                         <button
                             className="bg-[#0063BF] hover:bg-[#0057A8] text-white font-medium py-3 px-6 rounded-xl transition-colors flex items-center justify-center mx-auto"
                             onClick={loadMoreEvents}
@@ -467,13 +476,18 @@ const CategoryEventSection: React.FC<CategoryEventSectionProps> = ({
                                     Loading...
                                 </>
                             ) : (
-                                'Load More Events'
+                                'Load More'
                             )}
                         </button>
                     )}
-                    {displayedEvents.length > 0 && (
+                    {!isSearching && displayedEvents.length > 0 && (
                         <div className="mt-4 text-sm text-[#939393]">
                             Showing {displayedEvents.length} of {getFilteredEvents().length} {categoryName} events
+                        </div>
+                    )}
+                    {isSearching && searchResults.length > 0 && (
+                        <div className="mt-4 text-sm text-[#939393]">
+                            Showing {searchResults.length} results
                         </div>
                     )}
                 </div>

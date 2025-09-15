@@ -14,7 +14,6 @@ import {
   // Delivery,
   // Dine,
   // Outdoor,
-  Card,
   // Ac,
   // Wifi,
   // Park,
@@ -45,7 +44,7 @@ import {
   FastFood,
 } from "@/components/icons/SvgIcons";
 import { useAuth } from "@/contexts/AuthContext";
-import { apiService } from "@/services/api";
+import { apiService, Post } from "@/services/api";
 
 interface ReviewComment {
   id: string;
@@ -860,7 +859,7 @@ export default function ClientEventDetail() {
                           'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
                         ];
                         let mainDay: string | null = null;
-                        let mainValue: any = null;
+                        let mainValue: unknown = null;
                         const openingHours = event.openingHours ?? {};
                         const entries = Object.entries(openingHours);
                         function formatTime(time: string) {
@@ -874,7 +873,7 @@ export default function ClientEventDetail() {
                           return `${hour}:${minute.padStart(2, '0')} ${ampm}`;
                         }
                         if (entries.length > 0) {
-                          const openEntry = entries.find(([, v]) => (v as any).status === 'open');
+                          const openEntry = entries.find(([, v]) => (v as { status: string }).status === 'open');
                           if (openEntry) {
                             [mainDay, mainValue] = openEntry;
                           } else {
@@ -886,8 +885,8 @@ export default function ClientEventDetail() {
                             <div className="flex items-center justify-between w-full cursor-pointer" onClick={() => setIsOpenHourExpanded(!isOpenHourExpanded)}>
                               <span className="text-xs text-[#1C1C1C] font-normal">
                                 {entries.length > 0 && mainDay && mainValue
-                                  ? ((mainValue as any).status === 'open'
-                                    ? `${formatTime((mainValue as any).openingTime)} - ${formatTime((mainValue as any).closingTime)}`
+                                  ? ((mainValue as { status: string }).status === 'open'
+                                    ? `${formatTime((mainValue as { openingTime: string }).openingTime)} - ${formatTime((mainValue as { closingTime: string }).closingTime)}`
                                     : 'Closed')
                                   : 'No opening hours info'}
                               </span>
@@ -945,7 +944,7 @@ export default function ClientEventDetail() {
                     <div className="flex md:justify-between items-stretch gap-2">
                       <a
                         href={
-                          (event as any).social_ig || (event as any).socials?.instagram || (event as any).instagram || '#'
+                          (event as Post).social_ig || (event as Post).socialMedia?.instagram || '#'
                         }
                         target="_blank"
                         rel="noopener noreferrer"
@@ -956,7 +955,7 @@ export default function ClientEventDetail() {
                       </a>
                       <a
                         href={
-                          (event as any).social_fb || (event as any).socials?.facebook || (event as any).facebook || '#'
+                          (event as Post).social_fb || (event as Post).socialMedia?.facebook || '#'
                         }
                         target="_blank"
                         rel="noopener noreferrer"
@@ -967,7 +966,7 @@ export default function ClientEventDetail() {
                       </a>
                       <a
                         href={
-                          (event as any).socials?.twitter || (event as any).socials?.x || (event as any).twitter || (event as any).x || '#'
+                          (event as Post).socialMedia?.twitter || '#'
                         }
                         target="_blank"
                         rel="noopener noreferrer"

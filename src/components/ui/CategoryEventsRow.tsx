@@ -23,11 +23,11 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
 
   const { searchResults, isSearching } = useSearch();
 
-  console.log('CategoryEventsRow mounted with category:', categoryName);
-  console.log('Events for this category:', events);
-
-  // If we're searching and this is the default category, show search results instead
-  const displayEvents = isSearching && categoryName === 'Events' ? searchResults : events;
+  const displayEvents = isSearching
+    ? events.filter(event => 
+        searchResults.some(searchResult => searchResult.id === event.id)
+      )
+    : events;
 
   const handleSeeAllClick = () => {
     const slug = categoryName
@@ -49,7 +49,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
 
   const shouldShowSeeAll = () => {
     // Don't show "See all" when displaying search results
-    if (isSearching && categoryName === 'Events') return false;
+    if (isSearching) return false;
     const threshold = isMobile ? 2 : 4;
     return displayEvents.length > threshold;
   };
@@ -70,7 +70,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
     return () => {
       window.removeEventListener('resize', checkScrollPosition);
     };
-  }, []);
+  }, [displayEvents]);
 
   const scrollLeft = () => {
     const container = scrollContainerRef.current;

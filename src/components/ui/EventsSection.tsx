@@ -37,8 +37,6 @@ const EventsSection: React.FC<EventsSectionProps> = ({
         const apiCategories = Object.keys(groupedPosts).filter(category => 
             groupedPosts[category] && groupedPosts[category].length > 0
         );
-        console.log('=== EVENTS SECTION API CATEGORIES ===');
-        console.log('Available API categories with data:', apiCategories);
         return apiCategories;
     };
 
@@ -46,13 +44,9 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     const getApiCategoryEvents = useCallback((category: string): EventCardProps[] => {
         const apiEvents = groupedPosts[category];
         if (apiEvents && apiEvents.length > 0) {
-            console.log(`=== API EVENTS FOR CATEGORY: ${category} ===`);
-            console.log(`Found ${apiEvents.length} events for ${category}:`, apiEvents);
             const transformedEvents = apiEvents.map(transformPostToEventCard);
-            console.log(`Transformed events for ${category}:`, transformedEvents);
             return transformedEvents;
         }
-        console.log(`=== NO DATA FOR CATEGORY: ${category} ===`);
         return [];
     }, [groupedPosts, transformPostToEventCard]);
     const [loading, setLoading] = useState(false);
@@ -159,12 +153,8 @@ const EventsSection: React.FC<EventsSectionProps> = ({
     };
 
     const getCategoryEvents = (categoryName: string) => {
-        console.log(`=== GETTING EVENTS FOR CATEGORY: ${categoryName} ===`);
-        console.log('Current groupedPosts:', groupedPosts);
-        console.log('Available API categories:', Object.keys(groupedPosts));
         // Use API data only
         const events = getApiCategoryEvents(categoryName);
-        console.log(`Final events returned for ${categoryName}:`, events);
         return events;
     };
 

@@ -2,11 +2,12 @@
 
 import React from "react";
 import { Instagram, Facebook, Website } from "@/components/icons/SvgIcons";
+import { Post } from "@/services/api";
 
 interface LinksModalProps {
   isOpen: boolean;
   onClose: () => void;
-  event?: any;
+  event?: Post;
 }
 
 const LinksModal = ({ isOpen, onClose, event }: LinksModalProps) => {

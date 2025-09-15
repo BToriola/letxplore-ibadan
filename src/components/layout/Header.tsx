@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { apiService, CityListResponse } from '@/services/api';
+import { apiService } from '@/services/api';
 import Image from 'next/image';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import AuthModal from '../ui/AuthModal';
@@ -11,18 +11,6 @@ import { SearchIcon } from '../icons/SvgIcons';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-
-// Mock suggestions data
-const mockSuggestions = [
-  "Art exhibitions in Ibadan",
-  "Music festivals",
-  "Coffee shops in Bodija",
-  "Weekend events",
-  "Restaurants in Ibadan",
-  "Tech meetups",
-  "Cultural festivals",
-  "Outdoor activities"
-];
 
 const Header = () => {
   const { selectedLocation, setSelectedLocation } = useLocation();
@@ -107,7 +95,7 @@ const Header = () => {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchInput, selectedLocation]);
+  }, [searchInput, selectedLocation, setIsSearching, setSearchResults]);
 
   // Handle clicks outside dropdowns and search
   useEffect(() => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { apiService, CityListResponse } from '@/services/api';
+import { apiService } from '@/services/api';
 import Image from "next/image";
 import { FiChevronDown } from "react-icons/fi";
 import { LogoMini, WhiteIcon, SearchIcon, BlueUserIcon } from "../icons/SvgIcons";
