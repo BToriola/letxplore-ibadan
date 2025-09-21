@@ -1,5 +1,5 @@
 import React from "react";
-import { apiService } from '@/services/api';
+import { apiService, SearchPostResult } from '@/services/api';
 import Image from "next/image";
 import { FiChevronDown } from "react-icons/fi";
 import { LogoMini, WhiteIcon, SearchIcon, BlueUserIcon } from "../icons/SvgIcons";
@@ -25,9 +25,20 @@ const DetailPageHeader = () => {
     const searchRef = React.useRef<HTMLDivElement>(null);
     const searchInputRef = React.useRef<HTMLInputElement>(null);
     const profileDropdownRef = React.useRef<HTMLDivElement>(null);
-    const [suggestions, setSuggestions] = React.useState<string[]>([]);
+    const [suggestions, setSuggestions] = React.useState<SearchPostResult[]>([]);
 
     const [cities, setCities] = React.useState<string[]>(["Ibadan"]);
+
+    const slugify = (text: string) => {
+        return text
+          .toString()
+          .toLowerCase()
+          .replace(/\s+/g, '-')           // Replace spaces with -
+          .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+          .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+          .replace(/^-+/, '')             // Trim - from start of text
+          .replace(/-+$/, '');            // Trim - from end of text
+      }
 
     // Fetch cities from API
     React.useEffect(() => {
@@ -69,7 +80,7 @@ const DetailPageHeader = () => {
             .then((results) => {
               // Only update suggestions if the search input hasn't changed
               if (searchInput.trim() !== '') {
-                setSuggestions(results.map(post => post.name));
+                setSuggestions(results);
                 setShowSuggestions(results.length > 0);
               }
             })
@@ -217,14 +228,15 @@ const DetailPageHeader = () => {
                                                 key={index}
                                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                                                 onClick={() => {
-                                                    setSearchInput(suggestion);
+                                                    setSearchInput(suggestion.name);
                                                     setShowSuggestions(false);
                                                     if (typeof window !== 'undefined' && window.innerWidth < 768) {
                                                         setIsSearchExpanded(false);
                                                     }
+                                                    router.push(`/${suggestion.category}/${suggestion.id}/${slugify(suggestion.name)}`);
                                                 }}
                                             >
-                                                {suggestion}
+                                                {suggestion.name}
                                             </button>
                                         ))}
                                 </div>
