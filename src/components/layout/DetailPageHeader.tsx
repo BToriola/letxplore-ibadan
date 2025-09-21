@@ -25,14 +25,8 @@ const DetailPageHeader = () => {
     const searchRef = React.useRef<HTMLDivElement>(null);
     const searchInputRef = React.useRef<HTMLInputElement>(null);
     const profileDropdownRef = React.useRef<HTMLDivElement>(null);
+    const [suggestions, setSuggestions] = React.useState<string[]>([]);
 
-    // Mock suggestions data
-    const mockSuggestions = [
-        "Art exhibitions in Ibadan",
-        "Music festivals",
-        "Coffee shops in Bodija",
-        "Weekend events",
-    ];
     const [cities, setCities] = React.useState<string[]>(["Ibadan"]);
 
     // Fetch cities from API
@@ -57,6 +51,36 @@ const DetailPageHeader = () => {
             setShowSuggestions(true);
         }
     }, [searchInput]);
+
+    React.useEffect(() => {
+        if (searchInput.trim() === '') {
+          setSuggestions([]);
+          setShowSuggestions(false);
+          return;
+        }
+    
+        const timeoutId = setTimeout(() => {
+          apiService
+            .searchPostsByNameDesc({
+              query: searchInput,
+              city: selectedLocation,
+              limit: 10,
+            })
+            .then((results) => {
+              // Only update suggestions if the search input hasn't changed
+              if (searchInput.trim() !== '') {
+                setSuggestions(results.map(post => post.name));
+                setShowSuggestions(results.length > 0);
+              }
+            })
+            .catch(() => {
+              setSuggestions([]);
+              setShowSuggestions(false);
+            });
+        }, 500);
+    
+        return () => clearTimeout(timeoutId);
+      }, [searchInput, selectedLocation]);
 
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -188,11 +212,7 @@ const DetailPageHeader = () => {
                                     ? 'left-4 right-4 top-full mt-2'
                                     : 'left-0 right-0 top-full mt-1'
                                     }`}>
-                                    {mockSuggestions
-                                        .filter((suggestion) =>
-                                            suggestion.toLowerCase().includes(searchInput.toLowerCase())
-                                        )
-                                        .map((suggestion, index) => (
+                                    {suggestions.map((suggestion, index) => (
                                             <button
                                                 key={index}
                                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
