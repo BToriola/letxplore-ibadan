@@ -131,34 +131,25 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
   // Fetch comments immediately when component mounts (only once)
   React.useEffect(() => {
     if (hasInitialized) {
-      console.log('=== SKIPPING FETCH - ALREADY INITIALIZED ===');
       return;
     }
-    
-    console.log('=== REVIEWS SECTION MOUNTED ===');
-    
-    const fetchAllComments = async () => {
-      console.log('=== STARTING COMMENT FETCH ===');
-      
+        
+    const fetchAllComments = async () => {      
       try {
         const postIds = getPostIds();
         const allComments: Comment[] = [];
 
-        // Build a quick lookup of posts by id from groupedPosts so we can attach
-        // the referenced post's image and title to each comment fetched.
+
         const postsById: Record<string, Post> = {};
         Object.values(groupedPosts).forEach(categoryPosts => {
           categoryPosts.forEach(p => { postsById[p.id] = p; });
         });
         
-        for (const postId of postIds) {
-          console.log(`=== FETCHING COMMENTS FOR ${postId} ===`);
-          
+        for (const postId of postIds) {          
           const response = await fetch(`https://stagging-letsxplore-b957bddd5479.herokuapp.com/posts/${postId}/comments`);
           
           if (response.ok) {
             const commentsData = await response.json();
-            console.log(`Comments for ${postId}:`, commentsData);
 
                 if (Array.isArray(commentsData)) {
                   const post = postsById[postId];
@@ -178,11 +169,9 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
           }
         }
         
-        console.log('=== TOTAL COMMENTS FETCHED ===', allComments.length);
         setApiComments(allComments);
         setHasInitialized(true);
       } catch (err) {
-        console.error('Error fetching comments:', err);
         setError('Failed to load reviews');
         setHasInitialized(true);
       } finally {
@@ -191,12 +180,9 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
     };
 
     fetchAllComments();
-  }, [hasInitialized, getPostIds, groupedPosts]); // Depend on hasInitialized, getPostIds and groupedPosts
+  }, [hasInitialized, getPostIds, groupedPosts]); 
 
-  // Transform API comments to reviews format
   const apiReviews = React.useMemo(() => {
-    console.log('=== TRANSFORMING API COMMENTS TO REVIEWS ===');
-    console.log('apiComments:', apiComments);
     
   return apiComments.map((comment): Review => {
       const createdDate = new Date(comment.createdAt);
@@ -212,7 +198,6 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
         timeAgo = `${Math.floor(diffInMinutes / 1440)} days ago`;
       }
 
-      // Safely access optional postTitle without using `any`
       const postTitle = (typeof comment === 'object' && comment !== null && 'postTitle' in comment) ? (comment as { postTitle?: string }).postTitle : undefined;
       return {
         id: comment.id,
@@ -288,7 +273,6 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
             ))}
           </div>
         ) : displayReviews.length === 0 ? (
-          // No Reviews Available
           <div className="text-center py-16">
             <div className="text-6xl mb-4">💬</div>
             <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">No Reviews Yet</h3>

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Star, StarEmpty } from "@/components/icons/SvgIcons";
 import { useComments } from "@/hooks/useApi";
+import { useAuth } from "@/contexts/AuthContext";
 
 import type { Comment } from '@/services/api';
 
@@ -11,18 +12,26 @@ interface ReviewsModalProps {
     isOpen: boolean;
     onClose: () => void;
     eventId: string;
+    comments: Comment[];
+    loading: boolean;
+    error: string | null;
+    onCommentAdded: () => void;
 }
 
-const ReviewsModal = ({ isOpen, onClose, eventId }: ReviewsModalProps) => {
+const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCommentAdded }: ReviewsModalProps) => {
     const [selectedRating, setSelectedRating] = useState<number>(0);
     const [reviewText, setReviewText] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const { currentUser } = useAuth();
     
-    console.log('ReviewsModal eventId:', eventId);
-    
-    const { comments = [], loading, error, addComment } = useComments(eventId);
+    const { addComment } = useComments(eventId);
 
     const handleSubmit = async () => {
+        if (!currentUser) {
+            alert("Please log in to submit a review.");
+            return;
+        }
+
         if (!selectedRating || !reviewText.trim()) {
             alert("Please provide both a rating and review text");
             return;
@@ -30,27 +39,19 @@ const ReviewsModal = ({ isOpen, onClose, eventId }: ReviewsModalProps) => {
 
         setIsSubmitting(true);
         try {
-            console.log('Submitting review with data:', {
-                content: reviewText.trim(),
-                rating: selectedRating,
-                userId: "user-123",
-                username: "Anonymous User"
-            });
-            
             await addComment({
                 content: reviewText.trim(),
-                rating: selectedRating,
-                userId: "user-123", // TODO: Replace with actual user ID from authentication
-                username: "Anonymous User" // TODO: Replace with actual username from authentication
+                rate: selectedRating,
+                userId: currentUser.uid,
+                username: currentUser.displayName || "Anonymous User",
             });
-            
-            console.log('Review submitted successfully');
             
             // Reset form
             setSelectedRating(0);
             setReviewText("");
             
             alert("Review submitted successfully!");
+            onCommentAdded();
             
             // Optionally close modal after successful submission
             // onClose();

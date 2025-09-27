@@ -95,7 +95,7 @@ interface CreateCommentData {
   content: string;
   userId: string;
   username: string;
-  rating?: number;
+  rate?: number;
 }
 
 interface SavePostResponse {
@@ -133,21 +133,16 @@ class ApiService {
     };
 
     try {
-      console.log(`Making API request to: ${url}`);
-      console.log('Request options:', { ...options, headers: defaultHeaders });
-      
       const response = await fetch(url, {
         ...options,
         headers: defaultHeaders,
       });
 
-      console.log(`Response status: ${response.status}`);
 
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
           const errorData = await response.text();
-          console.log('Error response body:', errorData);
           errorMessage += ` - ${errorData}`;
         } catch {
           console.log('Could not read error response body');

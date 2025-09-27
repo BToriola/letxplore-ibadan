@@ -50,15 +50,16 @@ interface ReviewComment {
   id: string;
   username: string;
   createdAt: string;
-  rating?: number;
+  rate?: number;
   content: string;
+  userAvatar?: string;
 }
 
 const ReviewCard = ({ comment }: { comment: ReviewComment }) => (
   <div className="bg-[#f4f4f4] rounded-2xl p-4">
     <div className="flex items-center mb-2">
       <Image
-        src="/default.svg"
+        src={comment.userAvatar || "/default.svg"}
         alt={comment.username}
         width={40}
         height={40}
@@ -76,13 +77,13 @@ const ReviewCard = ({ comment }: { comment: ReviewComment }) => (
         </p>
       </div>
     </div>
-    {comment.rating && (
+    {comment.rate && (
       <div className="flex text-[#FFA300] mb-2 space-x-1">
-        {Array.from({ length: Math.floor(comment.rating) }).map((_, i) => (
+        {Array.from({ length: Math.floor(comment.rate) }).map((_, i) => (
           <Star key={i} width={16} height={16} />
         ))}
-        {comment.rating % 1 !== 0 && <StarHalf width={16} height={16} />}
-        {Array.from({ length: 5 - Math.ceil(comment.rating) }).map((_, i) => (
+        {comment.rate % 1 !== 0 && <StarHalf width={16} height={16} />}
+        {Array.from({ length: 5 - Math.ceil(comment.rate) }).map((_, i) => (
           <StarEmpty key={i} width={16} height={16} />
         ))}
       </div>
@@ -189,15 +190,24 @@ export default function ClientEventDetail() {
   const category = params.category as string;
   const { currentUser } = useAuth();
 
+
+  console.log("Current User:", currentUser);
+
+  
+
   // Use the usePostDetail hook to fetch event data
   const { loading, error, post: event } = usePostDetail(eventId);
 
-  // Use useComments hook to fetch and manage comments
   const {
     loading: commentsLoading,
     error: commentsError,
-    comments
+    comments,
+    refetch: refetchComments
   } = useComments(eventId);
+  
+
+  console.log("Comments:", comments);
+  
 
   // Memoize the filters object to prevent unnecessary API calls
   // const similarEventsFilters = useMemo(() => ({
@@ -590,7 +600,7 @@ export default function ClientEventDetail() {
                     </div>
                   ) : comments.length > 0 ? (
                     <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:pb-0">
-                      {comments.slice(0, 3).map((comment) => (
+                      {[...comments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 3).map((comment) => (
                         <div key={comment.id} className="w-72 flex-shrink-0 md:w-auto md:flex-shrink">
                           <ReviewCard comment={comment} />
                         </div>
@@ -688,7 +698,7 @@ export default function ClientEventDetail() {
                       {similarEvents
                         .slice(0, 6)
                         .map((similarEvent) => (
-                          <Link key={similarEvent.id} href={`/${category}/${similarEvent.id}/${similarEvent.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}`}>
+                          <Link key={similarEvent.id} href={`/${category}/${similarEvent.id}/${similarEvent.name.toLowerCase().replace(/\s+/g, '-')}`}>
                             <div className="bg-[#f4f4f4] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow p-2 w-[280px] flex-shrink-0">
                               <div className="relative rounded-lg overflow-hidden" style={{ height: "200px" }}>
                                 <Image
@@ -1027,7 +1037,7 @@ export default function ClientEventDetail() {
                   .map((similarEvent) => (
                     <Link
                       key={similarEvent.id}
-                      href={`/${category}/${similarEvent.id}/${similarEvent.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}`}
+                      href={`/${category}/${similarEvent.id}/${similarEvent.name.toLowerCase().replace(/\s+/g, '-')}`}
                       onClick={() => {
                         setTimeout(() => {
                           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1086,6 +1096,10 @@ export default function ClientEventDetail() {
         isOpen={isReviewsModalOpen}
         onClose={() => setIsReviewsModalOpen(false)}
         eventId={eventId}
+        comments={comments}
+        loading={commentsLoading}
+        error={commentsError}
+        onCommentAdded={refetchComments}
       />
     </div>
   );
