@@ -172,6 +172,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
         setApiComments(allComments);
         setHasInitialized(true);
       } catch (err) {
+        console.error('Failed to load reviews:', err);
         setError('Failed to load reviews');
         setHasInitialized(true);
       } finally {

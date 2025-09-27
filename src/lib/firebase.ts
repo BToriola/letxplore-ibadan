@@ -39,7 +39,6 @@ if (typeof window !== 'undefined' && hasFullConfig) {
     // Fail gracefully; don't crash prerender/build if something goes wrong here.
     // Client-side usage can still check for null and show fallback UI.
     // Log for debugging in dev/prod logs.
-    // eslint-disable-next-line no-console
     console.error('Failed to initialize Firebase on client:', err);
     app = null;
     auth = null;
@@ -49,7 +48,6 @@ if (typeof window !== 'undefined' && hasFullConfig) {
 } else if (!hasFullConfig) {
   // If config is missing, log but do not throw — server-side prerender must not fail.
   if (process.env.NODE_ENV !== 'test') {
-    // eslint-disable-next-line no-console
     console.warn('Firebase configuration incomplete. Firebase not initialized.');
   }
 }
