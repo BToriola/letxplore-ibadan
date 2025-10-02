@@ -165,6 +165,8 @@ const DetailPageHeader = () => {
                                             onClick={() => {
                                                 setSelectedLocation(location);
                                                 setIsDropdownOpen(false);
+                                                router.push("/"); 
+
                                             }}
                                         >
                                             {location}

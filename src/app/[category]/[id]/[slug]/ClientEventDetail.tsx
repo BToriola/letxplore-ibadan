@@ -46,6 +46,7 @@ import {
 } from "@/components/icons/SvgIcons";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiService, Post, Comment } from "@/services/api";
+import ImageModal from "@/components/ui/ImageGalleryModal";
 
 const ReviewCard = ({ comment }: { comment: Comment }) => (
   <div className="bg-[#f4f4f4] rounded-2xl p-4">
@@ -138,7 +139,7 @@ const MoreDropdown = ({ isOpen, onClose, onWriteReview }: MoreDropdownProps) => 
   return (
     <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 more-dropdown">
       <div className="">
-        <button 
+        <button
           className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3"
           onClick={() => {
             onWriteReview();
@@ -156,7 +157,7 @@ const MoreDropdown = ({ isOpen, onClose, onWriteReview }: MoreDropdownProps) => 
           </div>
           <span className="text-xs text-[#1c1c1c]">Menu</span>
         </button>
-        <button 
+        <button
           className="w-full px-4 py-2 text-left hover:bg-[#0063BF1A]/[0.1] hover:rounded-lg flex items-center gap-3"
           onClick={() => setIsSaved((prev) => !prev)}
         >
@@ -202,7 +203,7 @@ export default function ClientEventDetail() {
 
   console.log("Current User:", currentUser);
 
-  
+
 
   const { loading, error, post: event } = usePostDetail(eventId);
 
@@ -224,8 +225,8 @@ export default function ClientEventDetail() {
     const sum = ratings.reduce((acc, r) => acc + r, 0);
     return sum / ratings.length;
   }, [comments]);
-  
-  
+
+
   const similarEvents: Array<{ id: string; name: string; featuredImageUrl?: string; images?: string[]; address?: string; category?: string; price?: string }> = [];
 
   const [showDesktopArrows, setShowDesktopArrows] = React.useState(false);
@@ -238,6 +239,8 @@ export default function ClientEventDetail() {
   const [activeActionButton, setActiveActionButton] = React.useState<string | null>('direction');
   const [isBookmarked, setIsBookmarked] = React.useState(false);
   const [isShared, setIsShared] = React.useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = React.useState<number | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
   const desktopContainerRef = React.useRef<HTMLDivElement>(null);
   const mobileContainerRef = React.useRef<HTMLDivElement>(null);
 
@@ -287,6 +290,7 @@ export default function ClientEventDetail() {
   };
 
 
+
   const getDynamicButtonConfig = (ctaType: string | undefined, isMobile: boolean = false) => {
     switch (ctaType) {
       case 'getTicket':
@@ -315,6 +319,23 @@ export default function ClientEventDetail() {
         };
     }
   };
+
+  const handleDynamicButtonClick = () => {
+    setActiveActionButton(
+      activeActionButton === mobileDynamicButtonConfig.action
+        ? null
+        : mobileDynamicButtonConfig.action
+    );
+
+    if (event?.ctaLink) {
+      if (event.ctaLink.startsWith('mailto:')) {
+        window.location.href = event.ctaLink;
+      } else {
+        window.open(event.ctaLink, '_blank', 'noopener,noreferrer');
+      }
+    }
+  };
+
 
   // Use event?.ctaType from API response for button config
   const mobileDynamicButtonConfig = getDynamicButtonConfig(event?.ctaType, true);
@@ -543,7 +564,7 @@ export default function ClientEventDetail() {
                           icon={mobileDynamicButtonConfig.icon}
                           label={mobileDynamicButtonConfig.label}
                           isActive={activeActionButton === mobileDynamicButtonConfig.action}
-                          onClick={() => setActiveActionButton(activeActionButton === mobileDynamicButtonConfig.action ? null : mobileDynamicButtonConfig.action)}
+                          onClick={handleDynamicButtonClick}
                           isDynamicButton={true}
                         />
                         <div className="relative">
@@ -586,7 +607,6 @@ export default function ClientEventDetail() {
                     </p>
                   </div>
 
-                  {/* More Images section - first on mobile (order-1), second on desktop (order-2) */}
                   <div className="mb-10 order-1 md:order-2">
                     <h2 className="text-xs text-[#1c1c1c] font-semibold mb-4">More Images</h2>
                     <div className="relative">
@@ -598,13 +618,17 @@ export default function ClientEventDetail() {
                           ).map((imgUrl: string, i: number) => (
                             <div
                               key={i}
-                              className="relative w-[160px] h-[184px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
+                              className="relative w-[160px] h-[184px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
+                              onClick={() => {
+                                setSelectedImageIndex(i);
+                                setIsImageModalOpen(true);
+                              }}
                             >
                               <Image
                                 src={imgUrl}
                                 alt={`Gallery image ${i}`}
                                 fill
-                                className="object-cover hover:scale-110 transition-transform cursor-pointer"
+                                className="object-cover hover:scale-110 transition-transform"
                                 sizes="(max-width: 768px) 160px, 160px"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
@@ -839,7 +863,7 @@ export default function ClientEventDetail() {
                     icon={desktopDynamicButtonConfig.icon}
                     label={desktopDynamicButtonConfig.label}
                     isActive={activeActionButton === desktopDynamicButtonConfig.action}
-                    onClick={() => setActiveActionButton(activeActionButton === desktopDynamicButtonConfig.action ? null : desktopDynamicButtonConfig.action)}
+                    onClick={handleDynamicButtonClick}
                     isDynamicButton={true}
                   />
                   <div className="relative">
@@ -1107,6 +1131,24 @@ export default function ClientEventDetail() {
           </div>
         </div>
       </main>
+
+      {/* Image Gallery Modal */}
+      {isImageModalOpen && selectedImageIndex !== null && (
+        <ImageModal
+          isOpen={isImageModalOpen}
+          onClose={() => {
+            setIsImageModalOpen(false);
+            setSelectedImageIndex(null);
+          }}
+          images={
+            event.galleryImageUrls && event.galleryImageUrls.length > 0
+              ? event.galleryImageUrls
+              : Array(8).fill("/default.svg")
+          }
+          selectedIndex={selectedImageIndex}
+          onNavigate={setSelectedImageIndex}
+        />
+      )}
 
       {/* Reviews Modal */}
       <ReviewsModal
