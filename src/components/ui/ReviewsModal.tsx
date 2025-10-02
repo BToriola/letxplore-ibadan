@@ -75,8 +75,9 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-end md:items-center justify-center md:p-4">
-            <div className="bg-white rounded-t-3xl md:rounded-lg w-full h-[calc(100vh-140px)] md:max-w-2xl md:w-full md:max-h-[90vh] md:h-auto overflow-hidden md:px-6">
-                <div className="flex items-center justify-between pt-6 px-6 md:pt-10">
+            <div className="bg-white rounded-t-3xl md:rounded-lg w-full h-[calc(100vh-140px)] md:max-w-2xl md:w-full md:max-h-[90vh] overflow-hidden flex flex-col md:px-6">
+                {/* Header */}
+                <div className="flex items-center justify-between pt-6 px-6 md:pt-10 flex-shrink-0">
                     <h2 className="text-lg md:text-sm font-semibold text-[#1c1c1c]">Ratings and reviews</h2>
                     <button
                         onClick={onClose}
@@ -89,7 +90,7 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
                 </div>
 
                 {/* Star Rating Section */}
-                <div className="px-6 py-4 md:p-6">
+                <div className="px-6 py-4 md:p-6 flex-shrink-0">
                     <div className="flex text-[#FFA300] mb-4 space-x-1">
                         {Array.from({ length: 5 }).map((_, i) => {
                             const starIndex = i + 1;
@@ -124,8 +125,8 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
                     </button>
                 </div>
 
-                {/* Reviews List */}
-                <div className="flex-1 overflow-y-auto px-6 pb-6 md:overflow-y-auto md:max-h-96 md:px-0 md:pb-0">
+                {/* Reviews List - Scrollable */}
+                <div className="flex-1 overflow-y-auto px-6 pb-6 md:max-h-96 md:px-0 md:pb-0">
                     {loading ? (
                         <div className="flex justify-center items-center py-8">
                             <div className="text-sm text-gray-500">Loading reviews...</div>
@@ -160,10 +161,10 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
                                         </p>
                                     </div>
                                 </div>
-                                {comment.rating && (
+                                {comment.rate && (
                                     <div className="flex text-[#FFA300] mb-3 space-x-1">
                                         {Array.from({ length: 5 }).map((_, j) => (
-                                            j < comment.rating! ? (
+                                            j < comment.rate! ? (
                                                 <Star key={j} width={16} height={16} />
                                             ) : (
                                                 <StarEmpty key={j} width={16} height={16} />
