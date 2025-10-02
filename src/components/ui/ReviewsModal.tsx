@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Star, StarEmpty } from "@/components/icons/SvgIcons";
 import { useComments } from "@/hooks/useApi";
@@ -25,6 +25,31 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
     const { currentUser } = useAuth();
     
     const { addComment } = useComments(eventId);
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+        } else {
+            const scrollY = document.body.style.top;
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        }
+
+        return () => {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     const handleSubmit = async () => {
         if (!currentUser) {
@@ -52,9 +77,6 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
             
             alert("Review submitted successfully!");
             onCommentAdded();
-            
-            // Optionally close modal after successful submission
-            // onClose();
         } catch (error) {
             console.error("Failed to submit review:", error);
             
@@ -74,14 +96,21 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-end md:items-center justify-center md:p-4">
-            <div className="bg-white rounded-t-3xl md:rounded-lg w-full h-[calc(100vh-140px)] md:max-w-2xl md:w-full md:max-h-[90vh] overflow-hidden flex flex-col md:px-6">
+        <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center md:p-4"
+            onClick={onClose}
+        >
+            <div 
+                className="bg-white rounded-t-3xl md:rounded-lg w-full h-[90vh] md:max-w-2xl md:w-full md:max-h-[90vh] overflow-hidden flex flex-col md:px-6 reviews-modal"
+                onClick={(e) => e.stopPropagation()}
+            >
                 {/* Header */}
                 <div className="flex items-center justify-between pt-6 px-6 md:pt-10 flex-shrink-0">
                     <h2 className="text-lg md:text-sm font-semibold text-[#1c1c1c]">Ratings and reviews</h2>
                     <button
                         onClick={onClose}
                         className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                        aria-label="Close"
                     >
                         <svg className="w-6 h-6 text-[#1c1c1c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -99,6 +128,7 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
                                     key={i}
                                     onClick={() => setSelectedRating(starIndex)}
                                     className="transition-all hover:scale-110 transform"
+                                    type="button"
                                 >
                                     {starIndex <= selectedRating ? (
                                         <Star width={24} height={24} />
@@ -120,13 +150,14 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
                         onClick={handleSubmit}
                         disabled={isSubmitting || !selectedRating || !reviewText.trim()}
                         className="w-full mt-4 bg-[#0063BF] text-white text-base py-4 rounded-2xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        type="button"
                     >
                         {isSubmitting ? "Submitting..." : "Submit"}
                     </button>
                 </div>
 
-                {/* Reviews List - Scrollable */}
-                <div className="flex-1 overflow-y-auto px-6 pb-6 md:max-h-96 md:px-0 md:pb-0">
+                {/* Reviews List - Scrollable with touch support */}
+                <div className="flex-1 overflow-y-auto px-6 pb-6 md:max-h-96 md:px-0 md:pb-0 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                     {loading ? (
                         <div className="flex justify-center items-center py-8">
                             <div className="text-sm text-gray-500">Loading reviews...</div>
