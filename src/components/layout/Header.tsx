@@ -20,10 +20,9 @@ const Header = () => {
   const [searchInput, setSearchInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const { currentUser } = useAuth();
+  const { currentUser, isAuthModalOpen, openAuthModal, closeAuthModal } = useAuth();
   const isAuthenticated = !!currentUser;
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchPostResult[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
@@ -269,7 +268,7 @@ const Header = () => {
               {!isAuthenticated ? (
                 <button
                   className="bg-white rounded-full py-1 px-3 md:py-3 md:px-5 cursor-pointer hover:bg-opacity-90 transition-colors flex items-center gap-1 md:gap-2 shadow-sm"
-                  onClick={() => setIsAuthModalOpen(true)}
+                  onClick={openAuthModal}
                 >
                   <span className="text-gray-900 font-medium text-xs md:text-base md:py-0 py-1">Sign up</span>
                   <div className="flex items-center justify-center">
@@ -335,8 +334,8 @@ const Header = () => {
       {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onAuthenticated={() => setIsAuthModalOpen(false)}
+        onClose={closeAuthModal}
+        onAuthenticated={closeAuthModal}
       />
     </header>
   );

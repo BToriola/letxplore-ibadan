@@ -15,9 +15,8 @@ const DetailPageHeader = () => {
     const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
     const [searchInput, setSearchInput] = React.useState("");
     const [showSuggestions, setShowSuggestions] = React.useState(false);
-    const { currentUser } = useAuth();
+    const { currentUser, isAuthModalOpen, openAuthModal, closeAuthModal } = useAuth();
     const isAuthenticated = !!currentUser;
-    const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = React.useState(false);
     const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
 
@@ -252,7 +251,7 @@ const DetailPageHeader = () => {
                         {!isAuthenticated ? (
                             <button
                                 className="flex items-center space-x-1 py-2 px-2 lg:px-4 lg:py-3 rounded-full bg-white  transition-colors ml-2"
-                                onClick={() => setIsAuthModalOpen(true)}
+                                onClick={openAuthModal}
                                 aria-label="Sign up"
                             >
                                 <span className="text-xs lg:text-sm font-medium text-[#0063BF] lg:text-[#0063BF] whitespace-nowrap">Sign up</span>
@@ -307,8 +306,8 @@ const DetailPageHeader = () => {
                     {/* Auth Modal */}
                     <AuthModal
                         isOpen={isAuthModalOpen}
-                        onClose={() => setIsAuthModalOpen(false)}
-                        onAuthenticated={() => setIsAuthModalOpen(false)}
+                        onClose={closeAuthModal}
+                        onAuthenticated={closeAuthModal}
                     />
                 </div>
             </div>

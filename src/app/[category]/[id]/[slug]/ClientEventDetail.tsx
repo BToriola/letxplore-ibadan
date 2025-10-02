@@ -197,7 +197,7 @@ export default function ClientEventDetail() {
   const params = useParams();
   const eventId = params.id as string;
   const category = params.category as string;
-  const { currentUser } = useAuth();
+  const { currentUser, openAuthModal } = useAuth();
 
 
   console.log("Current User:", currentUser);
@@ -243,7 +243,9 @@ export default function ClientEventDetail() {
 
   const handleSavePost = async () => {
     if (!currentUser) {
-      alert("Please log in to save posts.");
+      if (confirm("Please log in to save posts. Do you want to log in now?")) {
+        openAuthModal();
+      }
       return;
     }
     try {
@@ -252,6 +254,35 @@ export default function ClientEventDetail() {
     } catch (error) {
       console.error("Error saving post:", error);
       alert("Failed to save post.");
+    }
+  };
+
+  const handleShare = async () => {
+    if (!event) return;
+
+    const shareData = {
+      title: event.name,
+      text: event.name,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        setIsShared(true);
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      // Fallback for browsers that do not support Web Share API
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
+        setIsShared(true);
+      } catch (error) {
+        console.error('Failed to copy:', error);
+        alert('Failed to copy link.');
+      }
     }
   };
 
@@ -270,7 +301,7 @@ export default function ClientEventDetail() {
           icon: isMobile ? <FastFood width={16} height={16} /> : <FastFood />,
           action: 'order',
         };
-      case 'getReserve':
+      case 'reserve':
         return {
           label: 'Reserve',
           icon: isMobile ? <ReserveIcon width={16} height={16} /> : <ReserveIcon />,
@@ -415,7 +446,7 @@ export default function ClientEventDetail() {
                   <div className="flex items-center space-x-4">
                     <button
                       className="text-sm flex items-center"
-                      onClick={() => setIsShared((prev) => !prev)}
+                      onClick={handleShare}
                       aria-label="Share"
                     >
                       <Share className={`h-5 w-5 mr-1 ${isShared ? 'text-[#0063BF]' : 'text-[#1c1c1c]/[0.2]'}`} />
