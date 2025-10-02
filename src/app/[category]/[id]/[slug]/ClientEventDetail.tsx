@@ -45,18 +45,9 @@ import {
   FastFood,
 } from "@/components/icons/SvgIcons";
 import { useAuth } from "@/contexts/AuthContext";
-import { apiService, Post } from "@/services/api";
+import { apiService, Post, Comment } from "@/services/api";
 
-interface ReviewComment {
-  id: string;
-  username: string;
-  createdAt: string;
-  rate?: number;
-  content: string;
-  userAvatar?: string;
-}
-
-const ReviewCard = ({ comment }: { comment: ReviewComment }) => (
+const ReviewCard = ({ comment }: { comment: Comment }) => (
   <div className="bg-[#f4f4f4] rounded-2xl p-4">
     <div className="flex items-center mb-2">
       <Image
@@ -213,7 +204,6 @@ export default function ClientEventDetail() {
 
   
 
-  // Use the usePostDetail hook to fetch event data
   const { loading, error, post: event } = usePostDetail(eventId);
 
   const {
@@ -222,27 +212,20 @@ export default function ClientEventDetail() {
     comments,
     refetch: refetchComments
   } = useComments(eventId);
+
+  const averageRating = React.useMemo(() => {
+    if (!comments || comments.length === 0) {
+      return 0;
+    }
+    const ratings = comments.map(c => c.rate).filter(r => r !== undefined) as number[];
+    if (ratings.length === 0) {
+      return 0;
+    }
+    const sum = ratings.reduce((acc, r) => acc + r, 0);
+    return sum / ratings.length;
+  }, [comments]);
   
   
-
-  // Memoize the filters object to prevent unnecessary API calls
-  // const similarEventsFilters = useMemo(() => ({
-  //   category: category,
-  //   limit: 6 
-  // }), [category]);
-
-  // Use usePosts hook to fetch similar events (posts in the same category)
-  // const amenities = [
-  //   { icon: <Delivery className="text-gray-500 pr-4" />, label: "Delivery" },
-  //   { icon: <Dine className="text-gray-500 pr-4" />, label: "Dine" },
-  //   { icon: <Outdoor className="text-gray-500 mr-2" />, label: "Outdoor seating" },
-  //   { icon: <Card className="text-gray-500 mr-2" />, label: "Card payment" },
-  //   { icon: <Park className="text-gray-500 mr-2" />, label: "Parking" },
-  //   { icon: <Ac className="text-gray-500 mr-2" />, label: "Air conditioner" },
-  //   { icon: <Wifi className="text-gray-500 mr-2" />, label: "Free Wi-Fi" },
-  // ];
-
-  // For now, we'll use empty array for similar events until we get the data structure
   const similarEvents: Array<{ id: string; name: string; featuredImageUrl?: string; images?: string[]; address?: string; category?: string; price?: string }> = [];
 
   const [showDesktopArrows, setShowDesktopArrows] = React.useState(false);
@@ -454,7 +437,7 @@ export default function ClientEventDetail() {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <span className="text-gray-900 font-medium text-xs">
-                        {event.category}<span className="mx-2 text-gray-400">•</span><span className="text-[#169200]">Open</span><span className="mx-2 text-gray-400">•</span>{event.price || "Free"}
+                        {event.category}<span className="mx-2 text-gray-400">•</span><span className="text-[#169200]">Open</span><span className="mx-2 text-gray-400">•</span>{event.priceRange || "Free"}
                       </span>
                       <div className="mx-2 flex items-center text-[#1C1C1C] text-xs">
                         <Location className="mr-2 text-gray-500 flex-shrink-0" width={14} height={14} />
@@ -463,9 +446,9 @@ export default function ClientEventDetail() {
                     </div>
                     <div className="flex items-center space-x-2 text-xs">
                       <div className="flex text-[#FFA300] text-xs space-x-1">
-                        {renderStars(4.5, 14)}
+                        {renderStars(averageRating, 14)}
                       </div>
-                      <span className="text-xs text-[#1C1C1C]">4.5</span>
+                      <span className="text-xs text-[#1C1C1C]">{averageRating.toFixed(1)}</span>
                       <span
                         className="text-xs text-[#0063BF] underline cursor-pointer"
                         onClick={() => setIsReviewsModalOpen(true)}
@@ -481,7 +464,11 @@ export default function ClientEventDetail() {
                           icon={<DirectionIcon width={16} height={16} />}
                           label="Direction"
                           isActive={activeActionButton === 'direction'}
-                          onClick={() => setActiveActionButton(activeActionButton === 'direction' ? null : 'direction')}
+                          onClick={() => {
+                            if (event?.googleMaps) {
+                              window.open(event.googleMaps, '_blank');
+                            }
+                          }}
                         />
                         <div className="relative">
                           <ActionButton
@@ -564,7 +551,7 @@ export default function ClientEventDetail() {
                   <div className="mb-8 order-2 md:order-1">
                     <h1 className="text-xs text-[#1c1c1c] font-semibold mb-3">About</h1>
                     <p className="text-[#1c1c1c] text-xs leading-relaxed">
-                      {event.about || "Let's Explore have the best and event location to have fun. And the website is so easy to use..."}
+                      {event.about || "No description available."}
                     </p>
                   </div>
 
@@ -773,7 +760,11 @@ export default function ClientEventDetail() {
                     icon={<DirectionIcon />}
                     label="Direction"
                     isActive={activeActionButton === 'direction'}
-                    onClick={() => setActiveActionButton(activeActionButton === 'direction' ? null : 'direction')}
+                    onClick={() => {
+                      if (event?.googleMaps) {
+                        window.open(event.googleMaps, '_blank');
+                      }
+                    }}
                   />
                   <div className="relative">
                     <ActionButton
@@ -843,19 +834,6 @@ export default function ClientEventDetail() {
                 <h2 className="text-xs text-[#1C1C1C] mb-4">Details</h2>
                 <div className="space-y-4 ml-4">
                   {/* Always show these details for all categories */}
-                  <div>
-                    <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Date</h3>
-                    <div className="flex items-center">
-                      <Image
-                        src="/images/calendar_month.png"
-                        alt="Calendar"
-                        width={16}
-                        height={16}
-                        className="mr-2 text-gray-500 flex-shrink-0"
-                      />
-                      <p className="text-xs text-[#1C1C1C]">{event.date || "TBD"}</p>
-                    </div>
-                  </div>
                   <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                   <div>
                     <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Time</h3>
@@ -875,7 +853,7 @@ export default function ClientEventDetail() {
                   <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                   <div>
                     <h3 className="text-xs font-medium text-[#1C1C1C] mb-1">Phone number</h3>
-                    <p className="text-xs text-[#0063BF]">{event.phone || "+234 900 455 9889"}</p>
+                    <p className="text-xs text-[#0063BF]">{event.phone || "N/A"}</p>
                   </div>
                   <hr className="border-t border-[#f4f4f4] my-4 w-full -ml-4" />
                   {/* Open hour always shown, now using event.openingHours if available */}
@@ -992,17 +970,6 @@ export default function ClientEventDetail() {
                       >
                         <FacebookIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">Facebook</span>
-                      </a>
-                      <a
-                        href={
-                          (event as Post).socialMedia?.twitter || '#'
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-[#007AFF]/[0.15] hover:bg-blue-100 transition-colors duration-200 p-2 rounded-lg flex-1 justify-center md:justify-start"
-                      >
-                        <TwitterIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                        <span className="text-[#1C1C1C] font-medium text-xs md:text-sm">X(Twitter)</span>
                       </a>
                     </div>
                   </div>

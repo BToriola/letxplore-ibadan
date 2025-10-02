@@ -86,7 +86,7 @@ interface Comment {
   userId: string;
   username: string;
   userAvatar?: string;
-  rating?: number;
+  rate?: number;
   createdAt: string;
   updatedAt: string;
 }
