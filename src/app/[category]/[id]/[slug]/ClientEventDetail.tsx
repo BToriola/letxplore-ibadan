@@ -11,19 +11,20 @@ import ContactModal from "@/components/ui/ContactModal";
 import LinksModal from "@/components/ui/LinksModal";
 import {
   InstagramIcon, FacebookIcon, TwitterIcon,
-  // Delivery,
-  // Dine,
-  // Outdoor,
-  // Ac,
-  // Wifi,
-  // Park,
-  // Cocktails,
-  // Cofee,
-  // Karaoke,
-  // Ambience,
-  // Salsa,
-  // Spend,
-  // NoPicture,
+  Delivery,
+  Dine,
+  Outdoor,
+  Ac,
+  Wifi,
+  Park,
+  Cocktails,
+  Cofee,
+  Karaoke,
+  Ambience,
+  Salsa,
+  Spend,
+  NoPicture,
+  Card,
   DirectionIcon,
   LinksIcon,
   ContactIcon,
@@ -184,6 +185,23 @@ const MoreDropdown = ({ isOpen, onClose, onWriteReview }: MoreDropdownProps) => 
   );
 };
 
+const amenityIconMapping: { [key: string]: React.ReactNode } = {
+  "Outdoor seating": <Outdoor className="text-gray-500 mr-2" />,
+  "Parking": <Park className="text-gray-500 mr-2" />,
+  "Air conditioner": <Ac className="text-gray-500 mr-2" />,
+  "Free Wi-Fi": <Wifi className="text-gray-500 mr-2" />,
+  "Delivery": <Delivery className="text-gray-500 pr-4" />,
+  "Dine": <Dine className="text-gray-500 pr-4" />,
+  "Card payment": <Card className="text-gray-500 mr-2" />,
+  "Cocktails": <Cocktails className="text-gray-500 mr-2" />,
+  "Coffee": <Cofee className="text-gray-500 mr-2" />,
+  "Karaoke": <Karaoke className="text-gray-500 mr-2" />,
+  "Great ambience": <Ambience className="text-gray-500 mr-2" />,
+  "Salsa": <Salsa className="text-gray-500 mr-2" />,
+  "Minimum spend of ₦50,000": <Spend className="text-gray-500 mr-2" />,
+  "No picture policy": <NoPicture className="text-gray-500 mr-2" />,
+};
+
 export default function ClientEventDetail() {
   const params = useParams();
   const eventId = params.id as string;
@@ -205,8 +223,6 @@ export default function ClientEventDetail() {
     refetch: refetchComments
   } = useComments(eventId);
   
-
-  console.log("Comments:", comments);
   
 
   // Memoize the filters object to prevent unnecessary API calls
@@ -618,31 +634,34 @@ export default function ClientEventDetail() {
                   )}
                 </div>
 
+                {event.amenities && event.amenities.length > 0 && (
+                  <div className="mb-10">
+                    <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
+                      {event.amenities.map((amenity, i) => (
+                        <div key={i} className="flex items-center">
+                          {amenityIconMapping[amenity] || <div className="w-6 h-6 mr-2" />}
+                          <span className="text-xs text-[#1c1c1c]">{amenity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {event.highlights && event.highlights.length > 0 && (
+                  <div className="mb-10">
+                    <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Highlights</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
+                      {event.highlights.map((highlight, i) => (
+                        <div key={i} className="flex items-center">
+                          <span className="text-xs text-[#1c1c1c]">{highlight}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* <div className="mb-10">
-                  <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Amenities</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
-                    {amenities.map(({ icon, label }, i) => (
-                      <div key={i} className="flex items-center">
-                        {icon}
-                        <span className="text-xs text-[#1c1c1c] px-2">{label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-10">
-                  <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Highlights</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
-                    {highlights.map(({ icon, label }, i) => (
-                      <div key={i} className="flex items-center">
-                        {icon}
-                        <span className="text-xs text-[#1c1c1c] px-2">{label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-10">
                   <h2 className="text-xs text-[#1c1c1c] mb-4 font-semibold">Perfect for</h2>
                   <ul className="list-disc pl-5 text-xs text-[#1c1c1c] space-y-1">
                     {["Proposal", "Small hangout", "Corporate events", "Dinners"].map((item, i) => (
