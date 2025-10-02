@@ -37,7 +37,7 @@ interface PostFilters {
 }
 
 interface Post {
-  type: ReactNode;
+  type?: string; // Changed from ReactNode to string
   id: string;
   name: string;
   about?: string; // Changed from description to about

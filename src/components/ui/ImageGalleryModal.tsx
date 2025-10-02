@@ -16,8 +16,6 @@ export default function ImageModal({
   selectedIndex,
   onNavigate 
 }: ImageModalProps) {
-  if (!isOpen) return null;
-
   const handlePrevious = (e: React.MouseEvent) => {
     e.stopPropagation();
     const newIndex = selectedIndex > 0 ? selectedIndex - 1 : images.length - 1;
@@ -30,22 +28,31 @@ export default function ImageModal({
     onNavigate(newIndex);
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = React.useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
-    if (e.key === 'ArrowLeft') handlePrevious(e as any);
-    if (e.key === 'ArrowRight') handleNext(e as any);
-  };
+    if (e.key === 'ArrowLeft') {
+      const newIndex = selectedIndex > 0 ? selectedIndex - 1 : images.length - 1;
+      onNavigate(newIndex);
+    }
+    if (e.key === 'ArrowRight') {
+      const newIndex = selectedIndex < images.length - 1 ? selectedIndex + 1 : 0;
+      onNavigate(newIndex);
+    }
+  }, [selectedIndex, images.length, onClose, onNavigate]);
 
   React.useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-    }
+    if (!isOpen) return;
+    
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, selectedIndex]);
+  }, [isOpen, handleKeyDown]);
+
+  if (!isOpen) return null;
 
   return (
     <div 

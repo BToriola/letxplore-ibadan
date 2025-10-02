@@ -10,7 +10,7 @@ import ReviewsModal from "@/components/ui/ReviewsModal";
 import ContactModal from "@/components/ui/ContactModal";
 import LinksModal from "@/components/ui/LinksModal";
 import {
-  InstagramIcon, FacebookIcon, TwitterIcon,
+  InstagramIcon, FacebookIcon,
   Delivery,
   Dine,
   Outdoor,

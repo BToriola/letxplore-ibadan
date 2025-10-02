@@ -204,7 +204,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts =
         id: comment.id,
         userName: comment.username,
         timeAgo,
-        rating: comment.rating || 5,
+        rating: comment.rate || 5,
         title: postTitle || 'Featured Location',
         description: comment.content,
         image: (comment as ApiComment).postImage || '/default.svg',
