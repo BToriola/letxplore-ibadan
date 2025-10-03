@@ -101,7 +101,7 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
             onClick={onClose}
         >
             <div 
-                className="bg-white rounded-t-3xl md:rounded-lg w-full h-[90vh] md:max-w-2xl md:w-full md:max-h-[90vh] overflow-hidden flex flex-col md:px-6 reviews-modal"
+                className="bg-white rounded-t-3xl md:rounded-lg w-full max-h-[90vh] md:max-w-2xl md:w-full md:max-h-[90vh] overflow-hidden flex flex-col md:px-6 reviews-modal"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -144,7 +144,7 @@ const ReviewsModal = ({ isOpen, onClose, eventId, comments, loading, error, onCo
                         placeholder="Type here"
                         value={reviewText}
                         onChange={(e) => setReviewText(e.target.value)}
-                        className="w-full text-black p-4 md:p-3 border border-gray-200 md:border-[#939393] rounded-2xl resize-none h-32 md:h-44 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 md:focus:ring-0"
+                        className="w-full text-black p-4 md:p-3 border border-gray-200 md:border-[#939393] rounded-2xl min-h-[8rem] md:h-44 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 md:focus:ring-0"
                     />
                     <button 
                         onClick={handleSubmit}
