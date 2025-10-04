@@ -108,9 +108,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           />
         </div>
 
-        {/* Hero Content Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1 md:py-3 relative z-10 pt-20 md:pt-20">
-          {/* Hero Title and Description */}
           <div 
             ref={contentRef} 
             className={`text-center text-white w-full mx-auto pt-2 transition-all duration-500 ${
@@ -121,12 +119,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               Hello {selectedLocation}
             </h1>
             <p className="text-lg md:text-xl text-white/80 mb-6 max-w-2xl mx-auto">
-              Search, discover, and connect with the best local
-              experiences powered by your community.
+              Discover and explore the best local experiences in your city.
             </p>
           </div>
           
-          {/* Category Navigation - Shows in original position when not scrolled */}
           <div className={`transition-all duration-500 mb-4 ${
             isCollapsed ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'
           }`}>

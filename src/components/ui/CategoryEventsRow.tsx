@@ -124,7 +124,7 @@ const CategoryEventsRow: React.FC<CategoryEventsRowProps> = ({ categoryName, eve
 
         <div
           ref={scrollContainerRef}
-          className={`flex ${displayEvents.length === 1 ? 'justify-start' : 'gap-6'} ${displayEvents.length > 1 ? 'gap-6' : ''} overflow-x-auto pb-5 scrollbar-hide snap-x`}
+          className={`flex ${displayEvents.length === 1 ? 'justify-start' : 'gap-3'} ${displayEvents.length > 1 ? 'gap-1' : ''} overflow-x-auto pb-5 scrollbar-hide snap-x`}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           onScroll={checkScrollPosition}
         >
