@@ -489,11 +489,11 @@ export default function ClientEventDetail() {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <span className="text-gray-900 font-medium text-xs">
-                        {event.category}<span className="mx-2 text-gray-400">•</span><span className="text-[#169200]">Open</span><span className="mx-2 text-gray-400">•</span>{event.priceRange || "Free"}
+                        {event.type}<span className="mx-2 text-gray-400">•</span><span className="text-[#169200]">Open</span><span className="mx-2 text-gray-400">•</span>{event.priceRange || "Free"}
                       </span>
                       <div className="mx-2 flex items-center text-[#1C1C1C] text-xs">
                         <Location className="mr-2 text-gray-500 flex-shrink-0" width={14} height={14} />
-                        <span className="truncate">{event.address}</span>
+                        <span className="truncate">{event.neighborhood}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 text-xs">

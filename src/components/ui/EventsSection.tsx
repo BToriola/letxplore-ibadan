@@ -27,7 +27,7 @@ const EventsSection: React.FC<EventsSectionProps> = ({
             location: `${post.neighborhood || ''}, ${post.city || 'Ibadan'}`.replace(/^, /, ''),
             price: post.price || 'Free',
             image: post.featuredImageUrl || post.galleryImageUrls?.[0] || '/default.svg',
-            category: post.category || 'Event',
+            category: post.type || 'Event',
             description: post.about || ''
         };
     }, []);
