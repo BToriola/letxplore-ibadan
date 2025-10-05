@@ -132,7 +132,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               onCategoryChange={handleCategoryChange}
               variant="hero"
               enableNavigation={true}
-            />
+            /> 
           </div>
         </div>
         
