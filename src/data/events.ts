@@ -536,5 +536,5 @@ export const sortEvents = (events: EventCardProps[], sortOrder: string): EventCa
       
     default:
       return sortedEvents;
-  }
+  } 
 };
