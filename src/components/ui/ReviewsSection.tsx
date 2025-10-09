@@ -94,41 +94,32 @@ const defaultReviews: Review[] = [
 ];
 
 const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews, groupedPosts = {}, postId }) => {
-  // State for API comments
   const [apiComments, setApiComments] = React.useState<ApiComment[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [hasInitialized, setHasInitialized] = React.useState(false);
 
-  // Get post IDs dynamically from grouped posts or fallback to known IDs
   const getPostIds = React.useCallback(() => {
     if (postId) {
       return [postId];
     }
-
-    console.log('=== DETERMINING POST IDS ===');
-    console.log('groupedPosts:', groupedPosts);
     
-    // Extract all posts from grouped posts
     const allPosts: Post[] = [];
     Object.values(groupedPosts).forEach(categoryPosts => {
       allPosts.push(...categoryPosts);
     });
     
     if (allPosts.length > 0) {
-      // Use actual API posts (limit to first 6 for performance)
       const dynamicIds = allPosts.slice(0, 6).map(post => post.id);
       console.log('Using dynamic post IDs from API:', dynamicIds);
       return dynamicIds;
     } else {
-      // Fallback to known post IDs that have comments (for development/demo)
       const fallbackIds = ['-OT8-GL2izod96I5gI8x', '-OUqHJR5qKONacoOlCwE'];
       console.log('No API posts available, using fallback IDs:', fallbackIds);
       return fallbackIds;
     }
   }, [groupedPosts, postId]);
 
-  // Fetch comments immediately when component mounts (only once)
   React.useEffect(() => {
     if (hasInitialized) {
       return;

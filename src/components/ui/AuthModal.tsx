@@ -47,6 +47,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
     setError('');
     // Guard: auth may be null if Firebase wasn't initialized (e.g. during prerender or missing env)
     if (!auth) {
+      console.log('Auth1 ', auth);
+      
       setError('Authentication service is unavailable.');
       setLoading(false);
       return;
@@ -58,9 +60,42 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
       const user = result.user;
 
       if (activeTab === 'signup') {
-        // Check if user already exists in Firestore
-          if (!db) {
-            // If Firestore isn't initialized, proceed to completion step so user can finish profile locally.
+        // Check if user already exists in Firestore. If Firestore read fails
+        // due to permission issues (e.g. restrictive rules), fall back to
+        // completion step so the user can finish their profile instead of
+        // surfacing a raw permission error.
+        if (!db) {
+          // If Firestore isn't initialized, proceed to completion step so user can finish profile locally.
+          setAuthStep('google-complete');
+          setFormData(prev => ({ 
+            ...prev, 
+            email: user.email || '',
+            fullName: user.displayName || ''
+          }));
+          setLoading(false);
+          return;
+        }
+
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+
+          if (!userDoc.exists()) {
+            // For Google signup, move to completion step to get additional info
+            setAuthStep('google-complete');
+            setFormData(prev => ({ 
+              ...prev, 
+              email: user.email || '',
+              fullName: user.displayName || ''
+            }));
+            setLoading(false);
+            return;
+          }
+        } catch (err: unknown) {
+          // Firestore permission-denied will surface as "Missing or insufficient permissions.".
+          // Treat this as "no readable user doc" and let the user complete their profile.
+          const code = typeof err === 'object' && err !== null && 'code' in err ? (err as { code?: unknown }).code : undefined;
+          const msg = typeof err === 'object' && err !== null && 'message' in err ? (err as { message?: unknown }).message : undefined;
+          if (code === 'permission-denied' || (typeof msg === 'string' && msg.includes('Missing or insufficient permissions'))) {
             setAuthStep('google-complete');
             setFormData(prev => ({ 
               ...prev, 
@@ -71,18 +106,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
             return;
           }
 
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-        
-          if (!userDoc.exists()) {
-          // For Google signup, move to completion step to get additional info
-          setAuthStep('google-complete');
-          setFormData(prev => ({ 
-            ...prev, 
-            email: user.email || '',
-            fullName: user.displayName || ''
-          }));
-          setLoading(false);
-          return;
+          // Re-throw unexpected errors so the outer catch can handle them.
+          throw err;
         }
       }
       
@@ -90,8 +115,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
       onAuthenticated();
       onClose();
     } catch (error: unknown) {
-      const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: unknown }).message : undefined;
-      setError(typeof message === 'string' ? message : 'Google authentication failed');
+      const code = typeof error === 'object' && error !== null && 'code' in error ? (error as { code?: unknown }).code : undefined;
+      if (code === 'auth/account-exists-with-different-credential') {
+        setError('An account already exists with this email. Please sign in with your original method.');
+      } else {
+        const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: unknown }).message : undefined;
+        setError(typeof message === 'string' ? message : 'Google authentication failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -104,6 +134,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
 
     // Guard: ensure auth and db are available before calling Firebase APIs
     if (!auth || !db) {
+      console.log('Auth2 ', auth);
+      console.log('DB2 ', db);
       setError('Authentication service is unavailable.');
       setLoading(false);
       return;
@@ -484,6 +516,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
               try {
                 // Guard: ensure auth and db are still available
                 if (!auth || !db) {
+                        console.log('Auth3 ', auth);
+                        console.log('DB3 ', db);
                   setError('Authentication service is unavailable.');
                   setLoading(false);
                   return;
@@ -505,11 +539,58 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
                     provider: 'google'
                   };
 
-                  // Save to Firestore
-                  await setDoc(doc(db, "users", user.uid), userData);
-                  
-                  // Save to Realtime Database
-                  await set(ref(rtdb, `users/${user.uid}`), userData);                  onAuthenticated();
+                  // Save to Firestore. If Firestore write is blocked by security
+                  // rules (permission-denied), attempt to save to Realtime
+                  // Database instead. If both fail, show a friendly message.
+                  let wroteToAny = false;
+                  try {
+                    await setDoc(doc(db, "users", user.uid), userData);
+                    wroteToAny = true;
+                  } catch (writeErr: unknown) {
+                    const writeCode = typeof writeErr === 'object' && writeErr !== null && 'code' in writeErr ? (writeErr as { code?: unknown }).code : undefined;
+                    const writeMsg = typeof writeErr === 'object' && writeErr !== null && 'message' in writeErr ? (writeErr as { message?: unknown }).message : undefined;
+                    // If Firestore rules prevent the write, try RTDB as a fallback.
+                    if (writeCode === 'permission-denied' || (typeof writeMsg === 'string' && writeMsg.includes('Missing or insufficient permissions'))) {
+                      console.warn('Firestore write denied, attempting Realtime Database fallback', writeErr);
+                      try {
+                        await set(ref(rtdb, `users/${user.uid}`), userData);
+                        wroteToAny = true;
+                      } catch (rtdbErr: unknown) {
+                        const rtdbCode = typeof rtdbErr === 'object' && rtdbErr !== null && 'code' in rtdbErr ? (rtdbErr as { code?: unknown }).code : undefined;
+                        const rtdbMsg = typeof rtdbErr === 'object' && rtdbErr !== null && 'message' in rtdbErr ? (rtdbErr as { message?: unknown }).message : undefined;
+                        if (rtdbCode === 'permission-denied' || (typeof rtdbMsg === 'string' && rtdbMsg.includes('Missing or insufficient permissions'))) {
+                          console.error('Both Firestore and RTDB writes were denied by security rules', rtdbErr);
+                          setError('Unable to save your profile due to backend permissions. Please try signing in instead or contact support.');
+                          setLoading(false);
+                          return;
+                        }
+                        // rethrow unexpected RTDB errors
+                        throw rtdbErr;
+                      }
+                    } else {
+                      // rethrow unexpected Firestore errors
+                      throw writeErr;
+                    }
+                  }
+
+                  // If Firestore write succeeded, still attempt RTDB write but don't block the flow on a RTDB permission error.
+                  if (wroteToAny) {
+                    try {
+                      await set(ref(rtdb, `users/${user.uid}`), userData);
+                    } catch (rtdbErr: unknown) {
+                      const rtdbCode = typeof rtdbErr === 'object' && rtdbErr !== null && 'code' in rtdbErr ? (rtdbErr as { code?: unknown }).code : undefined;
+                      const rtdbMsg = typeof rtdbErr === 'object' && rtdbErr !== null && 'message' in rtdbErr ? (rtdbErr as { message?: unknown }).message : undefined;
+                      if (rtdbCode === 'permission-denied' || (typeof rtdbMsg === 'string' && rtdbMsg.includes('Missing or insufficient permissions'))) {
+                        // Log and continue - Firestore already holds the user data.
+                        console.warn('Realtime Database write denied, but Firestore write succeeded', rtdbErr);
+                      } else {
+                        // rethrow unexpected RTDB errors
+                        throw rtdbErr;
+                      }
+                    }
+                  }
+
+                  onAuthenticated();
                   onClose();
                 }
               } catch (error: unknown) {
