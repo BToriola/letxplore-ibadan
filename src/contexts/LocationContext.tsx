@@ -22,22 +22,23 @@ interface LocationProviderProps {
 }
 
 export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) => {
-  const [selectedLocation, setSelectedLocationState] = useState<string | undefined>(undefined);
-
-  // On mount, initialize from localStorage if available, else leave undefined
-  useEffect(() => {
+  // Initialize synchronously from localStorage when running in the browser so
+  // consumers (client components) have the correct value on first render.
+  const [selectedLocation, setSelectedLocationState] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('selectedLocation');
-      if (stored) {
-        setSelectedLocationState(stored);
-      }
+      return localStorage.getItem('selectedLocation') ?? '';
     }
-  }, []);
+    return '';
+  });
 
   // Whenever selectedLocation changes, update localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined' && selectedLocation) {
-      localStorage.setItem('selectedLocation', selectedLocation);
+    if (typeof window !== 'undefined') {
+      if (selectedLocation) {
+        localStorage.setItem('selectedLocation', selectedLocation);
+      } else {
+        localStorage.removeItem('selectedLocation');
+      }
     }
   }, [selectedLocation]);
 
