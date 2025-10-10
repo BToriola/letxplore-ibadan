@@ -33,7 +33,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       const position = window.scrollY;
       
       // Determine if hero content should collapse
-      if (position > 100) {
+      if (position > 10) {
         setIsCollapsed(true);
       } else {
         setIsCollapsed(false);
@@ -80,7 +80,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       {/* Fixed Hero Section with dynamic height */}
       <section 
         ref={heroRef} 
-        className="fixed top-0 left-0 right-0 overflow-hidden bg-blue-800 z-50 transition-all duration-500"
+        className="fixed top-0 left-0 right-0 overflow-hidden bg-blue-800 z-50 transition-all duration-[1500ms] ease-in-out"
         style={{ 
           height: isCollapsed ? `${collapsedHeight}px` : 'auto',
           boxShadow: isCollapsed ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
@@ -92,7 +92,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
         
         {/* Background Image */}
-        <div className={`transition-all duration-500 ${isCollapsed ? 'mt-0' : 'mt-8 md:mt-16'}`}>
+        <div className={`transition-all duration-[1500ms] ease-in-out ${isCollapsed ? 'mt-0' : 'mt-8 md:mt-16'}`}>
           {/* Transparent overlay to avoid a dark strip showing between sections */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-transparent z-10"></div>
           <Image
@@ -101,7 +101,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             fill
             priority
             sizes="100vw"
-            className={`object-cover object-center transition-all duration-500 ${
+            className={`object-cover object-center transition-all duration-[1500ms] ease-in-out ${
               isCollapsed ? 'object-center' : 'object-center md:object-bottom'
             } opacity-80`}
             draggable="false"
@@ -111,7 +111,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1 md:py-3 relative z-10 pt-20 md:pt-20">
           <div 
             ref={contentRef} 
-            className={`text-center text-white w-full mx-auto pt-2 transition-all duration-500 ${
+            className={`text-center text-white w-full mx-auto pt-2 transition-all duration-[1500ms] ease-in-out ${
               isCollapsed ? 'opacity-0 transform -translate-y-10 h-0 overflow-hidden' : 'opacity-100'
             }`}
           >
@@ -123,7 +123,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             </p>
           </div>
           
-          <div className={`transition-all duration-500 mb-4 ${
+          <div className={`transition-all duration-[1500ms] ease-in-out mb-4 ${
             isCollapsed ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'
           }`}>
             <CategoryNavigation
@@ -136,7 +136,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
         </div>
         
-        <div className={`absolute top-16 md:top-32 left-0 right-0 transition-all duration-500 z-20 ${
+        <div className={`absolute top-16 md:top-32 left-0 right-0 transition-all duration-[1500ms] ease-in-out z-20 ${
           isCollapsed ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-10 pointer-events-none'
         }`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-3">
@@ -155,7 +155,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       <div 
         style={{ 
           height: isCollapsed ? `${collapsedHeight}px` : `${heroHeight}px`,
-          transition: 'height 0.5s'
+          transition: 'height 1.5s ease-in-out'
         }} 
         className="relative z-0"
       ></div>

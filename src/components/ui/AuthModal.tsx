@@ -25,7 +25,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   // Form states
   const [formData, setFormData] = useState({
     fullName: '',
@@ -45,10 +45,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
   const handleGoogleAuth = async () => {
     setLoading(true);
     setError('');
-    // Guard: auth may be null if Firebase wasn't initialized (e.g. during prerender or missing env)
     if (!auth) {
       console.log('Auth1 ', auth);
-      
+
       setError('Authentication service is unavailable.');
       setLoading(false);
       return;
@@ -60,15 +59,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
       const user = result.user;
 
       if (activeTab === 'signup') {
-        // Check if user already exists in Firestore. If Firestore read fails
-        // due to permission issues (e.g. restrictive rules), fall back to
-        // completion step so the user can finish their profile instead of
-        // surfacing a raw permission error.
         if (!db) {
-          // If Firestore isn't initialized, proceed to completion step so user can finish profile locally.
           setAuthStep('google-complete');
-          setFormData(prev => ({ 
-            ...prev, 
+          setFormData(prev => ({
+            ...prev,
             email: user.email || '',
             fullName: user.displayName || ''
           }));
@@ -80,10 +74,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
           const userDoc = await getDoc(doc(db, "users", user.uid));
 
           if (!userDoc.exists()) {
-            // For Google signup, move to completion step to get additional info
             setAuthStep('google-complete');
-            setFormData(prev => ({ 
-              ...prev, 
+            setFormData(prev => ({
+              ...prev,
               email: user.email || '',
               fullName: user.displayName || ''
             }));
@@ -91,26 +84,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
             return;
           }
         } catch (err: unknown) {
-          // Firestore permission-denied will surface as "Missing or insufficient permissions.".
-          // Treat this as "no readable user doc" and let the user complete their profile.
+
           const code = typeof err === 'object' && err !== null && 'code' in err ? (err as { code?: unknown }).code : undefined;
           const msg = typeof err === 'object' && err !== null && 'message' in err ? (err as { message?: unknown }).message : undefined;
           if (code === 'permission-denied' || (typeof msg === 'string' && msg.includes('Missing or insufficient permissions'))) {
             setAuthStep('google-complete');
-            setFormData(prev => ({ 
-              ...prev, 
+            setFormData(prev => ({
+              ...prev,
               email: user.email || '',
               fullName: user.displayName || ''
             }));
             setLoading(false);
             return;
           }
-
-          // Re-throw unexpected errors so the outer catch can handle them.
           throw err;
         }
       }
-      
+
       // For signin or existing user, directly authenticate
       onAuthenticated();
       onClose();
@@ -143,49 +133,38 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
 
     try {
       if (activeTab === 'signup') {
-        // Signup functionality
         const { fullName, email, phoneNumber, password, confirmPassword, city } = formData;
 
-        // Validate passwords match
         if (password !== confirmPassword) {
           setError('Passwords do not match');
           setLoading(false);
           return;
         }
 
-  // 1. Create user in Firebase Auth
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // 2. Update profile with full name
         await updateProfile(user, { displayName: fullName });
 
-  // 3. Store additional info in Firestore and Realtime Database
-  if (!db) throw new Error('Firestore not initialized');
-  if (!rtdb) throw new Error('Realtime Database not initialized');
+        if (!db) throw new Error('Firestore not initialized');
+        if (!rtdb) throw new Error('Realtime Database not initialized');
 
-  const userData = {
-    fullname: fullName,
-    email,
-    phone: phoneNumber,
-    city,
-    uid: user.uid,
-    createdAt: new Date().toISOString(),
-  };
+        const userData = {
+          fullname: fullName,
+          email,
+          phone: phoneNumber,
+          city,
+          uid: user.uid,
+          createdAt: new Date().toISOString(),
+        };
 
-  // // Save to Firestore
-  // await setDoc(doc(db, "users", user.uid), userData);
-  
-  // Save to Realtime Database
-  await set(ref(rtdb, `users/${user.uid}`), userData);
-
+        await set(ref(rtdb, `users/${user.uid}`), userData);
         onAuthenticated();
         onClose();
       } else {
-  // Signin functionality
-  const { email, password } = formData;
-  await signInWithEmailAndPassword(auth, email, password);
-        
+        const { email, password } = formData;
+        await signInWithEmailAndPassword(auth, email, password);
+
         onAuthenticated();
         onClose();
       }
@@ -243,7 +222,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
       document.body.style.position = '';
       document.body.style.width = '';
     }
-    
+
     return () => {
       document.body.style.overflow = '';
       document.body.style.position = '';
@@ -255,80 +234,249 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
 
   return (
     <Portal>
-      <div 
+      <div
         className="fixed inset-0 bg-black bg-opacity-80 flex items-start sm:items-center justify-center p-4 sm:p-6 pt-20 sm:pt-6"
         onClick={handleClose}
-        style={{ 
-          position: 'fixed', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
           bottom: 0,
           zIndex: 999999,
           pointerEvents: 'auto'
         }}
       >
-        <div 
+        <div
           className="bg-white rounded-lg w-full max-w-md max-h-[80vh] sm:max-h-[90vh] overflow-y-auto relative mx-auto shadow-2xl"
           onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-            {authStep === 'google-complete' ? 'Complete Your Profile' : 'Welcome'}
-          </h2>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <FiX className="w-5 h-5" />
-          </button>
-        </div>
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+              {authStep === 'google-complete' ? 'Complete Your Profile' : 'Welcome'}
+            </h2>
+            <button
+              onClick={handleClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
 
-        {authStep === 'auth' && (
-          <>
-            {/* Tabs */}
-            <div className="flex border-b">
-              <button
-                onClick={() => handleTabSwitch('signin')}
-                className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
-                  activeTab === 'signin'
-                    ? 'text-[#0063BF] border-b-2 border-[#0063BF]'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => handleTabSwitch('signup')}
-                className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
-                  activeTab === 'signup'
-                    ? 'text-[#0063BF] border-b-2 border-[#0063BF]'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Sign Up
-              </button>
-            </div>
+          {authStep === 'auth' && (
+            <>
+              {/* Tabs */}
+              <div className="flex border-b">
+                <button
+                  onClick={() => handleTabSwitch('signin')}
+                  className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${activeTab === 'signin'
+                      ? 'text-[#0063BF] border-b-2 border-[#0063BF]'
+                      : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => handleTabSwitch('signup')}
+                  className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${activeTab === 'signup'
+                      ? 'text-[#0063BF] border-b-2 border-[#0063BF]'
+                      : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                  Sign Up
+                </button>
+              </div>
 
-            {/* Content */}
+              {/* Content */}
+              <div className="p-4 sm:p-6">
+                {/* Google Auth Button */}
+                <button
+                  onClick={handleGoogleAuth}
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FcGoogle className="w-5 h-5" />
+                  <span className="font-medium text-gray-700">
+                    {loading ? 'Processing...' : 'Continue with Google'}
+                  </span>
+                </button>
+
+                <div className="relative flex items-center justify-center mb-4">
+                  <div className="border-t border-gray-300 w-full"></div>
+                  <span className="bg-white px-3 text-sm text-gray-500">or</span>
+                  <div className="border-t border-gray-300 w-full"></div>
+                </div>
+
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-600">{error}</p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {activeTab === 'signup' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.fullName}
+                        onChange={(e) => handleInputChange('fullName', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
+                        placeholder="Enter your full name"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </div>
+
+                  {activeTab === 'signup' && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          value={formData.phoneNumber}
+                          onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
+                          placeholder="Enter your phone number"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          City
+                        </label>
+                        <select
+                          value={formData.city}
+                          onChange={(e) => handleInputChange('city', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
+                          required
+                        >
+                          <option value="">Select your city</option>
+                          {cities.map((city) => (
+                            <option key={city} value={city}>
+                              {city}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
+                        placeholder="Enter your password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {activeTab === 'signup' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Confirm Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={formData.confirmPassword}
+                          onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
+                          placeholder="Confirm your password"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          {showConfirmPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-[#0063BF] text-white py-3 px-4 rounded-lg hover:bg-[#0056a3] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading
+                      ? (activeTab === 'signin' ? 'Signing In...' : 'Creating Account...')
+                      : (activeTab === 'signin' ? 'Sign In' : 'Create Account')
+                    }
+                  </button>
+                </form>
+
+                {/* Switch tab link */}
+                <p className="text-center text-sm text-gray-600 mt-4">
+                  {activeTab === 'signin' ? (
+                    <>
+                      Don&apos;t have an account?{' '}
+                      <button
+                        onClick={() => handleTabSwitch('signup')}
+                        className="text-[#0063BF] hover:underline font-medium"
+                      >
+                        Sign up
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      Already have an account?{' '}
+                      <button
+                        onClick={() => handleTabSwitch('signin')}
+                        className="text-[#0063BF] hover:underline font-medium"
+                      >
+                        Sign in
+                      </button>
+                    </>
+                  )}
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Google Sign Up Completion */}
+          {authStep === 'google-complete' && (
             <div className="p-4 sm:p-6">
-              {/* Google Auth Button */}
-              <button
-                onClick={handleGoogleAuth}
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <FcGoogle className="w-5 h-5" />
-                <span className="font-medium text-gray-700">
-                  {loading ? 'Processing...' : 'Continue with Google'}
-                </span>
-              </button>
-
-              <div className="relative flex items-center justify-center mb-4">
-                <div className="border-t border-gray-300 w-full"></div>
-                <span className="bg-white px-3 text-sm text-gray-500">or</span>
-                <div className="border-t border-gray-300 w-full"></div>
+              <div className="mb-4">
+                <p className="text-sm text-gray-600">
+                  Please complete your profile to continue
+                </p>
               </div>
 
               {error && (
@@ -337,22 +485,111 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {activeTab === 'signup' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.fullName}
-                      onChange={(e) => handleInputChange('fullName', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                      placeholder="Enter your full name"
-                      required
-                    />
-                  </div>
-                )}
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+
+                try {
+                  // Guard: ensure auth and db are still available
+                  if (!auth || !db) {
+                    console.log('Auth3 ', auth);
+                    console.log('DB3 ', db);
+                    setError('Authentication service is unavailable.');
+                    setLoading(false);
+                    return;
+                  }
+
+                  const user = auth.currentUser;
+                  if (user) {
+                    // Store additional info in Firestore
+                    if (!db) throw new Error('Firestore not initialized');
+                    if (!rtdb) throw new Error('Realtime Database not initialized');
+
+                    const userData = {
+                      fullname: formData.fullName,
+                      email: formData.email,
+                      phone: formData.phoneNumber,
+                      city: formData.city,
+                      uid: user.uid,
+                      createdAt: new Date().toISOString(),
+                      provider: 'google'
+                    };
+
+                    // Save to Firestore. If Firestore write is blocked by security
+                    // rules (permission-denied), attempt to save to Realtime
+                    // Database instead. If both fail, show a friendly message.
+                    let wroteToAny = false;
+                    try {
+                      await setDoc(doc(db, "users", user.uid), userData);
+                      wroteToAny = true;
+                    } catch (writeErr: unknown) {
+                      const writeCode = typeof writeErr === 'object' && writeErr !== null && 'code' in writeErr ? (writeErr as { code?: unknown }).code : undefined;
+                      const writeMsg = typeof writeErr === 'object' && writeErr !== null && 'message' in writeErr ? (writeErr as { message?: unknown }).message : undefined;
+                      // If Firestore rules prevent the write, try RTDB as a fallback.
+                      if (writeCode === 'permission-denied' || (typeof writeMsg === 'string' && writeMsg.includes('Missing or insufficient permissions'))) {
+                        console.warn('Firestore write denied, attempting Realtime Database fallback', writeErr);
+                        try {
+                          await set(ref(rtdb, `users/${user.uid}`), userData);
+                          wroteToAny = true;
+                        } catch (rtdbErr: unknown) {
+                          const rtdbCode = typeof rtdbErr === 'object' && rtdbErr !== null && 'code' in rtdbErr ? (rtdbErr as { code?: unknown }).code : undefined;
+                          const rtdbMsg = typeof rtdbErr === 'object' && rtdbErr !== null && 'message' in rtdbErr ? (rtdbErr as { message?: unknown }).message : undefined;
+                          if (rtdbCode === 'permission-denied' || (typeof rtdbMsg === 'string' && rtdbMsg.includes('Missing or insufficient permissions'))) {
+                            console.error('Both Firestore and RTDB writes were denied by security rules', rtdbErr);
+                            setError('Unable to save your profile due to backend permissions. Please try signing in instead or contact support.');
+                            setLoading(false);
+                            return;
+                          }
+                          // rethrow unexpected RTDB errors
+                          throw rtdbErr;
+                        }
+                      } else {
+                        // rethrow unexpected Firestore errors
+                        throw writeErr;
+                      }
+                    }
+
+                    // If Firestore write succeeded, still attempt RTDB write but don't block the flow on a RTDB permission error.
+                    if (wroteToAny) {
+                      try {
+                        await set(ref(rtdb, `users/${user.uid}`), userData);
+                      } catch (rtdbErr: unknown) {
+                        const rtdbCode = typeof rtdbErr === 'object' && rtdbErr !== null && 'code' in rtdbErr ? (rtdbErr as { code?: unknown }).code : undefined;
+                        const rtdbMsg = typeof rtdbErr === 'object' && rtdbErr !== null && 'message' in rtdbErr ? (rtdbErr as { message?: unknown }).message : undefined;
+                        if (rtdbCode === 'permission-denied' || (typeof rtdbMsg === 'string' && rtdbMsg.includes('Missing or insufficient permissions'))) {
+                          // Log and continue - Firestore already holds the user data.
+                          console.warn('Realtime Database write denied, but Firestore write succeeded', rtdbErr);
+                        } else {
+                          // rethrow unexpected RTDB errors
+                          throw rtdbErr;
+                        }
+                      }
+                    }
+
+                    onAuthenticated();
+                    onClose();
+                  }
+                } catch (error: unknown) {
+                  const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: unknown }).message : undefined;
+                  setError(typeof message === 'string' ? message : 'Failed to complete registration');
+                } finally {
+                  setLoading(false);
+                }
+              }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.fullName}
+                    onChange={(e) => handleInputChange('fullName', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -361,316 +598,56 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
                   <input
                     type="email"
                     value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-black"
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                    placeholder="Enter your email"
+                    placeholder="Enter your phone number"
                     required
                   />
                 </div>
 
-                {activeTab === 'signup' && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        value={formData.phoneNumber}
-                        onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                        placeholder="Enter your phone number"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        City
-                      </label>
-                      <select
-                        value={formData.city}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                        required
-                      >
-                        <option value="">Select your city</option>
-                        {cities.map((city) => (
-                          <option key={city} value={city}>
-                            {city}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </>
-                )}
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
+                    City
                   </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={formData.password}
-                      onChange={(e) => handleInputChange('password', e.target.value)}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                      placeholder="Enter your password"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-                    </button>
-                  </div>
+                  <select
+                    value={formData.city}
+                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
+                    required
+                  >
+                    <option value="">Select your city</option>
+                    {cities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-
-                {activeTab === 'signup' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Confirm Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        value={formData.confirmPassword}
-                        onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                        placeholder="Confirm your password"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showConfirmPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-                )}
 
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full bg-[#0063BF] text-white py-3 px-4 rounded-lg hover:bg-[#0056a3] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading 
-                    ? (activeTab === 'signin' ? 'Signing In...' : 'Creating Account...') 
-                    : (activeTab === 'signin' ? 'Sign In' : 'Create Account')
-                  }
+                  {loading ? 'Completing Registration...' : 'Complete Registration'}
                 </button>
               </form>
-
-              {/* Switch tab link */}
-              <p className="text-center text-sm text-gray-600 mt-4">
-                {activeTab === 'signin' ? (
-                  <>
-                    Don&apos;t have an account?{' '}
-                    <button
-                      onClick={() => handleTabSwitch('signup')}
-                      className="text-[#0063BF] hover:underline font-medium"
-                    >
-                      Sign up
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    Already have an account?{' '}
-                    <button
-                      onClick={() => handleTabSwitch('signin')}
-                      className="text-[#0063BF] hover:underline font-medium"
-                    >
-                      Sign in
-                    </button>
-                  </>
-                )}
-              </p>
             </div>
-          </>
-        )}
-
-        {/* Google Sign Up Completion */}
-        {authStep === 'google-complete' && (
-          <div className="p-4 sm:p-6">
-            <div className="mb-4">
-              <p className="text-sm text-gray-600">
-                Please complete your profile to continue
-              </p>
-            </div>
-
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              setLoading(true);
-              setError('');
-
-              try {
-                // Guard: ensure auth and db are still available
-                if (!auth || !db) {
-                        console.log('Auth3 ', auth);
-                        console.log('DB3 ', db);
-                  setError('Authentication service is unavailable.');
-                  setLoading(false);
-                  return;
-                }
-
-                const user = auth.currentUser;
-                    if (user) {
-                      // Store additional info in Firestore
-                  if (!db) throw new Error('Firestore not initialized');
-                  if (!rtdb) throw new Error('Realtime Database not initialized');
-
-                  const userData = {
-                    fullname: formData.fullName,
-                    email: formData.email,
-                    phone: formData.phoneNumber,
-                    city: formData.city,
-                    uid: user.uid,
-                    createdAt: new Date().toISOString(),
-                    provider: 'google'
-                  };
-
-                  // Save to Firestore. If Firestore write is blocked by security
-                  // rules (permission-denied), attempt to save to Realtime
-                  // Database instead. If both fail, show a friendly message.
-                  let wroteToAny = false;
-                  try {
-                    await setDoc(doc(db, "users", user.uid), userData);
-                    wroteToAny = true;
-                  } catch (writeErr: unknown) {
-                    const writeCode = typeof writeErr === 'object' && writeErr !== null && 'code' in writeErr ? (writeErr as { code?: unknown }).code : undefined;
-                    const writeMsg = typeof writeErr === 'object' && writeErr !== null && 'message' in writeErr ? (writeErr as { message?: unknown }).message : undefined;
-                    // If Firestore rules prevent the write, try RTDB as a fallback.
-                    if (writeCode === 'permission-denied' || (typeof writeMsg === 'string' && writeMsg.includes('Missing or insufficient permissions'))) {
-                      console.warn('Firestore write denied, attempting Realtime Database fallback', writeErr);
-                      try {
-                        await set(ref(rtdb, `users/${user.uid}`), userData);
-                        wroteToAny = true;
-                      } catch (rtdbErr: unknown) {
-                        const rtdbCode = typeof rtdbErr === 'object' && rtdbErr !== null && 'code' in rtdbErr ? (rtdbErr as { code?: unknown }).code : undefined;
-                        const rtdbMsg = typeof rtdbErr === 'object' && rtdbErr !== null && 'message' in rtdbErr ? (rtdbErr as { message?: unknown }).message : undefined;
-                        if (rtdbCode === 'permission-denied' || (typeof rtdbMsg === 'string' && rtdbMsg.includes('Missing or insufficient permissions'))) {
-                          console.error('Both Firestore and RTDB writes were denied by security rules', rtdbErr);
-                          setError('Unable to save your profile due to backend permissions. Please try signing in instead or contact support.');
-                          setLoading(false);
-                          return;
-                        }
-                        // rethrow unexpected RTDB errors
-                        throw rtdbErr;
-                      }
-                    } else {
-                      // rethrow unexpected Firestore errors
-                      throw writeErr;
-                    }
-                  }
-
-                  // If Firestore write succeeded, still attempt RTDB write but don't block the flow on a RTDB permission error.
-                  if (wroteToAny) {
-                    try {
-                      await set(ref(rtdb, `users/${user.uid}`), userData);
-                    } catch (rtdbErr: unknown) {
-                      const rtdbCode = typeof rtdbErr === 'object' && rtdbErr !== null && 'code' in rtdbErr ? (rtdbErr as { code?: unknown }).code : undefined;
-                      const rtdbMsg = typeof rtdbErr === 'object' && rtdbErr !== null && 'message' in rtdbErr ? (rtdbErr as { message?: unknown }).message : undefined;
-                      if (rtdbCode === 'permission-denied' || (typeof rtdbMsg === 'string' && rtdbMsg.includes('Missing or insufficient permissions'))) {
-                        // Log and continue - Firestore already holds the user data.
-                        console.warn('Realtime Database write denied, but Firestore write succeeded', rtdbErr);
-                      } else {
-                        // rethrow unexpected RTDB errors
-                        throw rtdbErr;
-                      }
-                    }
-                  }
-
-                  onAuthenticated();
-                  onClose();
-                }
-              } catch (error: unknown) {
-                const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: unknown }).message : undefined;
-                setError(typeof message === 'string' ? message : 'Failed to complete registration');
-              } finally {
-                setLoading(false);
-              }
-            }} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.fullName}
-                  onChange={(e) => handleInputChange('fullName', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                  placeholder="Enter your full name"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-black"
-                  disabled
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  value={formData.phoneNumber}
-                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                  placeholder="Enter your phone number"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  City
-                </label>
-                <select
-                  value={formData.city}
-                  onChange={(e) => handleInputChange('city', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0063BF] focus:border-transparent text-black"
-                  required
-                >
-                  <option value="">Select your city</option>
-                  {cities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-[#0063BF] text-white py-3 px-4 rounded-lg hover:bg-[#0056a3] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Completing Registration...' : 'Complete Registration'}
-              </button>
-            </form>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
     </Portal>
   );
 };

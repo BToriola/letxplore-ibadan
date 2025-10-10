@@ -124,7 +124,7 @@ const Header = () => {
         setIsProfileDropdownOpen(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -138,14 +138,14 @@ const Header = () => {
   }, [isSearchExpanded]);
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-50">
+    // make header fixed so hero can measure it and sticky elements calculate offsets
+    <header className="fixed top-0 left-0 right-0 z-50 hero-header">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className={`bg-black/10 backdrop-blur-4xl rounded-full ${isSearchExpanded ? 'px-0' : 'px-4 md:px-2 lg:px-3'}`}>
           <div className="flex items-center h-16 lg:h-20 relative md:justify-between">
             <div
-              className={`relative transition-opacity duration-300 ${
-                isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
-              }`}
+              className={`relative transition-opacity duration-300 ${isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
+                }`}
               ref={dropdownRef}
             >
               <div
@@ -174,9 +174,8 @@ const Header = () => {
                   {cities.map((location) => (
                     <div
                       key={location}
-                      className={`px-4 py-3 text-white cursor-pointer hover:bg-blue-900/50 ${
-                        location === selectedLocation ? 'bg-blue-900/30' : ''
-                      }`}
+                      className={`px-4 py-3 text-white cursor-pointer hover:bg-blue-900/50 ${location === selectedLocation ? 'bg-blue-900/30' : ''
+                        }`}
                       onClick={() => {
                         setSelectedLocation(location);
                         setIsDropdownOpen(false);
@@ -195,11 +194,10 @@ const Header = () => {
 
             {/* Search Bar */}
             <div
-              className={`transition-all duration-300 ease-in-out ${
-                isSearchExpanded
+              className={`transition-all duration-300 ease-in-out ${isSearchExpanded
                   ? 'absolute left-6 right-6 z-10 w-auto'
                   : 'flex-1 max-w-[110px] xs:max-w-xs sm:max-w-md ml-auto mr-0.5 md:-ml-10 md:mr-3 lg:max-w-[700px] relative md:flex  md:flex-1 md:max-w-md '
-              }`}
+                }`}
               ref={searchRef}
             >
               <div className={`relative ${isSearchExpanded ? 'w-full' : 'w-full md:w-[480px]'}`}>
@@ -226,15 +224,14 @@ const Header = () => {
                       setIsSearchExpanded(true);
                     }
                   }}
-                  className={`w-full ${
-                    isSearchExpanded ? 'py-3' : 'py-0.5 md:py-3'
-                  } px-3 lg:px-4 bg-transparent border border-white text-white placeholder-white/75 rounded-full focus:outline-none focus:ring-white/50 shadow-sm text-base placeholder:text-xs lg:placeholder:text-sm  focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF]`}
-                  style={{ 
+                  className={`w-full ${isSearchExpanded ? 'py-3' : 'py-0.5 md:py-3'
+                    } px-3 lg:px-4 bg-transparent border border-white text-white placeholder-white/75 rounded-full focus:outline-none focus:ring-white/50 shadow-sm text-base placeholder:text-xs lg:placeholder:text-sm  focus:ring-1 focus:ring-white lg:focus:ring-[#0063BF]`}
+                  style={{
                     maxWidth: '100%',
                     fontSize: '16px'
                   }}
                 />
-                            <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-white lg:hidden" />
+                <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-white lg:hidden" />
 
                 {showSuggestions && suggestions.length > 0 && (
                   <div className="absolute left-0 right-0 mt-1 py-1 bg-[#1a365d]/95 backdrop-blur-sm rounded-lg shadow-lg z-50 max-h-60 overflow-auto">
@@ -261,9 +258,8 @@ const Header = () => {
 
             {/* Auth Section */}
             <div
-              className={`flex items-center space-x-2 md:space-x-0 ml-2 transition-opacity duration-300 ${
-                isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
-              }`}
+              className={`flex items-center space-x-2 md:space-x-0 ml-2 transition-opacity duration-300 ${isSearchExpanded ? 'opacity-0 invisible absolute md:opacity-100 md:visible md:relative' : 'opacity-100 visible'
+                }`}
             >
               {!isAuthenticated ? (
                 <button
