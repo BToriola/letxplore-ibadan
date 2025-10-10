@@ -169,8 +169,25 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthenticated 
         onClose();
       }
     } catch (error: unknown) {
+      // Provide clearer error messages for common Firebase auth errors and log the full error
+      // so it's easier to debug issues like auth/invalid-credential.
+      console.error('Authentication error:', error);
+
+      const code = typeof error === 'object' && error !== null && 'code' in error ? (error as { code?: unknown }).code : undefined;
       const message = typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: unknown }).message : undefined;
-      setError(typeof message === 'string' ? message : 'An error occurred during authentication');
+
+      let userMessage = 'An error occurred during authentication';
+
+      if (code === 'auth/invalid-email') userMessage = 'The email address is not valid.';
+      else if (code === 'auth/user-disabled') userMessage = 'This user account has been disabled.';
+      else if (code === 'auth/user-not-found') userMessage = 'No user found with the provided email.';
+      else if (code === 'auth/wrong-password') userMessage = 'Incorrect password. Please try again.';
+      else if (code === 'auth/invalid-credential') userMessage = 'Invalid credentials. Please check your login method and try again.';
+      else if (code === 'auth/weak-password') userMessage = 'The password is too weak. Please use a stronger password.';
+      else if (code === 'auth/email-already-in-use') userMessage = 'The email address is already in use by another account.';
+      else if (typeof message === 'string' && message) userMessage = message;
+
+      setError(userMessage);
     } finally {
       setLoading(false);
     }
